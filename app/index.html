@@ -8,6 +8,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://trakx-api.onrender.com https://vintedspy-api.onrender.com https://apwedqsklyzroeyrokqb.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com;">
 <title>Trakx - Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -261,8 +262,8 @@ tailwind.config = {
 <div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-6 hidden" style="background:var(--bg);">
   <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm">
     <div class="flex items-center gap-2 mb-6">
-      <span class="text-2xl">📡</span>
-      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:var(--pri);">Trakx</span>
+      <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);">Trak<span style="color:var(--pri);">x</span></span>
     </div>
     <h2 class="mb-1" id="auth-title" style="font-size:1.1rem;">Connexion</h2>
     <p class="text-sm mb-5" id="auth-subtitle" style="color:var(--muted);">Accède à ton tableau de bord.</p>
@@ -299,8 +300,10 @@ tailwind.config = {
 ════════════════════════════════════ -->
 <div id="paywall-overlay" class="fixed inset-0 z-[99] flex items-center justify-center p-6 hidden" style="background:var(--bg);">
   <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm text-center">
-    <span class="text-4xl mb-4 block">📡</span>
-    <h2 class="mb-2" style="font-size:1.2rem;font-family:'Space Grotesk',sans-serif;font-weight:800;color:var(--pri);">Trakx</h2>
+    <div class="flex flex-col items-center gap-2 mb-4">
+      <svg width="52" height="52" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.2rem;color:var(--ink);">Trak<span style="color:var(--pri);">x</span></span>
+    </div>
     <p class="text-sm mb-1 font-semibold">Accès complet dès le premier mois</p>
     <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed, aux niches et à la watchlist.</p>
     <a href="https://trakx.fr/#pricing" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">Voir les tarifs</a>
@@ -315,8 +318,8 @@ tailwind.config = {
   <div class="flex flex-col gap-1 p-5 h-full">
     <!-- Logo -->
     <div class="flex items-center gap-2 mb-8 px-2">
-      <span class="text-xl">📡</span>
-      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:var(--pri);">Trakx</span>
+      <svg width="30" height="30" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:var(--ink);">Trak<span style="color:var(--pri);">x</span></span>
     </div>
     <!-- Nav -->
     <nav class="flex flex-col gap-1 flex-1">
