@@ -991,9 +991,9 @@ function loadHome() {
       <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:var(--hi);">${photo}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold truncate">${esc(a.titre)||'—'}</p>
-        <p class="text-xs" style="color:var(--muted);">${a.prix}€${a.marque ? ' · ' + esc(a.marque) : ''}</p>
+        <p class="text-xs" style="color:var(--muted);">${esc(String(a.prix))}€${a.marque ? ' · ' + esc(a.marque) : ''}</p>
       </div>
-      ${a.nb_favoris > 0 ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${a.nb_favoris}</span>` : ''}
+      ${a.nb_favoris > 0 ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
     </div>`;
   }).join('') : `<div class="px-5 py-10 text-center text-sm" style="color:var(--muted);">Rien à afficher pour l'instant.</div>`;
 }
@@ -1068,7 +1068,9 @@ function tailleSelectChange() {
   const inp = document.getElementById('feed-taille');
   if (sel.value === '__custom') {
     inp.classList.remove('hidden');
+    inp.value = '';
     inp.focus();
+    feedFilterChange(); // efface l'ancien filtre taille
   } else {
     inp.classList.add('hidden');
     inp.value = '';
@@ -1101,6 +1103,7 @@ function resetFeedFilters() {
 let _previewAnnonce = null;
 
 function openPreview(a) {
+  if (!a) return;
   _previewAnnonce = a;
   const wrap = document.getElementById('preview-photo-wrap');
   const photoUrl = safeUrl(a.photo);
@@ -1404,6 +1407,7 @@ async function loadFeedPage() {
     const r = await fetchWithTimeout(`${API}/feed?${params}`, { headers: await authHeader() }, 60000);
     let items = await r.json();
     if (!Array.isArray(items)) items = [];
+    const rawCount = items.length;
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
@@ -1411,8 +1415,8 @@ async function loadFeedPage() {
       if (favsMin > 0 && (a.nb_favoris||0) < favsMin) return false;
       return true;
     });
-    if (items.length < FEED_LIMIT) feedDone = true;
-    items.forEach(a => _feedItemsById.set(a.id, a));
+    if (rawCount < FEED_LIMIT) feedDone = true;
+    items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
     const grid = document.getElementById('feed-grid');
     if (feedOffset === 0 && items.length === 0) {
       grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
@@ -1461,8 +1465,8 @@ function renderFeedCard(a) {
         <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
         <p class="text-xs truncate mt-0.5" style="color:var(--muted);">${esc(a.marque)||''} ${a.taille?'· '+esc(a.taille):''}</p>
         <div class="flex items-center justify-between mt-2">
-          <span class="text-sm font-bold">${a.prix}€</span>
-          ${(a.nb_favoris > 0) ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${a.nb_favoris}</span>` : ''}
+          <span class="text-sm font-bold">${esc(String(a.prix))}€</span>
+          ${(a.nb_favoris > 0) ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -1615,7 +1619,7 @@ async function submitNiche() {
     const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
-      if (r.status === 403 && body.error === 'free_limit') {
+      if (r.status === 403 && body.error === 'niche_limit') {
         closeNicheModal();
         showUpgradeModal('Le plan gratuit est limité à 1 niche. Passe à Pro pour en créer autant que tu veux.');
         return;
@@ -1654,8 +1658,7 @@ async function loadNiches() {
     const r = await fetchWithTimeout(`${API}/niches`, { headers: await authHeader() });
     const data = await r.json();
     _allNiches = Array.isArray(data) ? data : (data.niches || []);
-    // Update global subscription state if returned
-    if (typeof data.subscribed === 'boolean') _isSubscribed = data.subscribed;
+    // subscription state is managed by showApp() via /me — not updated here
     const badge = document.getElementById('plan-badge');
     if (badge) {
       badge.textContent = _isSubscribed ? 'Pro' : 'Gratuit';
