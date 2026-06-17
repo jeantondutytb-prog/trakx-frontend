@@ -1456,7 +1456,8 @@ async function loadFeedPage() {
 }
 
 function renderFeedCard(a) {
-  const scraped = a.scraped_le ? new Date(a.scraped_le + 'Z') : new Date();
+  const dateStr = a.publie_le || a.scraped_le || '';
+  const scraped = dateStr ? new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z') : new Date();
   const age = Math.floor((Date.now() - scraped.getTime()) / 60000);
   const ageStr = age < 60 ? age + 'min' : Math.floor(age / 60) + 'h';
   const isNew  = age < 30;
