@@ -107,8 +107,15 @@ tailwind.config = {
   .vs-surface  { background: var(--bg); }
   .vs-hi       { background: var(--hi); }
   .vs-chip     { background: var(--hi); color: var(--pri-dk); border: 1px solid #fed7aa; }
-  .vs-input    { background: var(--hi); border: 1px solid var(--border); color: var(--ink); }
+  .vs-input    { background: var(--card); border: 1px solid var(--border); color: var(--ink); }
   .vs-input:focus { border-color: var(--pri); outline: none; }
+  .vs-input:-webkit-autofill,
+  .vs-input:-webkit-autofill:hover,
+  .vs-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    -webkit-box-shadow: 0 0 0px 1000px var(--card) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 
   /* buttons */
   .btn-orange  { background: var(--pri); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; border-radius:12px; transition:all .15s; box-shadow:0 4px 14px rgba(249,115,22,.3); }
