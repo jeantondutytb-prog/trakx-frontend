@@ -698,34 +698,6 @@ tailwind.config = {
       <p class="text-xs mt-3" style="color:var(--muted);" id="settings-portal-fallback">Chargement…</p>
     </div>
 
-    <!-- Admin : prix + lien Stripe -->
-    <div id="settings-admin-panel" class="hidden vs-card rounded-2xl p-5 mb-4" style="border-color:var(--pri);border-width:1.5px;">
-      <h3 class="font-bold mb-1 flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]" style="color:var(--pri);">admin_panel_settings</span>
-        Admin — Paramètres Stripe
-      </h3>
-      <p class="text-xs mb-4" style="color:var(--muted);">Visible uniquement pour les admins.</p>
-      <div class="space-y-4">
-        <div>
-          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Prix affiché (ex: 9,90€/mois)</label>
-          <div class="flex gap-2">
-            <input id="settings-price-input" type="text" class="vs-input rounded-xl px-3 py-2 text-sm flex-1" placeholder="9,90€/mois">
-            <button onclick="saveAdminConfig()" class="btn-orange px-4 py-2 text-sm">Sauvegarder</button>
-          </div>
-        </div>
-        <div>
-          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Lien Stripe Checkout (page d'abonnement)</label>
-          <input id="settings-stripe-url-input" type="url" class="vs-input rounded-xl px-3 py-2 text-sm w-full" placeholder="https://buy.stripe.com/...">
-        </div>
-        <div>
-          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Portail client Stripe (gérer abonnement)</label>
-          <p class="text-xs mb-1" style="color:var(--muted);">Récupère l'URL dans Stripe Dashboard → Settings → Customer portal → Share a link</p>
-          <input id="settings-portal-url-input" type="url" class="vs-input rounded-xl px-3 py-2 text-sm w-full" placeholder="https://billing.stripe.com/p/login/...">
-        </div>
-        <p id="settings-admin-msg" class="text-xs hidden" style="color:var(--green);">✓ Sauvegardé</p>
-      </div>
-    </div>
-
     <!-- Compte -->
     <div class="vs-card rounded-2xl p-5">
       <h3 class="font-bold mb-1 flex items-center gap-2">
@@ -1203,43 +1175,7 @@ async function loadSettings() {
       portalBtn.classList.add('hidden');
       portalFallback.textContent = 'Pour gérer ton abonnement, contacte jeantondut@gmail.com';
     }
-    // Try to detect admin via /me plan field
-    try {
-      const rm = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
-      const me = await rm.json();
-      if (me.is_admin) {
-        document.getElementById('settings-admin-panel').classList.remove('hidden');
-        document.getElementById('settings-price-input').value = _siteConfig.price_display || '';
-        document.getElementById('settings-stripe-url-input').value = _siteConfig.stripe_url || '';
-        document.getElementById('settings-portal-url-input').value = _siteConfig.stripe_portal_url || '';
-      }
-    } catch {}
   } catch {}
-}
-
-async function saveAdminConfig() {
-  const price_display = document.getElementById('settings-price-input').value.trim();
-  const stripe_url = document.getElementById('settings-stripe-url-input').value.trim();
-  const stripe_portal_url = document.getElementById('settings-portal-url-input').value.trim();
-  const msg = document.getElementById('settings-admin-msg');
-  try {
-    const r = await fetchWithTimeout(`${API}/admin/config`, {
-      method: 'POST',
-      headers: { ...await authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ price_display, stripe_url, stripe_portal_url }),
-    });
-    if (!r.ok) throw new Error();
-    _siteConfig = { price_display, stripe_url, stripe_portal_url };
-    applyConfigToModal();
-    msg.textContent = '✓ Sauvegardé';
-    msg.style.color = 'var(--green)';
-    msg.classList.remove('hidden');
-    setTimeout(() => msg.classList.add('hidden'), 3000);
-  } catch {
-    msg.textContent = 'Erreur lors de la sauvegarde.';
-    msg.style.color = 'var(--red)';
-    msg.classList.remove('hidden');
-  }
 }
 
 function applyConfigToModal() {
