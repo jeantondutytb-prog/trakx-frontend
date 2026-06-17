@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T62953HS');</script>
+<!-- End Google Tag Manager -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://vintedspy-api.onrender.com https://apwedqsklyzroeyrokqb.supabase.co;">
+<title>Trakr - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        ink:    "#0f0f0f",
+        muted:  "#6b7280",
+        border: "#e5e7eb",
+        card:   "#ffffff",
+        surface:"#fafaf9",
+        "surface-hi":  "#fff7ed",
+        "surface-mid": "#ffedd5",
+        primary:"#f97316",
+        "primary-dk":  "#ea580c",
+        "primary-lt":  "#fff7ed",
+        success:"#16a34a",
+        danger: "#dc2626",
+        // dark mode aliases – overridden by :root .dark vars
+        "d-bg":   "#0f0f0f",
+        "d-card": "#1a1a1a",
+        "d-border":"#2a2a2a",
+        "d-muted": "#71717a",
+      },
+      fontFamily: {
+        sans:    ["Inter","sans-serif"],
+        display: ["Space Grotesk","sans-serif"],
+      },
+      borderRadius: { lg:"12px", xl:"16px", "2xl":"20px" },
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  :root {
+    --bg:    #fafaf9;
+    --card:  #ffffff;
+    --ink:   #0f0f0f;
+    --muted: #6b7280;
+    --border:#e5e7eb;
+    --hi:    #fff7ed;
+    --mid:   #ffedd5;
+    --pri:   #f97316;
+    --pri-dk:#ea580c;
+    --green: #16a34a;
+    --red:   #dc2626;
+  }
+  html.dark {
+    --bg:    #0a0a0a;
+    --card:  #141414;
+    --ink:   #f5f5f5;
+    --muted: #71717a;
+    --border:#262626;
+    --hi:    #1c1209;
+    --mid:   #271508;
+    --pri:   #fb923c;
+    --pri-dk:#f97316;
+    --green: #22c55e;
+    --red:   #f87171;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100dvh;
+    transition: background .2s, color .2s;
+  }
+  h1,h2,h3,h4,h5 { font-family: 'Space Grotesk', sans-serif; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  /* spinner */
+  .spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* pulse dot */
+  .pulse-dot { width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+  /* focus */
+  input:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible {
+    outline: 2px solid var(--pri); outline-offset: 2px; border-radius: 4px;
+  }
+
+  /* sidebar + surfaces */
+  .vs-sidebar  { background: var(--card);  border-right: 1px solid var(--border); }
+  .vs-topbar   { background: var(--card);  border-bottom: 1px solid var(--border); }
+  .vs-card     { background: var(--card);  border: 1px solid var(--border); }
+  .vs-surface  { background: var(--bg); }
+  .vs-hi       { background: var(--hi); }
+  .vs-chip     { background: var(--hi); color: var(--pri-dk); border: 1px solid #fed7aa; }
+  .vs-input    { background: var(--hi); border: 1px solid var(--border); color: var(--ink); }
+  .vs-input:focus { border-color: var(--pri); outline: none; }
+
+  /* buttons */
+  .btn-orange  { background: var(--pri); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; border-radius:12px; transition:all .15s; box-shadow:0 4px 14px rgba(249,115,22,.3); }
+  .btn-orange:hover { background: var(--pri-dk); box-shadow:0 6px 20px rgba(249,115,22,.4); transform:translateY(-1px); }
+  .btn-ghost   { background: var(--card); border: 1.5px solid var(--border); color: var(--ink); font-family:'Space Grotesk',sans-serif; font-weight:600; border-radius:12px; transition:all .15s; }
+  .btn-ghost:hover { border-color: var(--pri); color: var(--pri); }
+  .btn-icon    { background: var(--hi); border: 1px solid var(--border); color: var(--muted); border-radius:10px; transition:all .15s; }
+  .btn-icon:hover { border-color: var(--pri); color: var(--pri); }
+
+  /* nav link */
+  .nav-link { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--muted);transition:all .15s; }
+  .nav-link:hover { background: var(--hi); color: var(--ink); }
+  .nav-link.active { background: var(--hi); color: var(--pri); font-weight:700; }
+  .nav-link .icon { font-size:20px; font-family:'Material Symbols Outlined'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .nav-link.active .icon { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+  /* feed card */
+  .feed-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; cursor:pointer; transition:box-shadow .15s, border-color .15s; }
+  .feed-card:hover { border-color:#fed7aa; box-shadow:0 8px 24px rgba(249,115,22,.1); }
+
+  /* score badge */
+  .score-badge { font-size:9px; font-weight:700; padding:2px 6px; border-radius:99px; }
+  .score-hi  { background:#f0fdf4; color:#16a34a; }
+  .score-mid { background:#fff7ed; color:#ea580c; }
+  .score-lo  { background:#f9fafb; color:#6b7280; }
+
+  /* niche card */
+  .niche-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1rem; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  .niche-card:hover { border-color:#fed7aa; box-shadow:0 4px 16px rgba(249,115,22,.08); }
+
+  /* stat card */
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.25rem; }
+
+  /* hero gradient */
+  .hero-grad { background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%); }
+  .grad-text { background: linear-gradient(135deg, #f97316, #fb923c, #fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+  /* tabs */
+  .tab-btn { padding:8px 16px; font-size:.875rem; font-weight:600; border-bottom:2px solid transparent; color:var(--muted); transition:all .15s; }
+  .tab-btn.active { border-color:var(--pri); color:var(--pri); }
+
+  /* tag */
+  .tag { font-size:11px; padding:3px 10px; border-radius:99px; background:var(--hi); color:#9a3412; font-weight:500; }
+
+  /* Table row hover — dark-mode aware */
+  .tbl-row:hover { background: rgba(249,115,22,.06); }
+  html.dark .tbl-row:hover { background: rgba(249,115,22,.10); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner, .pulse-dot { animation:none; }
+    .btn-orange:hover, .btn-ghost:hover { transform:none; }
+  }
+</style>
+</head>
+<body class="flex min-h-screen">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T62953HS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- ══════════════════════════════════
+     PAYWALL OVERLAY
+════════════════════════════════════ -->
+<!-- ══════════════════════════════════
+     UPGRADE MODAL
+════════════════════════════════════ -->
+<div id="upgrade-modal" class="hidden fixed inset-0 z-[99] flex items-center justify-center p-6" style="background:rgba(0,0,0,.45);">
+  <div class="vs-card rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center" style="box-shadow:0 24px 64px rgba(0,0,0,.2);">
+    <div class="w-14 h-14 hero-grad rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style="box-shadow:0 8px 24px rgba(249,115,22,.35);">
+      <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings:'FILL' 1;">bolt</span>
+    </div>
+    <h2 class="text-xl mb-1" style="font-family:'Space Grotesk',sans-serif;font-weight:800;">Passe à Pro</h2>
+    <p class="text-sm mb-5" id="upgrade-modal-reason" style="color:var(--muted);">Débloques toutes les fonctionnalités.</p>
+    <div class="text-left rounded-xl p-4 mb-5 space-y-2" style="background:var(--hi);border:1px solid var(--border);">
+      <p class="text-xs font-bold uppercase tracking-wide mb-2" style="color:var(--muted);">Plan Pro — <span class="stripe-price-display">9,90€/mois</span></p>
+      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Niches illimitées</div>
+      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Feed complet sans limite de temps</div>
+      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Watchlist &amp; alertes</div>
+      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Stats avancées</div>
+    </div>
+    <a href="https://buy.stripe.com/00w8wOcJObg0fIw422c7u00" target="_blank" rel="noopener"
+       class="btn-orange block w-full py-3 text-sm mb-3 stripe-checkout-link">
+      S'abonner pour <span class="stripe-price-display">9,90€/mois</span> →
+    </a>
+    <button onclick="document.getElementById('upgrade-modal').classList.add('hidden')" class="text-xs" style="color:var(--muted);">
+      Continuer avec le plan gratuit
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     AUTH OVERLAY
+════════════════════════════════════ -->
+<div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-6 hidden" style="background:var(--bg);">
+  <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <div class="flex items-center gap-2 mb-6">
+      <span class="text-2xl">📡</span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:var(--pri);">Trakr</span>
+    </div>
+    <h2 class="mb-1" id="auth-title" style="font-size:1.1rem;">Connexion</h2>
+    <p class="text-sm mb-5" id="auth-subtitle" style="color:var(--muted);">Accède à ton tableau de bord.</p>
+    <div class="space-y-3">
+      <input id="auth-email" type="email" placeholder="email@exemple.com" autocomplete="email"
+        class="vs-input w-full rounded-xl px-4 py-2.5 text-sm" style="transition:border-color .15s;">
+      <input id="auth-password" type="password" placeholder="Mot de passe" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')authSubmit()"
+        class="vs-input w-full rounded-xl px-4 py-2.5 text-sm" style="transition:border-color .15s;">
+    </div>
+    <p id="auth-error" class="text-xs mt-2 hidden" style="color:var(--red);"></p>
+    <button id="auth-submit" onclick="authSubmit()" class="btn-orange w-full mt-4 py-2.5 text-sm">Se connecter</button>
+    <p class="text-xs mt-4 text-center" style="color:var(--muted);">
+      <span id="auth-switch-text">Pas encore de compte ?</span>
+      <a href="#" onclick="authToggleMode();return false;" class="font-bold hover:underline ml-1" style="color:var(--pri);" id="auth-switch-link">Créer un compte</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SIDEBAR
+════════════════════════════════════ -->
+<aside class="hidden md:flex flex-col vs-sidebar h-screen w-[220px] fixed left-0 z-50">
+  <div class="flex flex-col gap-1 p-5 h-full">
+    <!-- Logo -->
+    <div class="flex items-center gap-2 mb-8 px-2">
+      <span class="text-xl">📡</span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:var(--pri);">Trakr</span>
+    </div>
+    <!-- Nav -->
+    <nav class="flex flex-col gap-1 flex-1">
+      <a class="nav-link active" href="#" onclick="showPage('home');return false;" id="nav-home">
+        <span class="icon">home</span><span>Accueil</span>
+      </a>
+      <a class="nav-link" href="#" onclick="showPage('feed');return false;" id="nav-feed">
+        <span class="icon">grid_view</span><span>Feed</span>
+      </a>
+      <a class="nav-link" href="#" onclick="showPage('stats');return false;" id="nav-stats">
+        <span class="icon">insights</span><span>Marché</span>
+      </a>
+      <a class="nav-link" href="#" onclick="showPage('niches');return false;" id="nav-niches">
+        <span class="icon">bookmarks</span><span>Niches</span>
+      </a>
+      <a class="nav-link" href="#" onclick="showPage('settings');return false;" id="nav-settings">
+        <span class="icon">settings</span><span>Réglages</span>
+      </a>
+    </nav>
+    <!-- Footer -->
+    <div class="pt-4" style="border-top:1px solid var(--border);">
+      <div class="flex items-center gap-2 px-2 py-1.5 mb-1">
+        <div class="pulse-dot"></div>
+        <span class="text-xs" style="color:var(--muted);">Scanner actif</span>
+      </div>
+      <div class="px-2 text-xs mb-3" style="color:var(--muted);opacity:.7;">Scan toutes les 20 min</div>
+      <div class="flex items-center justify-between px-2 py-2" style="border-top:1px solid var(--border);">
+        <div class="min-w-0">
+          <span class="text-xs truncate block" style="color:var(--muted);" id="auth-user-email">—</span>
+          <span id="plan-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style="background:var(--hi);color:var(--muted);">Gratuit</span>
+        </div>
+        <button onclick="authLogout()" class="text-xs font-bold hover:underline flex-shrink-0 ml-2" style="color:var(--pri);">Déco</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════
+     MAIN
+════════════════════════════════════ -->
+<main class="flex-1 md:ml-[220px] flex flex-col min-h-screen pb-16 md:pb-0">
+
+  <!-- Topbar -->
+  <header class="vs-topbar sticky top-0 z-40 h-16 flex items-center px-6 justify-between w-full">
+    <h1 class="font-bold" id="page-title" style="font-size:1.05rem;color:var(--ink);">Accueil</h1>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline text-xs" id="last-update" style="color:var(--muted);"></span>
+      <button onclick="toggleDark()" aria-label="Thème" class="btn-icon w-9 h-9 flex items-center justify-center">
+        <span class="material-symbols-outlined" id="dark-icon" style="font-size:18px;">dark_mode</span>
+      </button>
+      <button onclick="loadData()" aria-label="Actualiser" class="btn-orange flex items-center gap-1.5 px-3 py-2 text-sm">
+        <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>
+        <span class="hidden sm:inline">Actualiser</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══ PAGE ACCUEIL ═══ -->
+  <div id="page-home" class="flex-1 p-5 md:p-6 space-y-5">
+
+    <!-- Hero banner -->
+    <div class="hero-grad rounded-2xl p-6 text-white shadow-lg" style="box-shadow:0 8px 32px rgba(249,115,22,.3);">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-2 h-2 rounded-full bg-white/80 pulse-dot" style="background:rgba(255,255,255,.9);"></div>
+        <span class="text-xs font-medium opacity-90">Scanner actif · toutes les 20 min</span>
+      </div>
+      <h2 class="text-2xl font-bold mb-1" id="home-greeting">Bienvenue sur Trakr</h2>
+      <p class="text-sm opacity-85" id="home-summary">Analyse en cours…</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div class="stat-card">
+        <div class="flex items-center gap-1.5 text-xs font-medium mb-2" style="color:var(--muted);">
+          <span class="material-symbols-outlined" style="font-size:15px;">bolt</span> Récentes (1h)
+        </div>
+        <p class="text-3xl font-bold" id="h-new" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">—</p>
+        <p class="text-xs mt-1" style="color:var(--muted);">annonces scannées</p>
+      </div>
+      <div class="stat-card">
+        <div class="flex items-center gap-1.5 text-xs font-medium mb-2" style="color:var(--muted);">
+          <span class="material-symbols-outlined" style="font-size:15px;">database</span> Stockées
+        </div>
+        <p class="text-3xl font-bold" id="h-total" style="font-family:'Space Grotesk',sans-serif;color:var(--ink);">—</p>
+        <p class="text-xs mt-1" style="color:var(--muted);">au total en base</p>
+      </div>
+    </div>
+
+    <!-- Recent list -->
+    <div class="vs-card rounded-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-3" style="border-bottom:1px solid var(--border);">
+        <span class="text-sm font-semibold">Dernières annonces</span>
+        <a href="#" onclick="showPage('feed');return false;" class="text-xs font-bold hover:underline" style="color:var(--pri);">Voir tout →</a>
+      </div>
+      <div id="home-top5">
+        <div class="px-5 py-10 text-center"><div class="spinner mx-auto"></div></div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <button onclick="showPage('feed')" class="vs-card rounded-2xl p-5 text-left transition-all hover:border-orange-200" style="border-color:var(--border);">
+        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);">grid_view</span>
+        <p class="font-bold mb-1">Explorer le feed</p>
+        <p class="text-xs" style="color:var(--muted);">Toutes les annonces scannées, filtrables par prix, marque et plus.</p>
+      </button>
+      <button onclick="showPage('stats')" class="vs-card rounded-2xl p-5 text-left transition-all hover:border-orange-200" style="border-color:var(--border);">
+        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);">insights</span>
+        <p class="font-bold mb-1">Tendances du marché</p>
+        <p class="text-xs" style="color:var(--muted);">Prix moyens par marque et volumes suivis.</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE STATS ═══ -->
+  <div id="page-stats" class="hidden flex-1 p-5 md:p-6">
+    <div id="stats-body" class="flex items-center justify-center py-20">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE FEED ═══ -->
+  <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
+    <!-- Free tier banner -->
+    <div id="feed-free-banner" class="hidden rounded-xl px-4 py-3 mb-4 flex items-center gap-3" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
+      <span class="material-symbols-outlined text-[18px] flex-shrink-0" style="color:var(--pri);">schedule</span>
+      <p class="text-sm flex-1"><strong>Plan gratuit</strong> — annonces des dernières 24h uniquement.</p>
+      <button onclick="showUpgradeModal('Accède à tout l\'historique du feed avec le plan Pro.')" class="btn-orange text-xs px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">Passer à Pro</button>
+    </div>
+    <!-- Filtres -->
+    <div class="vs-card rounded-2xl p-4 mb-4 space-y-3">
+      <div class="flex flex-wrap gap-2 items-center">
+        <!-- Search -->
+        <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-2 flex-1 min-w-[180px]">
+          <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">search</span>
+          <input id="feed-search" type="text" placeholder="Titre, marque…" class="border-none outline-none bg-transparent text-sm w-full" oninput="feedFilterChange()">
+        </div>
+        <!-- Marques dropdown -->
+        <div class="relative" id="fms-wrap">
+          <button onclick="toggleFms()" class="flex items-center gap-2 vs-input rounded-xl px-3 py-2 text-sm hover:border-orange-300 transition-colors">
+            <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">label</span>
+            <span id="fms-label">Toutes marques</span>
+            <span id="fms-badge" class="hidden text-white text-[10px] rounded-full px-1.5 py-0.5 font-bold" style="background:var(--pri);">0</span>
+            <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">expand_more</span>
+          </button>
+          <div id="fms-dropdown" class="hidden absolute top-full left-0 mt-1 vs-card rounded-xl shadow-xl p-3 min-w-[220px] max-h-72 overflow-y-auto z-50" style="box-shadow:0 8px 32px rgba(0,0,0,.12);">
+            <input id="fms-search" type="text" placeholder="Chercher marque…" class="vs-input w-full rounded-lg px-3 py-2 text-sm mb-2" oninput="filterFms()">
+            <div id="fms-list"></div>
+            <div class="flex gap-2 mt-2 pt-2" style="border-top:1px solid var(--border);">
+              <button onclick="clearFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout décocher</button>
+              <button onclick="selectAllFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout cocher</button>
+            </div>
+          </div>
+        </div>
+        <!-- Taille -->
+        <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-2">
+          <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">straighten</span>
+          <input id="feed-taille" type="text" placeholder="Taille" class="border-none outline-none bg-transparent text-sm w-14" oninput="feedFilterChange()">
+        </div>
+        <!-- État -->
+        <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-2">
+          <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">verified</span>
+          <select id="feed-etat" onchange="feedFilterChange()" class="border-none outline-none bg-transparent text-sm max-w-[140px]" style="color:var(--ink);">
+            <option value="">Tout état</option>
+            <option value="Neuf avec étiquette">Neuf avec étiquette</option>
+            <option value="Neuf sans étiquette">Neuf sans étiquette</option>
+            <option value="Très bon état">Très bon état</option>
+            <option value="Bon état">Bon état</option>
+            <option value="Satisfaisant">Satisfaisant</option>
+          </select>
+        </div>
+        <!-- Score -->
+        <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-2">
+          <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">stars</span>
+          <span class="text-xs" style="color:var(--muted);">Score ≥</span>
+          <input id="feed-score" type="number" placeholder="0" min="0" max="100" class="w-10 border-none outline-none text-sm bg-transparent" oninput="feedFilterChange()">
+        </div>
+        <!-- Heure publication -->
+        <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-2">
+          <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">schedule</span>
+          <select id="feed-since" onchange="feedFilterChange()" class="border-none outline-none bg-transparent text-sm" style="color:var(--ink);">
+            <option value="">Toute période</option>
+            <option value="1">Dernière heure</option>
+            <option value="6">6 dernières heures</option>
+            <option value="12">12 dernières heures</option>
+            <option value="24">24 dernières heures</option>
+          </select>
+        </div>
+        <!-- Order -->
+        <select id="feed-order" onchange="feedFilterChange()" class="vs-input rounded-xl px-3 py-2 text-sm outline-none" style="color:var(--ink);">
+          <option value="recent">Plus récent</option>
+          <option value="score">Meilleure affaire ↓</option>
+          <option value="prix_asc">Prix ↑</option>
+          <option value="prix_desc">Prix ↓</option>
+          <option value="favs">Favoris ↓</option>
+        </select>
+        <!-- Reset -->
+        <button onclick="resetFeedFilters()" class="btn-ghost flex items-center gap-1 px-3 py-2 text-xs">
+          <span class="material-symbols-outlined text-[14px]">filter_alt_off</span> Réinitialiser
+        </button>
+        <span class="text-xs ml-auto" style="color:var(--muted);" id="feed-count"></span>
+      </div>
+      <!-- Prix range -->
+      <div class="flex items-center gap-3 vs-input rounded-xl px-4 py-2.5">
+        <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">payments</span>
+        <span class="text-sm font-medium whitespace-nowrap">Prix min.</span>
+        <input id="feed-pmin-range" type="range" min="0" max="300" step="5" value="0"
+          class="flex-1" style="accent-color:var(--pri);" oninput="syncPriceRange()">
+        <div class="flex items-center gap-1 vs-card rounded-lg px-2 py-1" style="border:1px solid var(--border);">
+          <input id="feed-pmin" type="number" min="0" placeholder="0" value="0"
+            class="w-12 border-none outline-none text-sm bg-transparent text-right font-semibold" oninput="syncPriceInput()">
+          <span class="text-xs" style="color:var(--muted);">€</span>
+        </div>
+        <span class="text-xs hidden sm:inline" style="color:var(--muted);">Annonces ≥ ce prix</span>
+      </div>
+    </div>
+    <!-- Chips marques -->
+    <div id="feed-chips" class="flex flex-wrap gap-2 mb-4"></div>
+    <!-- Grid -->
+    <div id="feed-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    <!-- Infinite scroll sentinel -->
+    <div id="feed-sentinel" class="py-10 flex justify-center">
+      <div class="spinner" id="feed-spinner" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE NICHES ═══ -->
+  <div id="page-niches" class="hidden flex-1 flex flex-col" style="min-height:0;">
+    <!-- Tabs header -->
+    <div class="flex items-center justify-between px-5 md:px-6 pt-5" style="border-bottom:1px solid var(--border);">
+      <div class="flex gap-0">
+        <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes niches</button>
+        <button id="niches-tab-watch" onclick="switchNichesTab('watch')" class="tab-btn">Surveillance</button>
+      </div>
+      <button onclick="openNicheModal()" class="btn-orange flex items-center gap-1.5 px-3 py-2 text-sm mb-1" id="btn-new-niche">
+        <span class="material-symbols-outlined text-[16px]">add</span> Nouvelle niche
+      </button>
+    </div>
+
+    <!-- Panel : Mes niches -->
+    <div id="niches-panel-mine" class="flex-1 p-5 md:p-6 overflow-auto">
+
+      <!-- Free tier banner -->
+      <div id="niches-free-banner" class="hidden rounded-xl px-4 py-3 mb-4 flex items-center gap-3" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
+        <span class="material-symbols-outlined text-[20px] flex-shrink-0" style="color:var(--pri);">bolt</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold">Plan gratuit — 1 niche maximum</p>
+          <p class="text-xs" style="color:var(--muted);">Passe à Pro pour des niches illimitées et le feed complet.</p>
+        </div>
+        <button onclick="showUpgradeModal('Crée des niches illimitées avec le plan Pro.')" class="btn-orange text-xs px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">Passer à Pro</button>
+      </div>
+
+      <!-- Stats row -->
+      <div id="niches-stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
+
+      <!-- Table -->
+      <div class="vs-card rounded-2xl overflow-hidden">
+        <!-- Toolbar -->
+        <div class="flex items-center gap-3 px-5 py-3" style="border-bottom:1px solid var(--border);">
+          <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-1.5 flex-1 max-w-xs">
+            <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">search</span>
+            <input id="niches-search" type="text" placeholder="Rechercher une niche…" class="border-none outline-none bg-transparent text-sm w-full" oninput="filterNicheTable()">
+          </div>
+          <span class="text-xs ml-auto" style="color:var(--muted);" id="niches-count"></span>
+        </div>
+
+        <!-- Table header -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" id="niches-table">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);background:var(--hi);">
+                <th class="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style="color:var(--muted);">Niche</th>
+                <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer hover:text-orange-500 transition-colors" style="color:var(--muted);" onclick="sortNiches('nb_items')">
+                  Captés <span id="sort-nb" class="text-[10px]"></span>
+                </th>
+                <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer hover:text-orange-500 transition-colors" style="color:var(--muted);" onclick="sortNiches('nb_vendus')">
+                  Vendus <span id="sort-vendus" class="text-[10px]"></span>
+                </th>
+                <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer hover:text-orange-500 transition-colors hidden md:table-cell" style="color:var(--muted);" onclick="sortNiches('prix_moyen')">
+                  Prix moy. <span id="sort-prix" class="text-[10px]"></span>
+                </th>
+                <th class="px-4 py-3 text-xs uppercase tracking-wide" style="color:var(--muted);">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="niches-tbody">
+              <tr><td colspan="5" class="px-5 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel : Surveillance -->
+    <div id="niches-panel-watch" class="hidden flex-1 p-5 md:p-6 overflow-auto">
+      <div id="watch-upgrade-banner" class="hidden rounded-xl px-4 py-6 mb-5 text-center" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
+        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);font-variation-settings:'FILL' 1;">visibility</span>
+        <p class="font-semibold mb-1">Watchlist disponible avec Pro</p>
+        <p class="text-sm mb-4" style="color:var(--muted);">Surveille tes annonces préférées et sois alerté quand elles sont vendues.</p>
+        <button onclick="showUpgradeModal('La watchlist est disponible avec le plan Pro.')" class="btn-orange px-5 py-2 text-sm rounded-xl">Passer à Pro — 9,90€/mois</button>
+      </div>
+      <div id="watch-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE NICHE DETAIL ═══ -->
+  <div id="page-niche-detail" class="hidden flex-1 flex flex-col" style="min-height:0;">
+    <!-- Header -->
+    <div class="px-5 md:px-6 pt-5 pb-0">
+      <button onclick="showPage('niches')" class="flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style="color:var(--muted);">
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span> Retour aux niches
+      </button>
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h2 id="niche-detail-title" class="text-xl font-bold"></h2>
+          <div id="niche-detail-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
+        </div>
+        <a id="niche-detail-vinted-link" href="#" target="_blank" rel="noopener"
+           class="btn-ghost flex items-center gap-1.5 px-3 py-2 text-xs rounded-xl whitespace-nowrap flex-shrink-0 hidden">
+          <span class="material-symbols-outlined text-[14px]">open_in_new</span> Voir sur Vinted
+        </a>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div class="stat-card !p-4">
+          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Annonces</p>
+          <p class="text-2xl font-bold" id="nd-nb" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">—</p>
+        </div>
+        <div class="stat-card !p-4">
+          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Prix moyen</p>
+          <p class="text-2xl font-bold" id="nd-pmoy" style="font-family:'Space Grotesk',sans-serif;">—</p>
+        </div>
+        <div class="stat-card !p-4">
+          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Fourchette</p>
+          <p class="text-2xl font-bold" id="nd-range" style="font-family:'Space Grotesk',sans-serif;">—</p>
+        </div>
+        <div class="stat-card !p-4">
+          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Taux de vente</p>
+          <p class="text-2xl font-bold" id="nd-fav" style="font-family:'Space Grotesk',sans-serif;">—</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-0" style="border-bottom:1px solid var(--border);">
+        <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn active">Annonces</button>
+        <button id="nd-tab-table" onclick="switchDetailTab('table')" class="tab-btn">Tableau</button>
+      </div>
+    </div>
+
+    <!-- Tab: Grid -->
+    <div id="nd-panel-grid" class="flex-1 p-5 md:p-6 overflow-auto">
+      <div id="niche-detail-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </div>
+
+    <!-- Tab: Table -->
+    <div id="nd-panel-table" class="hidden flex-1 overflow-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);background:var(--hi);position:sticky;top:0;">
+            <th class="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style="color:var(--muted);">Article</th>
+            <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide" style="color:var(--muted);">Prix</th>
+            <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide hidden sm:table-cell" style="color:var(--muted);">Marque</th>
+            <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide hidden md:table-cell" style="color:var(--muted);">Taille</th>
+            <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide hidden md:table-cell" style="color:var(--muted);">Ajouté</th>
+            <th class="px-4 py-3" style="color:var(--muted);">Statut</th>
+          </tr>
+        </thead>
+        <tbody id="nd-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE RÉGLAGES ═══ -->
+  <div id="page-settings" class="hidden flex-1 p-5 md:p-6 max-w-2xl mx-auto w-full">
+    <h2 class="text-lg font-bold mb-6">Réglages</h2>
+
+    <!-- Abonnement -->
+    <div class="vs-card rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-1 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]" style="color:var(--pri);">bolt</span>
+        Abonnement
+      </h3>
+      <p class="text-sm mb-3" style="color:var(--muted);">Plan actuel : <strong id="settings-plan-label">—</strong></p>
+      <p class="text-xs" style="color:var(--muted);">Pour annuler ou modifier ton abonnement, contacte-nous à <a href="mailto:jeantondut@gmail.com" class="font-semibold hover:underline" style="color:var(--pri);">jeantondut@gmail.com</a></p>
+    </div>
+
+    <!-- Admin : prix + lien Stripe -->
+    <div id="settings-admin-panel" class="hidden vs-card rounded-2xl p-5 mb-4" style="border-color:var(--pri);border-width:1.5px;">
+      <h3 class="font-bold mb-1 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]" style="color:var(--pri);">admin_panel_settings</span>
+        Admin — Paramètres Stripe
+      </h3>
+      <p class="text-xs mb-4" style="color:var(--muted);">Visible uniquement pour les admins.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Prix affiché (ex: 9,90€/mois)</label>
+          <div class="flex gap-2">
+            <input id="settings-price-input" type="text" class="vs-input rounded-xl px-3 py-2 text-sm flex-1" placeholder="9,90€/mois">
+            <button onclick="saveAdminConfig()" class="btn-orange px-4 py-2 text-sm">Sauvegarder</button>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Lien Stripe Checkout (page d'abonnement)</label>
+          <input id="settings-stripe-url-input" type="url" class="vs-input rounded-xl px-3 py-2 text-sm w-full" placeholder="https://buy.stripe.com/...">
+        </div>
+        <div>
+          <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Portail client Stripe (gérer abonnement)</label>
+          <p class="text-xs mb-1" style="color:var(--muted);">Récupère l'URL dans Stripe Dashboard → Settings → Customer portal → Share a link</p>
+          <input id="settings-portal-url-input" type="url" class="vs-input rounded-xl px-3 py-2 text-sm w-full" placeholder="https://billing.stripe.com/p/login/...">
+        </div>
+        <p id="settings-admin-msg" class="text-xs hidden" style="color:var(--green);">✓ Sauvegardé</p>
+      </div>
+    </div>
+
+    <!-- Compte -->
+    <div class="vs-card rounded-2xl p-5">
+      <h3 class="font-bold mb-1 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]" style="color:var(--muted);">person</span>
+        Compte
+      </h3>
+      <p class="text-sm mb-3" style="color:var(--muted);" id="settings-email-display">—</p>
+      <div class="flex items-center gap-3">
+        <span id="settings-plan-badge" class="text-xs font-bold px-2 py-1 rounded-lg" style="background:var(--hi);color:var(--muted);">Gratuit</span>
+        <button onclick="authLogout()" class="text-sm font-bold hover:underline" style="color:var(--red);">Se déconnecter</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════
+     NICHE MODAL
+════════════════════════════════════ -->
+<div id="niche-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6" style="background:rgba(0,0,0,.45);">
+  <div class="vs-card rounded-2xl shadow-2xl p-6 w-full max-w-sm" style="box-shadow:0 24px 64px rgba(0,0,0,.2);">
+    <h3 class="text-lg font-bold mb-5">Nouvelle niche</h3>
+    <div class="space-y-3">
+      <!-- Lien Vinted -->
+      <div>
+        <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Lien de recherche Vinted <span style="color:var(--red)">*</span></label>
+        <input id="niche-link" type="text" placeholder="Colle un lien vinted.fr/catalog?…"
+          class="vs-input w-full rounded-xl px-3 py-2 text-sm" oninput="parseNicheLink()">
+        <p id="niche-link-status" class="text-xs mt-1 hidden" style="color:var(--green);"></p>
+        <p id="niche-link-loading" class="text-xs mt-1 hidden" style="color:var(--muted);">Résolution de la marque…</p>
+      </div>
+      <!-- Titre -->
+      <div>
+        <label class="text-xs font-semibold block mb-1" style="color:var(--muted);">Titre <span style="color:var(--red)">*</span></label>
+        <input id="niche-nom" type="text" placeholder="ex: Nike taille M sous 20€"
+          class="vs-input w-full rounded-xl px-3 py-2 text-sm">
+      </div>
+    </div>
+    <p id="niche-error" class="text-xs mt-2 hidden" style="color:var(--red);"></p>
+    <div class="flex gap-2 mt-5">
+      <button onclick="closeNicheModal()" class="btn-ghost flex-1 py-2.5 text-sm rounded-xl">Annuler</button>
+      <button onclick="submitNiche()" class="btn-orange flex-1 py-2.5 text-sm rounded-xl">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MOBILE BOTTOM NAV
+════════════════════════════════════ -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-end justify-around z-50" style="height:64px;" id="mobile-nav">
+  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link active rounded-none" href="#" onclick="showPage('home');return false;" id="mnav-home">
+    <span class="material-symbols-outlined" style="font-size:22px;">home</span>
+    <span class="text-[10px] font-semibold">Accueil</span>
+  </a>
+  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('stats');return false;" id="mnav-stats">
+    <span class="material-symbols-outlined" style="font-size:22px;">insights</span>
+    <span class="text-[10px] font-semibold">Marché</span>
+  </a>
+  <!-- Feed center TikTok-style -->
+  <div class="flex-1 flex flex-col items-center justify-end pb-3 relative">
+    <a href="#" onclick="showPage('feed');return false;" id="mnav-feed"
+       class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95"
+       style="background:var(--pri);box-shadow:0 4px 16px rgba(249,115,22,.45);margin-bottom:2px;">
+      <span class="material-symbols-outlined text-white" style="font-size:26px;font-variation-settings:'FILL' 1;">grid_view</span>
+    </a>
+  </div>
+  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('niches');return false;" id="mnav-niches">
+    <span class="material-symbols-outlined" style="font-size:22px;">bookmarks</span>
+    <span class="text-[10px] font-semibold">Niches</span>
+  </a>
+  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('settings');return false;" id="mnav-settings">
+    <span class="material-symbols-outlined" style="font-size:22px;">settings</span>
+    <span class="text-[10px] font-semibold">Réglages</span>
+  </a>
+</nav>
+
+<!-- Vercel Analytics -->
+<script defer src="/_vercel/insights/script.js"></script>
+
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>.material-symbols-outlined{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}</style>
+
+<script>
+const API = 'https://vintedspy-api.onrender.com';
+let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
+
+function fetchWithTimeout(url, opts = {}, ms = 30000) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(tid));
+}
+
+// ---- AUTH ----
+const SUPABASE_URL = 'https://apwedqsklyzroeyrokqb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ExNINsgU98WsaiqBeW0x-A_HXqQFLz1';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let authMode = 'login';
+
+function authToggleMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  const isLogin = authMode === 'login';
+  document.getElementById('auth-title').textContent = isLogin ? 'Connexion' : 'Créer un compte';
+  document.getElementById('auth-subtitle').textContent = isLogin ? 'Accède à ton tableau de bord.' : 'Quelques secondes pour démarrer.';
+  document.getElementById('auth-submit').textContent = isLogin ? 'Se connecter' : "S'inscrire";
+  document.getElementById('auth-switch-text').textContent = isLogin ? 'Pas encore de compte ?' : 'Déjà un compte ?';
+  document.getElementById('auth-switch-link').textContent = isLogin ? 'Créer un compte' : 'Se connecter';
+  document.getElementById('auth-error').classList.add('hidden');
+}
+
+async function authSubmit() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.classList.add('hidden');
+  errEl.style.color = '';
+  if (!email || !password) {
+    errEl.textContent = 'Email et mot de passe requis.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const btn = document.getElementById('auth-submit');
+  btn.disabled = true;
+  const { data, error } = authMode === 'login'
+    ? await sb.auth.signInWithPassword({ email, password })
+    : await sb.auth.signUp({ email, password });
+  btn.disabled = false;
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (authMode === 'signup' && !data.session) {
+    errEl.textContent = 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.';
+    errEl.classList.remove('hidden');
+    errEl.style.color = 'var(--green)';
+    return;
+  }
+  showApp();
+}
+
+async function authLogout() {
+  await sb.auth.signOut();
+  _appInitialized = false;
+  document.getElementById('auth-overlay').classList.remove('hidden');
+}
+
+let _appInitialized = false;
+let _isSubscribed = false;
+
+function showUpgradeModal(reason) {
+  document.getElementById('upgrade-modal-reason').textContent = reason || 'Débloques toutes les fonctionnalités.';
+  document.getElementById('upgrade-modal').classList.remove('hidden');
+}
+
+async function showApp() {
+  document.getElementById('auth-overlay').classList.add('hidden');
+  const { data } = await sb.auth.getUser();
+  document.getElementById('auth-user-email').textContent = data.user?.email || '—';
+  if (!_appInitialized) {
+    _appInitialized = true;
+    loadData();
+    loadWatchedIds();
+    setInterval(loadData, 20*60*1000);
+  }
+  // Fetch subscription status in parallel — don't block app startup on it
+  try {
+    const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
+    const me = await r.json();
+    _isSubscribed = !!me.subscribed;
+    const badge = document.getElementById('plan-badge');
+    if (badge) badge.textContent = _isSubscribed ? 'Pro' : 'Gratuit';
+  } catch {}
+}
+
+async function authHeader() {
+  const { data } = await sb.auth.getSession();
+  return data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {};
+}
+
+async function initAuth() {
+  const { data } = await sb.auth.getSession();
+  if (data.session) {
+    showApp();
+  } else {
+    document.getElementById('auth-overlay').classList.remove('hidden');
+  }
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session) showApp();
+    else document.getElementById('auth-overlay').classList.remove('hidden');
+  });
+}
+initAuth();
+initConfig();
+
+// ---- SECURITY HELPERS ----
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeUrl(u) {
+  try {
+    const parsed = new URL(String(u||''), location.href);
+    return (parsed.protocol === 'https:' || parsed.protocol === 'http:') ? parsed.href : '';
+  } catch { return ''; }
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-watch-btn]')) return;
+  const row = e.target.closest('[data-open-url]');
+  if (row) window.open(row.dataset.openUrl, '_blank', 'noopener');
+});
+
+// ---- LOAD ----
+async function loadData() {
+  if (!allData.length) {
+    try {
+      const cached = JSON.parse(localStorage.getItem('trakr-cache') || 'null');
+      if (cached && cached.data && cached.data.length) {
+        allData = cached.data;
+        buildMarques();
+        loadHome();
+        document.getElementById('last-update').textContent = 'MAJ ' + new Date(cached.ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) + ' (cache)';
+      }
+    } catch {}
+  }
+  try {
+    const r = await fetchWithTimeout(API + '/opportunites?limit=100');
+    if (!r.ok) throw new Error('Erreur ' + r.status);
+    const raw = await r.json();
+    allData = deduplicate(raw);
+    const ts = Date.now();
+    try { localStorage.setItem('trakr-cache', JSON.stringify({ data: allData, ts })); } catch {}
+    document.getElementById('last-update').textContent = 'MAJ ' + new Date(ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    buildMarques();
+    loadHome();
+  } catch(e) {}
+
+  try {
+    const r2 = await fetchWithTimeout(API + '/ping');
+    if (r2.ok) { const p = await r2.json(); dbTotal = p.annonces || 0; }
+  } catch {}
+
+  // "Récentes (1h)" count — derived from opportunites already loaded (no extra API call)
+  recentScanCount = allData.filter(a => {
+    const age = (Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000;
+    return age < 60;
+  }).length;
+
+  loadHome();
+}
+
+// ---- HOME ----
+let dbTotal = 0;
+let recentScanCount = 0;
+function loadHome() {
+  const hour = new Date().getHours();
+  document.getElementById('home-greeting').textContent =
+    hour < 12 ? 'Bonjour 👋' : hour < 18 ? 'Bon après-midi 👋' : 'Bonsoir 👋';
+
+  const opps = allData.filter(a => (a.score||0) >= 30);
+  document.getElementById('h-new').textContent = recentScanCount.toLocaleString('fr-FR');
+  document.getElementById('h-total').textContent = (dbTotal || allData.length).toLocaleString('fr-FR');
+  document.getElementById('home-summary').textContent = opps.length
+    ? `${opps.length} bonnes affaires repérées parmi les dernières annonces analysées.`
+    : 'Analyse en cours, le scan revient toutes les 20 minutes.';
+
+  const top5 = [...allData].sort((a,b)=> new Date(b.scraped_le||0) - new Date(a.scraped_le||0)).slice(0,5);
+  document.getElementById('home-top5').innerHTML = top5.length ? top5.map(a => {
+    const photoUrl = safeUrl(a.photo);
+    const photo = photoUrl
+      ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.parentNode.innerHTML='${getEmoji(a.marque,a.titre)}'"/>`
+      : `<span class="text-xl">${getEmoji(a.marque,a.titre)}</span>`;
+    const score = a.score||0;
+    const scoreCls = score >= 70 ? 'score-hi' : score >= 40 ? 'score-mid' : 'score-lo';
+    return `<div class="flex items-center gap-3 px-5 py-3 cursor-pointer transition-colors hover:bg-orange-50/60" data-open-url="${esc(safeUrl(a.url))}" style="border-bottom:1px solid var(--border);">
+      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:var(--hi);">${photo}</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold truncate">${esc(a.titre)||'—'}</p>
+        <p class="text-xs" style="color:var(--muted);">${a.prix}€ · médiane ${a.prix_median||'—'}€</p>
+      </div>
+      ${score ? `<span class="score-badge ${scoreCls}">${score}</span>` : ''}
+    </div>`;
+  }).join('') : `<div class="px-5 py-10 text-center text-sm" style="color:var(--muted);">Rien à afficher pour l'instant.</div>`;
+}
+
+function deduplicate(data) {
+  const seen = new Map();
+  return data.filter(a => {
+    const k = (a.vendeur||'') + '|' + (a.titre||'').toLowerCase().substring(0,25);
+    if (seen.has(k)) return false;
+    seen.set(k, true);
+    return true;
+  });
+}
+
+// ---- MARQUES ----
+function buildMarques() {
+  allMarques = [...new Set(allData.map(a => a.marque).filter(Boolean))].sort();
+  renderFms(allMarques);
+  renderFeedChips();
+}
+
+function renderFeedChips() {
+  const counts = new Map();
+  allData.forEach(a => { if (a.marque) counts.set(a.marque, (counts.get(a.marque)||0)+1); });
+  const top = [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10).map(([m])=>m);
+  document.getElementById('feed-chips').innerHTML = top.map(m => `
+    <button onclick="feedChipClick('${esc(m).replace(/'/g,"\\'")}')" class="feed-chip tag hover:bg-orange-100 transition-colors cursor-pointer">${esc(m)}</button>
+  `).join('');
+}
+
+function feedChipClick(m) {
+  const active = feedSelectedMarques.has(m);
+  feedSelectedMarques.clear();
+  if (!active) feedSelectedMarques.add(m);
+  renderFms(allMarques);
+  updateFmsBtn();
+  document.querySelectorAll('.feed-chip').forEach(b => {
+    const isActive = !active && b.textContent.trim() === m;
+    b.style.background = isActive ? 'var(--pri)' : '';
+    b.style.color      = isActive ? '#fff' : '';
+    b.style.borderColor= isActive ? 'var(--pri)' : '';
+  });
+  feedFilterChange();
+}
+
+function renderFms(list) {
+  document.getElementById('fms-list').innerHTML = list.map(m => `
+    <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-sm hover:bg-orange-50 transition-colors" style="color:var(--ink);">
+      <input type="checkbox" value="${esc(m)}" ${feedSelectedMarques.has(m)?'checked':''} onchange="toggleFms2('${esc(m).replace(/'/g,"\\'")}',this.checked)" style="accent-color:var(--pri);">
+      <span>${esc(m)}</span>
+    </label>`).join('');
+}
+
+function filterFms() {
+  const q = document.getElementById('fms-search').value.toLowerCase();
+  renderFms(allMarques.filter(m => m.toLowerCase().includes(q)));
+}
+
+function toggleFms2(m, v) { v ? feedSelectedMarques.add(m) : feedSelectedMarques.delete(m); updateFmsBtn(); feedFilterChange(); }
+function clearFms() { feedSelectedMarques.clear(); renderFms(allMarques); updateFmsBtn(); feedFilterChange(); }
+function selectAllFms() { allMarques.forEach(m => feedSelectedMarques.add(m)); renderFms(allMarques); updateFmsBtn(); feedFilterChange(); }
+function updateFmsBtn() {
+  const n = feedSelectedMarques.size;
+  document.getElementById('fms-label').textContent = n === 0 ? 'Toutes marques' : n === 1 ? [...feedSelectedMarques][0] : `${n} marques`;
+  const b = document.getElementById('fms-badge');
+  n > 0 ? (b.textContent = n, b.classList.remove('hidden')) : b.classList.add('hidden');
+}
+function toggleFms() { fmsOpen = !fmsOpen; document.getElementById('fms-dropdown').classList.toggle('hidden', !fmsOpen); }
+
+function syncPriceRange() {
+  document.getElementById('feed-pmin').value = document.getElementById('feed-pmin-range').value;
+  feedFilterChange();
+}
+function syncPriceInput() {
+  let v = Number(document.getElementById('feed-pmin').value) || 0;
+  v = Math.max(0, Math.min(300, v));
+  document.getElementById('feed-pmin-range').value = v;
+  feedFilterChange();
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('fms-wrap').contains(e.target)) { fmsOpen=false; document.getElementById('fms-dropdown').classList.add('hidden'); }
+});
+
+function resetFeedFilters() {
+  document.getElementById('feed-search').value = '';
+  document.getElementById('feed-taille').value = '';
+  document.getElementById('feed-etat').value = '';
+  document.getElementById('feed-pmin').value = '0';
+  document.getElementById('feed-pmin-range').value = '0';
+  document.getElementById('feed-score').value = '';
+  document.getElementById('feed-order').value = 'recent';
+  document.getElementById('feed-since').value = '';
+  feedSelectedMarques.clear();
+  renderFms(allMarques);
+  updateFmsBtn();
+  document.querySelectorAll('.feed-chip').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+  resetFeed();
+}
+
+// ---- SETTINGS ----
+let _siteConfig = null;
+
+async function loadSettings() {
+  // Fill account info
+  const { data } = await sb.auth.getUser();
+  const email = data.user?.email || '—';
+  document.getElementById('settings-email-display').textContent = email;
+  document.getElementById('settings-plan-badge').textContent = _isSubscribed ? 'Pro' : 'Gratuit';
+  document.getElementById('settings-plan-badge').style.color = _isSubscribed ? 'var(--pri)' : 'var(--muted)';
+  const planLabel = document.getElementById('settings-plan-label');
+  if (planLabel) planLabel.textContent = _isSubscribed ? 'Pro ✓' : 'Gratuit';
+
+  // Load config from API
+  try {
+    if (!_siteConfig) {
+      const r = await fetchWithTimeout(`${API}/config`);
+      _siteConfig = await r.json();
+    }
+    // Show admin panel if admin
+    const adminEmails = (window._adminEmails || []);
+    const isAdmin = adminEmails.includes(email) || false;
+    // Try to detect admin via /me plan field
+    try {
+      const rm = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
+      const me = await rm.json();
+      if (me.plan === 'admin' || me.is_admin) {
+        document.getElementById('settings-admin-panel').classList.remove('hidden');
+        document.getElementById('settings-price-input').value = _siteConfig.price_display || '';
+        document.getElementById('settings-stripe-url-input').value = _siteConfig.stripe_url || '';
+        document.getElementById('settings-portal-url-input').value = _siteConfig.stripe_portal_url || '';
+      }
+    } catch {}
+  } catch {}
+}
+
+async function saveAdminConfig() {
+  const price_display = document.getElementById('settings-price-input').value.trim();
+  const stripe_url = document.getElementById('settings-stripe-url-input').value.trim();
+  const stripe_portal_url = document.getElementById('settings-portal-url-input').value.trim();
+  const msg = document.getElementById('settings-admin-msg');
+  try {
+    const r = await fetchWithTimeout(`${API}/admin/config`, {
+      method: 'POST',
+      headers: { ...await authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price_display, stripe_url, stripe_portal_url }),
+    });
+    if (!r.ok) throw new Error();
+    _siteConfig = { price_display, stripe_url, stripe_portal_url };
+    applyConfigToModal();
+    msg.textContent = '✓ Sauvegardé';
+    msg.style.color = 'var(--green)';
+    msg.classList.remove('hidden');
+    setTimeout(() => msg.classList.add('hidden'), 3000);
+  } catch {
+    msg.textContent = 'Erreur lors de la sauvegarde.';
+    msg.style.color = 'var(--red)';
+    msg.classList.remove('hidden');
+  }
+}
+
+function applyConfigToModal() {
+  if (!_siteConfig) return;
+  const { price_display, stripe_url, stripe_portal_url } = _siteConfig;
+  if (price_display) {
+    document.querySelectorAll('.stripe-price-display').forEach(el => el.textContent = price_display);
+  }
+  if (stripe_url) {
+    document.querySelectorAll('.stripe-checkout-link').forEach(el => el.href = stripe_url);
+  }
+  // Show/hide portal button based on config
+  const portalWrap = document.getElementById('settings-portal-wrap');
+  const portalLink = document.getElementById('settings-stripe-portal-link');
+  if (stripe_portal_url && portalWrap && portalLink) {
+    portalLink.href = stripe_portal_url;
+    portalWrap.classList.remove('hidden');
+  } else if (portalWrap) {
+    portalWrap.classList.add('hidden');
+  }
+}
+
+async function initConfig() {
+  try {
+    const r = await fetchWithTimeout(`${API}/config`);
+    _siteConfig = await r.json();
+    applyConfigToModal();
+  } catch {}
+}
+
+// ---- STATS ----
+async function loadStats() {
+  document.getElementById('stats-body').innerHTML = '<div class="flex items-center justify-center py-20"><div class="spinner"></div></div>';
+  try {
+    const r = await fetchWithTimeout(API+'/stats');
+    const s = await r.json();
+    const niches = (s.niches||[]).filter(n=>n.marque).slice(0,15);
+    const maxMoy = Math.max(...niches.map(n=>n.prix_moy||0));
+    document.getElementById('stats-body').innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="stat-card">
+          <h3 class="font-bold mb-4">Base de données</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Total annonces</span><span class="font-bold">${(s.annonces||0).toLocaleString('fr-FR')}</span></div>
+            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Historique prix</span><span class="font-bold">${(s.prix_history||0).toLocaleString('fr-FR')}</span></div>
+            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Marques suivies</span><span class="font-bold">${niches.length}</span></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <h3 class="font-bold mb-4">Top marques · prix moyen</h3>
+          <div class="space-y-2">
+            ${niches.map(n=>`
+              <div class="flex items-center gap-3">
+                <span class="text-xs w-28 truncate" style="color:var(--muted);">${esc(n.marque)}</span>
+                <div class="flex-1 rounded-full h-1.5" style="background:var(--border);">
+                  <div class="h-1.5 rounded-full" style="width:${Math.round((n.prix_moy/maxMoy)*100)}%;background:var(--pri);"></div>
+                </div>
+                <span class="text-xs font-bold w-10 text-right">${Math.round(n.prix_moy)}€</span>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="stat-card md:col-span-2">
+          <h3 class="font-bold mb-4">Détail par marque</h3>
+          <table class="w-full text-sm">
+            <thead><tr class="text-xs uppercase" style="color:var(--muted);">
+              <th class="text-left pb-3">Marque</th>
+              <th class="text-right pb-3">Entrées</th>
+              <th class="text-right pb-3">Min</th>
+              <th class="text-right pb-3">Moy</th>
+              <th class="text-right pb-3">Max</th>
+            </tr></thead>
+            <tbody>
+              ${niches.map(n=>`<tr style="border-top:1px solid var(--border);">
+                <td class="py-2 font-medium">${esc(n.marque)}</td>
+                <td class="py-2 text-right" style="color:var(--muted);">${n.nb}</td>
+                <td class="py-2 text-right">${Math.round(n.prix_min)}€</td>
+                <td class="py-2 text-right font-bold" style="color:var(--pri);">${Math.round(n.prix_moy)}€</td>
+                <td class="py-2 text-right">${Math.round(n.prix_max)}€</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('stats-body').innerHTML = `<div class="text-center py-20" style="color:var(--muted);">
+      <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">cloud_off</span>
+      <p>Erreur chargement stats</p>
+      <button onclick="loadStats()" class="mt-3 text-sm font-bold hover:underline" style="color:var(--pri);">Réessayer</button>
+    </div>`;
+  }
+}
+
+// ---- UTILS ----
+function getEmoji(m,t) {
+  const s = ((m||'')+(t||'')).toLowerCase();
+  if (s.includes('nike')||s.includes('jordan')||s.includes('adidas')||s.includes('air force')||s.includes('dunk')) return '👟';
+  if (s.includes('levi')||s.includes('jean')||s.includes('501')) return '👖';
+  if (s.includes('sac')||s.includes('bag')||s.includes('tote')||s.includes('pochette')) return '👜';
+  if (s.includes('north face')||s.includes('manteau')||s.includes('veste')||s.includes('doudoune')) return '🧥';
+  if (s.includes('montre')||s.includes('watch')||s.includes('garmin')) return '⌚';
+  if (s.includes('canon')||s.includes('nikon')||s.includes('gopro')||s.includes('fujifilm')) return '📷';
+  if (s.includes('chanel')||s.includes('louis vuitton')||s.includes('hermès')||s.includes('gucci')||s.includes('dior')) return '💎';
+  if (s.includes('pull')||s.includes('sweat')||s.includes('hoodie')||s.includes('t-shirt')) return '👕';
+  return '🏷️';
+}
+
+// ---- NAVIGATION ----
+function showPage(name) {
+  ['home','stats','feed','niches','niche-detail','settings'].forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
+  });
+  const titles = { home:'Accueil', stats:'Marché', feed:'Feed · Toutes les annonces', niches:'Niches', 'niche-detail':'Niche', settings:'Réglages' };
+  document.getElementById('page-title').textContent = titles[name] || '';
+
+  // Desktop sidebar active state
+  ['home','feed','stats','niches','settings'].forEach(p => {
+    const el = document.getElementById('nav-'+p);
+    if (el) el.classList.toggle('active', p === name);
+    const mel = document.getElementById('mnav-'+p);
+    if (mel) mel.classList.toggle('active', p === name);
+  });
+
+  if (name==='stats') loadStats();
+  if (name==='niches') { loadNiches(); loadWatchlist(); }
+  if (name==='settings') loadSettings();
+  if (name==='feed') {
+    if (feedOffset === 0) resetFeed();
+    feedObserver.observe(document.getElementById('feed-sentinel'));
+  } else {
+    feedObserver.unobserve(document.getElementById('feed-sentinel'));
+  }
+}
+
+// ---- FEED ----
+let feedOffset = 0, feedLoading = false, feedDone = false, feedTimer = null;
+const FEED_LIMIT = 40;
+
+function feedFilterChange() {
+  clearTimeout(feedTimer);
+  feedTimer = setTimeout(() => resetFeed(), 400);
+}
+
+function resetFeed() {
+  feedOffset = 0;
+  feedDone = false;
+  document.getElementById('feed-grid').innerHTML = '';
+  document.getElementById('feed-count').textContent = '';
+  loadFeedPage();
+}
+
+async function loadFeedPage() {
+  // Show/hide free tier banner
+  const feedBanner = document.getElementById('feed-free-banner');
+  if (feedBanner) feedBanner.classList.toggle('hidden', _isSubscribed);
+  if (feedLoading || feedDone) return;
+  feedLoading = true;
+  document.getElementById('feed-spinner').style.display = '';
+  const params = new URLSearchParams({
+    offset: feedOffset,
+    limit: FEED_LIMIT,
+    order: document.getElementById('feed-order').value,
+  });
+  const search = document.getElementById('feed-search').value.trim();
+  const taille = document.getElementById('feed-taille').value.trim();
+  const etat   = document.getElementById('feed-etat').value;
+  const scoreMin = document.getElementById('feed-score').value;
+  const pmin   = document.getElementById('feed-pmin').value;
+  if (search) params.set('search', search);
+  if (feedSelectedMarques.size) params.set('marque', [...feedSelectedMarques].join(','));
+  if (taille) params.set('taille', taille);
+  if (etat)   params.set('etat', etat);
+  if (scoreMin) params.set('score_min', scoreMin);
+  if (pmin && Number(pmin) > 0) params.set('prix_min', pmin);
+  const since = document.getElementById('feed-since').value;
+  if (since) params.set('since_hours', since);
+  try {
+    const r = await fetchWithTimeout(`${API}/feed?${params}`, { headers: await authHeader() }, 60000);
+    let items = await r.json();
+    if (!Array.isArray(items)) items = [];
+    items = items.filter(a => {
+      if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
+      if (taille && (a.taille||'').toLowerCase() !== taille.toLowerCase()) return false;
+      if (etat && a.etat !== etat) return false;
+      if (scoreMin && (a.score||0) < parseInt(scoreMin)) return false;
+      return true;
+    });
+    if (items.length < FEED_LIMIT) feedDone = true;
+    items.forEach(a => _feedItemsById.set(a.id, a));
+    const grid = document.getElementById('feed-grid');
+    if (feedOffset === 0 && items.length === 0) {
+      grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
+        <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">search_off</span>
+        Aucune annonce ne correspond à ces filtres.<br/>
+        <button onclick="resetFeedFilters()" class="mt-3 font-bold text-sm hover:underline" style="color:var(--pri);">Réinitialiser les filtres</button>
+      </div>`;
+    } else {
+      items.forEach(a => grid.insertAdjacentHTML('beforeend', renderFeedCard(a)));
+    }
+    feedOffset += items.length;
+    document.getElementById('feed-count').textContent = feedOffset + ' annonces chargées';
+    if (feedDone) document.getElementById('feed-spinner').style.display = 'none';
+  } catch(e) {
+    feedDone = true;
+    document.getElementById('feed-spinner').style.display = 'none';
+    if (feedOffset === 0) {
+      document.getElementById('feed-grid').innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
+        <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">cloud_off</span>
+        Le serveur ne répond pas, nouvelle tentative dans quelques secondes…
+      </div>`;
+      setTimeout(() => { feedDone = false; resetFeed(); }, 5000);
+    }
+  } finally {
+    feedLoading = false;
+  }
+}
+
+function renderFeedCard(a) {
+  const age = Math.floor((Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000);
+  const ageStr = age < 60 ? age+'min' : Math.floor(age/60)+'h';
+  const isNew  = age < 30;
+  const score  = a.score||0;
+  const scoreCls = score >= 70 ? 'score-hi' : score >= 40 ? 'score-mid' : 'score-lo';
+  const photoUrl = safeUrl(a.photo);
+  const photo = photoUrl ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '';
+  return `
+    <div class="feed-card" data-open-url="${esc(safeUrl(a.url))}">
+      <div class="relative h-40 flex items-center justify-center overflow-hidden" style="background:var(--hi);">
+        ${photo || `<span style="font-size:2.5rem;">${getEmoji(a.marque,a.titre)}</span>`}
+        ${isNew ? `<span class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:var(--pri);">NEW</span>` : ''}
+        <span class="absolute top-1.5 right-1.5 text-white text-[9px] px-1.5 py-0.5 rounded-lg" style="background:rgba(0,0,0,.45);">${ageStr}</span>
+        <button data-watch-btn data-ann-id="${a.id}" onclick="toggleWatchById(event,${a.id})" class="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full text-white flex items-center justify-center transition-all hover:scale-110" style="background:rgba(0,0,0,.45);" title="Surveiller">
+          <span class="material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' ${watchedIds.has(a.id)?1:0};">visibility</span>
+        </button>
+      </div>
+      <div class="p-3">
+        <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
+        <p class="text-xs truncate mt-0.5" style="color:var(--muted);">${esc(a.marque)||''} ${a.taille?'· '+esc(a.taille):''}</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-sm font-bold">${a.prix}€</span>
+          <div class="flex items-center gap-1.5">
+            ${score ? `<span class="score-badge ${scoreCls}">${score}</span>` : ''}
+            ${(a.nb_favoris > 0) ? `<span class="flex items-center gap-0.5 score-badge" style="background:#fdf2f8;color:#be185d;"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${a.nb_favoris}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+const feedObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) loadFeedPage();
+}, { rootMargin: '300px' });
+
+// ---- DARK MODE ----
+function toggleDark() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('trakr-theme', isDark ? 'dark' : 'light');
+  document.getElementById('dark-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
+}
+(function initDark() {
+  const saved = localStorage.getItem('trakr-theme');
+  const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (dark) document.documentElement.classList.add('dark');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('dark-icon').textContent = dark ? 'light_mode' : 'dark_mode';
+  });
+})();
+
+// ---- NICHES & SURVEILLANCE ----
+let watchedIds = new Set();
+
+async function loadWatchedIds() {
+  try {
+    const r = await fetchWithTimeout(`${API}/surveillance`, { headers: await authHeader() });
+    if (!r.ok) return;
+    const items = await r.json();
+    watchedIds = new Set(items.map(i => i.annonce_id));
+  } catch {}
+}
+
+const _feedItemsById = new Map();
+
+async function toggleWatchById(ev, id) {
+  const a = _feedItemsById.get(id);
+  if (!a) return;
+  return toggleWatch(ev, a);
+}
+
+async function toggleWatch(ev, a) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  const btn = ev.currentTarget;
+  const icon = btn.querySelector('.material-symbols-outlined');
+  const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
+  if (watchedIds.has(a.id)) {
+    watchedIds.delete(a.id);
+    icon.style.fontVariationSettings = "'FILL' 0";
+    await fetch(`${API}/surveillance/${a.id}`, { method: 'DELETE', headers });
+  } else {
+    watchedIds.add(a.id);
+    icon.style.fontVariationSettings = "'FILL' 1";
+    await fetch(`${API}/surveillance`, { method: 'POST', headers, body: JSON.stringify(a) });
+  }
+}
+
+function switchNichesTab(tab) {
+  document.getElementById('niches-panel-mine').classList.toggle('hidden', tab !== 'mine');
+  document.getElementById('niches-panel-watch').classList.toggle('hidden', tab !== 'watch');
+  document.getElementById('niches-tab-mine').classList.toggle('active', tab === 'mine');
+  document.getElementById('niches-tab-watch').classList.toggle('active', tab === 'watch');
+  document.getElementById('btn-new-niche').classList.toggle('hidden', tab !== 'mine');
+}
+
+function switchDetailTab(tab) {
+  document.getElementById('nd-panel-grid').classList.toggle('hidden', tab !== 'grid');
+  document.getElementById('nd-panel-table').classList.toggle('hidden', tab !== 'table');
+  document.getElementById('nd-tab-grid').classList.toggle('active', tab === 'grid');
+  document.getElementById('nd-tab-table').classList.toggle('active', tab === 'table');
+}
+
+let _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
+
+async function parseNicheLink() {
+  const raw = document.getElementById('niche-link').value.trim();
+  const statusEl = document.getElementById('niche-link-status');
+  const loadingEl = document.getElementById('niche-link-loading');
+  statusEl.classList.add('hidden');
+  _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
+  if (!raw) return;
+  let url;
+  try { url = new URL(raw.startsWith('http') ? raw : `https://${raw}`); } catch { return; }
+  const p = url.searchParams;
+  const search = p.get('search_text');
+  if (search) {
+    _nicheExtracted.recherche = search;
+    if (!document.getElementById('niche-nom').value) document.getElementById('niche-nom').value = search;
+  }
+  const priceFrom = p.get('price_from');
+  if (priceFrom) _nicheExtracted.prix_min = Number(priceFrom);
+  const sizes = p.getAll('size_ids[]');
+  if (sizes.length) _nicheExtracted.taille = sizes.join(',');
+  const brandIds = p.getAll('brand_ids[]');
+  if (brandIds.length) {
+    loadingEl.classList.remove('hidden');
+    try {
+      const r = await fetch(`${API}/vinted/brand/${brandIds[0]}`);
+      const data = await r.json();
+      if (data.title) {
+        _nicheExtracted.marque = data.title;
+        if (!document.getElementById('niche-nom').value) document.getElementById('niche-nom').value = data.title;
+      }
+    } catch {}
+    loadingEl.classList.add('hidden');
+  }
+  const tags = [];
+  if (_nicheExtracted.marque) tags.push(_nicheExtracted.marque);
+  if (_nicheExtracted.recherche) tags.push(_nicheExtracted.recherche);
+  if (_nicheExtracted.taille) tags.push('Taille ' + _nicheExtracted.taille);
+  if (_nicheExtracted.prix_min) tags.push('≥' + _nicheExtracted.prix_min + '€');
+  if (tags.length) {
+    statusEl.textContent = '✓ Filtres détectés : ' + tags.join(' · ');
+    statusEl.classList.remove('hidden');
+  }
+}
+
+function openNicheModal() {
+  if (!_isSubscribed && _allNiches.length >= 1) {
+    showUpgradeModal('Le plan gratuit est limité à 1 niche. Passe à Pro pour en créer autant que tu veux.');
+    return;
+  }
+  _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
+  document.getElementById('niche-link').value = '';
+  document.getElementById('niche-nom').value = '';
+  document.getElementById('niche-link-status').classList.add('hidden');
+  document.getElementById('niche-link-loading').classList.add('hidden');
+  document.getElementById('niche-error').classList.add('hidden');
+  document.getElementById('niche-modal').classList.remove('hidden');
+}
+function closeNicheModal() {
+  document.getElementById('niche-modal').classList.add('hidden');
+}
+
+async function submitNiche() {
+  const nom = document.getElementById('niche-nom').value.trim();
+  const lien = document.getElementById('niche-link').value.trim();
+  const errEl = document.getElementById('niche-error');
+  if (!lien) { errEl.textContent = 'Le lien Vinted est requis.'; errEl.classList.remove('hidden'); return; }
+  if (!nom) { errEl.textContent = 'Le titre est requis.'; errEl.classList.remove('hidden'); return; }
+  const btn = document.querySelector('#niche-modal button[onclick="submitNiche()"]');
+  if (btn) btn.disabled = true;
+  try {
+    const payload = { nom, lien, ..._nicheExtracted };
+    const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
+    const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      if (r.status === 403 && body.error === 'free_limit') {
+        closeNicheModal();
+        showUpgradeModal('Le plan gratuit est limité à 1 niche. Passe à Pro pour en créer autant que tu veux.');
+        return;
+      }
+      errEl.textContent = "Erreur lors de la création."; errEl.classList.remove('hidden'); return;
+    }
+    closeNicheModal();
+    loadNiches();
+  } catch {
+    errEl.textContent = "Erreur réseau. Réessaie."; errEl.classList.remove('hidden');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function deleteNiche(id) {
+  if (!confirm('Supprimer cette niche ? Cette action est irréversible.')) return;
+  try {
+    const headers = await authHeader();
+    await fetchWithTimeout(`${API}/niches/${id}`, { method: 'DELETE', headers });
+  } catch {}
+  loadNiches();
+}
+
+// ---- NICHES TABLE ----
+let _allNiches = [], _nichesSort = { col: 'nb_items', dir: -1 };
+function openNicheDetailById(id) {
+  const n = _allNiches.find(n => n.id === id);
+  if (n) openNicheDetail(n);
+}
+
+async function loadNiches() {
+  document.getElementById('niches-tbody').innerHTML =
+    `<tr><td colspan="5" class="px-5 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>`;
+  try {
+    const r = await fetchWithTimeout(`${API}/niches`, { headers: await authHeader() });
+    const data = await r.json();
+    _allNiches = Array.isArray(data) ? data : (data.niches || []);
+    // Update global subscription state if returned
+    if (typeof data.subscribed === 'boolean') _isSubscribed = data.subscribed;
+    const badge = document.getElementById('plan-badge');
+    if (badge) {
+      badge.textContent = _isSubscribed ? 'Pro' : 'Gratuit';
+      badge.style.color = _isSubscribed ? 'var(--pri)' : 'var(--muted)';
+    }
+    renderNichesStatsRow();
+    renderNichesTable();
+    renderFreeBanner();
+  } catch {
+    document.getElementById('niches-tbody').innerHTML =
+      `<tr><td colspan="5" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">
+        <span class="material-symbols-outlined block mb-1" style="font-size:32px;opacity:.4;">cloud_off</span>
+        Erreur de chargement.
+        <button onclick="loadNiches()" class="block mx-auto mt-2 font-bold hover:underline" style="color:var(--pri);">Réessayer</button>
+      </td></tr>`;
+  }
+}
+
+function renderFreeBanner() {
+  const el = document.getElementById('niches-free-banner');
+  if (!el) return;
+  if (_isSubscribed) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+}
+
+function renderNichesStatsRow() {
+  if (!_allNiches.length) { document.getElementById('niches-stats-row').innerHTML = ''; return; }
+  const totalAnnonces = _allNiches.reduce((s,n) => s + (n.nb_annonces||0), 0);
+  const totalCaptes = _allNiches.reduce((s,n) => s + (n.nb_items||0), 0);
+  const totalVendus = _allNiches.reduce((s,n) => s + (n.nb_vendus||0), 0);
+  const nichesActives = _allNiches.filter(n => n.lien).length;
+  const topNiche = _allNiches.reduce((best,n) => (!best || (n.nb_items||0) > (best.nb_items||0)) ? n : best, null);
+  document.getElementById('niches-stats-row').innerHTML = `
+    <div class="stat-card">
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Niches créées</p>
+      <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${_allNiches.length}</p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Articles captés</p>
+      <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">${totalCaptes.toLocaleString('fr-FR')}</p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Vendus détectés</p>
+      <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">${totalVendus.toLocaleString('fr-FR')}</p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Niche la plus active</p>
+      <p class="text-base font-bold truncate" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${topNiche && topNiche.nb_items > 0 ? esc(topNiche.nom) : '—'}</p>
+    </div>`;
+}
+
+function renderNichesTable() {
+  const q = (document.getElementById('niches-search')?.value || '').toLowerCase();
+  let rows = _allNiches.filter(n => !q || n.nom.toLowerCase().includes(q));
+  const { col, dir } = _nichesSort;
+  rows.sort((a,b) => {
+    const av = a[col] ?? -Infinity, bv = b[col] ?? -Infinity;
+    return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
+  });
+  document.getElementById('niches-count').textContent = `${rows.length} niche${rows.length !== 1 ? 's' : ''}`;
+  [['nb_items','nb'],['nb_vendus','vendus'],['prix_moyen','prix']].forEach(([c,id]) => {
+    const el = document.getElementById('sort-'+id);
+    if (el) el.textContent = c === col ? (dir === -1 ? '↓' : '↑') : '';
+  });
+  if (!rows.length) {
+    document.getElementById('niches-tbody').innerHTML =
+      `<tr><td colspan="5" class="px-5 py-12 text-center text-sm" style="color:var(--muted);">
+        ${q ? 'Aucune niche ne correspond à cette recherche.' : 'Aucune niche. Crée-en une avec le bouton ci-dessus.'}
+      </td></tr>`;
+    return;
+  }
+  document.getElementById('niches-tbody').innerHTML = rows.map(n => {
+    const tags = [
+      n.recherche ? `<span class="tag">"${esc(n.recherche)}"</span>` : '',
+      n.marque    ? `<span class="tag">${esc(n.marque)}</span>` : '',
+      n.taille    ? `<span class="tag">Taille ${esc(n.taille)}</span>` : '',
+      n.prix_min  ? `<span class="tag">≥${n.prix_min}€</span>` : '',
+    ].filter(Boolean).join('');
+    return `<tr style="border-top:1px solid var(--border);cursor:pointer;" class="tbl-row transition-colors"
+               onclick="if(!event.target.closest('[data-no-row-click]'))openNicheDetailById(${n.id})">
+      <td class="px-5 py-3">
+        <p class="font-semibold text-sm">${esc(n.nom)}</p>
+        ${tags ? `<div class="flex flex-wrap gap-1 mt-1">${tags}</div>` : ''}
+      </td>
+      <td class="px-4 py-3 text-right font-bold" style="color:var(--pri);">${n.nb_items ?? 0}</td>
+      <td class="px-4 py-3 text-right font-semibold" style="color:${n.nb_vendus > 0 ? '#ef4444' : 'var(--muted)'};">${n.nb_vendus ?? 0}</td>
+      <td class="px-4 py-3 text-right hidden md:table-cell" style="color:var(--muted);">${n.prix_moyen ? n.prix_moyen.toFixed(2)+'€' : '—'}</td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-2" data-no-row-click>
+          <button onclick="event.stopPropagation();openNicheDetailById(${n.id})" class="text-xs font-bold hover:underline whitespace-nowrap" style="color:var(--pri);">Voir →</button>
+          <button onclick="event.stopPropagation();deleteNiche(${n.id})" class="hover:text-red-500 transition-colors" style="color:var(--muted);">
+            <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function sortNiches(col) {
+  if (_nichesSort.col === col) _nichesSort.dir *= -1;
+  else { _nichesSort.col = col; _nichesSort.dir = -1; }
+  renderNichesTable();
+}
+
+function filterNicheTable() { renderNichesTable(); }
+
+async function openNicheDetail(n) {
+  showPage('niche-detail');
+  switchDetailTab('grid');
+
+  // Header
+  document.getElementById('niche-detail-title').textContent = n.nom;
+  const tags = [
+    n.recherche ? `<span class="tag">"${esc(n.recherche)}"</span>` : '',
+    n.marque ? `<span class="tag">${esc(n.marque)}</span>` : '',
+    n.taille ? `<span class="tag">Taille ${esc(n.taille)}</span>` : '',
+    n.prix_min ? `<span class="tag">≥ ${n.prix_min}€</span>` : '',
+  ].filter(Boolean).join('') || `<span class="tag">Toutes annonces</span>`;
+  document.getElementById('niche-detail-tags').innerHTML = tags;
+
+  // Stats reset — will be computed from items after load
+  ['nd-nb','nd-pmoy','nd-range','nd-fav'].forEach(id => document.getElementById(id).textContent = '—');
+
+  // Vinted link
+  const vintedLink = document.getElementById('niche-detail-vinted-link');
+  if (n.lien) {
+    vintedLink.href = n.lien;
+    vintedLink.classList.remove('hidden');
+  } else {
+    vintedLink.classList.add('hidden');
+  }
+
+  // Fetch niche-specific items
+  const gridEl = document.getElementById('niche-detail-list');
+  const tableEl = document.getElementById('nd-table-body');
+  const loading = `<div class="col-span-full text-center py-8"><div class="spinner mx-auto"></div></div>`;
+  gridEl.innerHTML = loading;
+  tableEl.innerHTML = `<tr><td colspan="6" class="px-5 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>`;
+
+  try {
+    const r = await fetchWithTimeout(`${API}/niches/${n.id}/items?limit=100`, { headers: await authHeader() });
+    const items = await r.json();
+    if (!Array.isArray(items) || !items.length) {
+      const empty = n.lien
+        ? `Les nouvelles annonces de cette niche apparaîtront ici au prochain scan (toutes les 20 min).`
+        : `Aucune annonce pour cette niche.`;
+      gridEl.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">${empty}</div>`;
+      tableEl.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">${empty}</td></tr>`;
+      document.getElementById('nd-nb').textContent = '0';
+      return;
+    }
+    // Compute stats from items
+    const actifs = items.filter(i => !i.sold_at);
+    const vendus = items.filter(i => i.sold_at);
+    const prix = actifs.map(i => i.prix).filter(Boolean);
+    const prixMoy = prix.length ? prix.reduce((s,v) => s+v, 0) / prix.length : null;
+    const prixMin = prix.length ? Math.min(...prix) : null;
+    const prixMax = prix.length ? Math.max(...prix) : null;
+    document.getElementById('nd-nb').textContent   = items.length + (vendus.length ? ` (${vendus.length} vendus)` : '');
+    document.getElementById('nd-pmoy').textContent = prixMoy ? prixMoy.toFixed(2)+'€' : '—';
+    document.getElementById('nd-range').textContent = (prixMin !== null && prixMax !== null) ? `${prixMin.toFixed(0)}–${prixMax.toFixed(0)}€` : '—';
+    document.getElementById('nd-fav').textContent   = vendus.length ? ((vendus.length / items.length * 100).toFixed(0) + '% vendus') : '—';
+    // Grid view
+    gridEl.innerHTML = items.map(a => {
+      const sold = !!a.sold_at;
+      const age = Math.floor((Date.now() - new Date(a.first_seen||Date.now()).getTime())/60000);
+      const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
+      return `<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener"
+          class="vs-card rounded-xl overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform ${sold ? 'opacity-50' : ''}">
+        <div class="relative" style="aspect-ratio:1;">
+          ${safeUrl(a.photo) ? `<img src="${esc(safeUrl(a.photo))}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-3xl" style="background:var(--hi);">${getEmoji(a.marque,a.titre)}</div>`}
+          ${sold ? `<span class="absolute top-1 left-1 text-xs font-bold px-1.5 py-0.5 rounded-md" style="background:#ef4444;color:#fff;">Vendu</span>` : `<span class="absolute top-1 right-1 text-xs px-1.5 py-0.5 rounded-md" style="background:rgba(0,0,0,.55);color:#fff;">${ageStr}</span>`}
+        </div>
+        <div class="p-2 flex-1 flex flex-col gap-0.5">
+          <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
+          <p class="text-sm font-bold" style="color:var(--pri);">${a.prix}€</p>
+          ${a.marque ? `<p class="text-xs truncate" style="color:var(--muted);">${esc(a.marque)}${a.taille ? ' · '+esc(a.taille) : ''}</p>` : ''}
+        </div>
+      </a>`;
+    }).join('');
+    // Table view
+    tableEl.innerHTML = items.map(a => {
+      const sold = !!a.sold_at;
+      const age = Math.floor((Date.now() - new Date(a.first_seen||Date.now()).getTime())/60000);
+      const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
+      return `<tr style="border-top:1px solid var(--border);${sold ? 'opacity:.5;' : ''}" class="tbl-row transition-colors">
+        <td class="px-5 py-2.5">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0" style="background:var(--hi);">
+              ${safeUrl(a.photo) ? `<img src="${esc(safeUrl(a.photo))}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : ''}
+            </div>
+            <p class="text-sm font-medium truncate max-w-[200px]">${esc(a.titre)||'—'}</p>
+          </div>
+        </td>
+        <td class="px-4 py-2.5 text-right font-bold whitespace-nowrap">${a.prix}€</td>
+        <td class="px-4 py-2.5 text-right hidden sm:table-cell" style="color:var(--muted);">${esc(a.marque)||'—'}</td>
+        <td class="px-4 py-2.5 text-right hidden md:table-cell" style="color:var(--muted);">${esc(a.taille)||'—'}</td>
+        <td class="px-4 py-2.5 text-right text-xs hidden md:table-cell" style="color:var(--muted);">${ageStr}</td>
+        <td class="px-4 py-2.5">
+          ${sold
+            ? `<span class="text-xs font-bold" style="color:#ef4444;">Vendu</span>`
+            : `<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener" class="text-xs font-bold hover:underline" style="color:var(--pri);">Voir →</a>`}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch {
+    gridEl.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">Erreur de chargement.</div>`;
+    tableEl.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">Erreur de chargement.</td></tr>`;
+  }
+}
+
+async function loadWatchlist() {
+  const list = document.getElementById('watch-list');
+  const upgradeBanner = document.getElementById('watch-upgrade-banner');
+  if (!_isSubscribed) {
+    if (upgradeBanner) upgradeBanner.classList.remove('hidden');
+    list.innerHTML = '';
+    return;
+  }
+  if (upgradeBanner) upgradeBanner.classList.add('hidden');
+  list.innerHTML = `<div class="col-span-full text-center py-8"><div class="spinner mx-auto"></div></div>`;
+  try {
+    const r = await fetch(`${API}/surveillance`, { headers: await authHeader() });
+    const items = await r.json();
+    watchedIds = new Set(items.map(i => i.annonce_id));
+    if (!Array.isArray(items) || !items.length) {
+      list.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">Aucune annonce surveillée. Clique sur 👁 dans le feed pour en ajouter.</div>`;
+      return;
+    }
+    list.innerHTML = items.map(a => {
+      const photoUrl = safeUrl(a.photo);
+      const photo = photoUrl ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '';
+      return `
+      <div class="feed-card">
+        <div class="relative h-40 flex items-center justify-center overflow-hidden cursor-pointer" style="background:var(--hi);" data-open-url="${esc(safeUrl(a.url))}">
+          ${photo || `<span style="font-size:2.5rem;">${getEmoji(a.marque,a.titre)}</span>`}
+          ${a.vendu
+            ? '<span class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:var(--red);">VENDU</span>'
+            : '<span class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:var(--green);">DISPO</span>'}
+          <button data-watch-btn onclick="removeWatch(event, ${a.annonce_id})" class="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full text-white flex items-center justify-center transition-all hover:scale-110" style="background:rgba(0,0,0,.45);" title="Retirer">
+            <span class="material-symbols-outlined" style="font-size:15px;">close</span>
+          </button>
+        </div>
+        <div class="p-3">
+          <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
+          <p class="text-xs truncate mt-0.5" style="color:var(--muted);">${esc(a.marque)||''} ${a.taille?'· '+esc(a.taille):''}</p>
+          <p class="text-sm font-bold mt-1">${a.prix}€</p>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {
+    list.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">Erreur de chargement.</div>`;
+  }
+}
+
+async function removeWatch(ev, annonceId) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  const headers = await authHeader();
+  await fetch(`${API}/surveillance/${annonceId}`, { method: 'DELETE', headers });
+  watchedIds.delete(annonceId);
+  loadWatchlist();
+}
+
+// Data loading is triggered by showApp() after auth + subscription are confirmed
+</script>
+</body>
+</html>

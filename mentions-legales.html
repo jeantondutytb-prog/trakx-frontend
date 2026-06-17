@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mentions légales — Trakr</title>
+<meta name="robots" content="noindex"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:;">
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: "#0f1626", surface: "#161e2e", "surface-high": "#1c2536",
+        border: "#2c3850", muted: "#9aa1b5", accent: "#00e676",
+        "accent-dark": "#00b85e", ink: "#e6eaf2"
+      },
+      fontFamily: { sans: ["Inter","sans-serif"], display: ["Space Grotesk","sans-serif"] },
+      borderRadius: { xl: "16px", "2xl": "20px" }
+    }
+  }
+}
+</script>
+<style>
+  body { background: #0f1626; color: #e6eaf2; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .legal h2 { margin-top: 2rem; }
+  .legal p, .legal li { color: #9aa1b5; line-height: 1.7; }
+  .legal mark { background: rgba(0,230,118,.15); color: #00e676; padding: 0 4px; border-radius: 4px; font-weight: 600; }
+</style>
+</head>
+<body class="antialiased font-sans">
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-bg/80 border-b border-border">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="./" class="flex items-center gap-2 font-display font-bold text-lg text-ink">
+      <span class="material-symbols-outlined text-accent" style="font-variation-settings:'FILL' 1;">radar</span>
+      Trakr
+    </a>
+    <a href="./" class="text-sm text-muted hover:text-ink transition-colors">← Retour au site</a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-6 py-12 legal">
+  <h1 class="text-3xl font-display font-bold text-ink mb-2">Mentions légales</h1>
+  <p class="text-sm text-muted mb-8">Dernière mise à jour : 15 juin 2026</p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">Éditeur du site</h2>
+  <p>
+    Le site Trakr est édité par : Gatron Hugo,
+    entreprise individuelle en cours d'immatriculation (micro-entreprise).<br/>
+    Numéro SIRET : en cours d'immatriculation<br/>
+    Adresse : 17 Rue des Rossignols, 69440 Mornant<br/>
+    Email de contact : jeantondut@gmail.com
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">Hébergement</h2>
+  <p>
+    Le site est hébergé par Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis
+    (<a href="https://vercel.com" class="text-accent hover:underline">vercel.com</a>).<br/>
+    L'API et la base de données sont hébergées par Render Services, Inc.
+    (<a href="https://render.com" class="text-accent hover:underline">render.com</a>).
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">Activité</h2>
+  <p>
+    Trakr est un outil d'analyse de données publiques (annonces publiées sur Vinted) à but
+    informatif, destiné à aider ses utilisateurs à identifier des tendances de prix. Trakr
+    n'est ni affilié à, ni partenaire de, ni approuvé par Vinted.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">Propriété intellectuelle</h2>
+  <p>
+    L'ensemble des éléments du site (textes, design, logo, code) est la propriété de l'éditeur,
+    sauf mention contraire. Toute reproduction sans autorisation est interdite.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">Médiation et litiges</h2>
+  <p>
+    En cas de litige, l'utilisateur peut recourir à une médiation conventionnelle ou à tout autre
+    mode alternatif de règlement des différends. Pour toute réclamation, contactez-nous d'abord à
+    l'adresse indiquée ci-dessus.
+  </p>
+</main>
+
+<footer class="border-t border-border">
+  <div class="max-w-3xl mx-auto px-6 py-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted">
+    <a href="mentions-legales.html" class="hover:text-ink transition-colors">Mentions légales</a>
+    <a href="cgv.html" class="hover:text-ink transition-colors">CGU / CGV</a>
+    <a href="confidentialite.html" class="hover:text-ink transition-colors">Confidentialité</a>
+  </div>
+</footer>
+
+</body>
+</html>

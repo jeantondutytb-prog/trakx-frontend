@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Politique de confidentialité — Trakr</title>
+<meta name="robots" content="noindex"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:;">
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: "#0f1626", surface: "#161e2e", "surface-high": "#1c2536",
+        border: "#2c3850", muted: "#9aa1b5", accent: "#00e676",
+        "accent-dark": "#00b85e", ink: "#e6eaf2"
+      },
+      fontFamily: { sans: ["Inter","sans-serif"], display: ["Space Grotesk","sans-serif"] },
+      borderRadius: { xl: "16px", "2xl": "20px" }
+    }
+  }
+}
+</script>
+<style>
+  body { background: #0f1626; color: #e6eaf2; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .legal h2 { margin-top: 2rem; }
+  .legal p, .legal li { color: #9aa1b5; line-height: 1.7; }
+  .legal ul { list-style: disc; padding-left: 1.5rem; margin-top: .5rem; }
+  .legal table { width: 100%; margin-top: .75rem; border-collapse: collapse; font-size: .875rem; }
+  .legal th, .legal td { border: 1px solid #2c3850; padding: .5rem .75rem; text-align: left; color: #9aa1b5; }
+  .legal th { color: #e6eaf2; }
+  .legal mark { background: rgba(0,230,118,.15); color: #00e676; padding: 0 4px; border-radius: 4px; font-weight: 600; }
+</style>
+</head>
+<body class="antialiased font-sans">
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-bg/80 border-b border-border">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="./" class="flex items-center gap-2 font-display font-bold text-lg text-ink">
+      <span class="material-symbols-outlined text-accent" style="font-variation-settings:'FILL' 1;">radar</span>
+      Trakr
+    </a>
+    <a href="./" class="text-sm text-muted hover:text-ink transition-colors">← Retour au site</a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-6 py-12 legal">
+  <h1 class="text-3xl font-display font-bold text-ink mb-2">Politique de confidentialité</h1>
+  <p class="text-sm text-muted mb-8">Dernière mise à jour : 15 juin 2026</p>
+
+  <p>
+    Trakr attache de l'importance à la protection de vos données personnelles. Cette page
+    explique quelles données sont collectées, pourquoi, et comment elles sont protégées,
+    conformément au Règlement Général sur la Protection des Données (RGPD).
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">1. Responsable du traitement</h2>
+  <p>
+    Gatron Hugo, 17 Rue des Rossignols, 69440 Mornant — contact :
+    jeantondut@gmail.com.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">2. Données collectées</h2>
+  <table>
+    <tr><th>Donnée</th><th>Finalité</th><th>Base légale</th></tr>
+    <tr><td>Email, mot de passe (haché)</td><td>Création et gestion du compte</td><td>Exécution du contrat</td></tr>
+    <tr><td>Identifiant Stripe / statut d'abonnement</td><td>Gestion de la facturation</td><td>Exécution du contrat</td></tr>
+    <tr><td>Niches / annonces surveillées</td><td>Fonctionnalités du service</td><td>Exécution du contrat</td></tr>
+    <tr><td>Préférences locales (filtres, thème)</td><td>Confort d'utilisation (localStorage)</td><td>Intérêt légitime</td></tr>
+  </table>
+  <p>
+    Trakr ne collecte aucune donnée bancaire : les paiements sont gérés directement par
+    Stripe.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">3. Hébergement et sous-traitants</h2>
+  <ul>
+    <li>Vercel Inc. — hébergement du site</li>
+    <li>Render Services, Inc. — hébergement de l'API et de la base de données</li>
+    <li>Supabase — authentification et stockage des comptes utilisateurs</li>
+    <li>Stripe — traitement des paiements</li>
+  </ul>
+  <p>
+    Certains de ces prestataires sont situés hors de l'Union européenne ; ils s'engagent au
+    respect de clauses contractuelles types ou d'un niveau de protection adéquat.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">4. Durée de conservation</h2>
+  <p>
+    Les données de compte sont conservées tant que le compte est actif, puis supprimées dans un
+    délai de 12 mois après suppression du compte ou clôture définitive pour inactivité.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">5. Vos droits</h2>
+  <p>
+    Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de
+    limitation et de portabilité de vos données, ainsi que du droit de retirer votre consentement
+    à tout moment. Pour exercer ces droits, contactez-nous à
+    <mark>jeantondut@gmail.com</mark>. Vous pouvez également introduire une réclamation auprès de
+    la CNIL (cnil.fr).
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">6. Cookies et stockage local</h2>
+  <p>
+    Le site n'utilise pas de cookies publicitaires ou de traceurs tiers. Le tableau de bord
+    utilise le <code>localStorage</code> de votre navigateur pour mémoriser vos préférences
+    d'affichage (filtres, thème, cache de données) afin d'accélérer le chargement ; ces données
+    restent sur votre appareil et ne sont pas transmises à des tiers.
+  </p>
+
+  <h2 class="text-xl font-display font-semibold text-ink">7. Sécurité</h2>
+  <p>
+    Les mots de passe sont gérés et hachés par notre prestataire d'authentification (Supabase) et
+    ne sont jamais stockés ou visibles par Trakr. Les échanges entre votre navigateur et nos
+    serveurs sont chiffrés (HTTPS).
+  </p>
+</main>
+
+<footer class="border-t border-border">
+  <div class="max-w-3xl mx-auto px-6 py-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted">
+    <a href="mentions-legales.html" class="hover:text-ink transition-colors">Mentions légales</a>
+    <a href="cgv.html" class="hover:text-ink transition-colors">CGU / CGV</a>
+    <a href="confidentialite.html" class="hover:text-ink transition-colors">Confidentialité</a>
+  </div>
+</footer>
+
+</body>
+</html>
