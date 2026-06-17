@@ -689,8 +689,13 @@ tailwind.config = {
         <span class="material-symbols-outlined text-[18px]" style="color:var(--pri);">bolt</span>
         Abonnement
       </h3>
-      <p class="text-sm mb-3" style="color:var(--muted);">Plan actuel : <strong id="settings-plan-label">—</strong></p>
-      <p class="text-xs" style="color:var(--muted);">Pour annuler ou modifier ton abonnement, contacte-nous à <a href="mailto:jeantondut@gmail.com" class="font-semibold hover:underline" style="color:var(--pri);">jeantondut@gmail.com</a></p>
+      <p class="text-sm mb-4" style="color:var(--muted);">Plan actuel : <strong id="settings-plan-label">—</strong></p>
+      <a id="settings-portal-btn" href="#" target="_blank" rel="noopener"
+        class="btn-ghost inline-flex items-center gap-2 px-4 py-2 text-sm rounded-xl">
+        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+        Gérer mon abonnement
+      </a>
+      <p class="text-xs mt-3" style="color:var(--muted);" id="settings-portal-fallback">Chargement…</p>
     </div>
 
     <!-- Admin : prix + lien Stripe -->
@@ -1187,9 +1192,17 @@ async function loadSettings() {
       const r = await fetchWithTimeout(`${API}/config`);
       _siteConfig = await r.json();
     }
-    // Show admin panel if admin
-    const adminEmails = (window._adminEmails || []);
-    const isAdmin = adminEmails.includes(email) || false;
+    // Portal button
+    const portalUrl = _siteConfig.stripe_portal_url;
+    const portalBtn = document.getElementById('settings-portal-btn');
+    const portalFallback = document.getElementById('settings-portal-fallback');
+    if (portalUrl) {
+      portalBtn.href = portalUrl;
+      portalFallback.classList.add('hidden');
+    } else {
+      portalBtn.classList.add('hidden');
+      portalFallback.textContent = 'Pour gérer ton abonnement, contacte jeantondut@gmail.com';
+    }
     // Try to detect admin via /me plan field
     try {
       const rm = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
