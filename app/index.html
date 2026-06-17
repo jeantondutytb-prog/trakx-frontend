@@ -1362,6 +1362,7 @@ async function loadFeedPage() {
   if (feedSelectedMarques.size) params.set('marque', [...feedSelectedMarques].join(','));
   if (tailleVal) params.set('taille', tailleVal);
   if (pmin && Number(pmin) > 0) params.set('prix_min', pmin);
+  if (favsMin > 0) params.set('favs_min', favsMin);
   const since = document.getElementById('feed-since').value;
   if (since) params.set('since_hours', since);
   try {
@@ -1372,7 +1373,6 @@ async function loadFeedPage() {
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
-      if (favsMin > 0 && (a.nb_favoris||0) < favsMin) return false;
       return true;
     });
     if (rawCount < FEED_LIMIT) feedDone = true;
