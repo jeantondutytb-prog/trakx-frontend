@@ -806,10 +806,10 @@ async function authSubmit() {
 }
 
 async function authWithGoogle() {
-  await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+  await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://trakx.fr/app/' } });
 }
 async function authWithApple() {
-  await sb.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.href } });
+  await sb.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: 'https://trakx.fr/app/' } });
 }
 
 async function authLogout() {
