@@ -6,7 +6,8 @@
 <!-- End Google Tag Manager -->
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Trakr — L'outil de resell le plus utile</title>
+<title>Trakx — L'outil de resell le plus utile</title>
+<link rel="icon" type="image/svg+xml" href="app/favicon.svg"/>
 <meta name="description" content="Scanne Vinted en temps réel, détecte les bonnes affaires avant tout le monde. +84 000 annonces analysées. 19€/mois."/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://va.vercel-scripts.com; frame-src https://buy.stripe.com;">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -60,8 +61,8 @@ tailwind.config = {
 <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2">
-      <span class="text-2xl">📡</span>
-      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;">Trakr</span>
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:#111;">Trak<span style="color:#F97316;">x</span></span>
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
       <a href="#features" class="hover:text-gray-900 transition-colors">Fonctionnalités</a>
@@ -109,7 +110,7 @@ tailwind.config = {
         <div style="display:flex;background:#f8f9ff;min-height:360px;">
           <!-- Sidebar -->
           <div style="width:160px;background:#f0f4ff;border-right:1px solid #e0e7ff;padding:16px;" class="hidden md:block">
-            <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;color:#004ac6;font-size:13px;margin-bottom:20px;">📡 Trakr</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;color:#004ac6;font-size:13px;margin-bottom:20px;">📡 Trakx</div>
             <div style="display:flex;flex-direction:column;gap:4px;">
               <div style="padding:8px 12px;border-radius:8px;font-size:11px;font-weight:500;color:#5d5f5f;">🏠 Accueil</div>
               <div style="padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #e0e7ff;font-size:11px;font-weight:700;color:#004ac6;box-shadow:0 1px 4px rgba(0,0,0,.06);">📋 Feed</div>
@@ -238,17 +239,17 @@ tailwind.config = {
 <section id="features" class="py-24 px-6">
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-16">
-      <p class="text-sm font-semibold mb-3 reveal" style="color:#f97316;">Pourquoi Trakr</p>
+      <p class="text-sm font-semibold mb-3 reveal" style="color:#f97316;">Pourquoi Trakx</p>
       <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);line-height:1.1;" class="text-gray-900 mb-4 reveal reveal-delay-1">Tout ce qu'il te faut<br/>pour reseller intelligemment.</h2>
-      <p class="text-gray-500 text-lg max-w-xl mx-auto reveal reveal-delay-2">Plus besoin de rafraîchir Vinted toutes les 5 minutes. Trakr fait le boulot à ta place.</p>
+      <p class="text-gray-500 text-lg max-w-xl mx-auto reveal reveal-delay-2">Plus besoin de rafraîchir Vinted toutes les 5 minutes. Trakx fait le boulot à ta place.</p>
     </div>
     <div class="grid md:grid-cols-3 gap-6">
       <div class="feat-card reveal"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">⚡</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Feed en temps réel</h3><p class="text-gray-500 text-sm leading-relaxed">Toutes les nouvelles annonces Vinted filtrables par marque, taille, prix et score. Ne rate plus jamais une pépite.</p></div>
       <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🎯</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Score d'opportunité</h3><p class="text-gray-500 text-sm leading-relaxed">Chaque annonce reçoit un score 0–100 basé sur l'écart entre le prix demandé et le prix médian du marché.</p></div>
       <div class="feat-card reveal reveal-delay-2"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🗂️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Niches personnalisées</h3><p class="text-gray-500 text-sm leading-relaxed">Crée des niches avec tes filtres favoris. Accède en 1 clic à toutes les annonces qui matchent, avec le compteur live.</p></div>
-      <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">👁️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Surveillance d'annonces</h3><p class="text-gray-500 text-sm leading-relaxed">Ajoute des annonces à ta liste de surveillance. Trakr te signale si le prix baisse ou si l'article est vendu.</p></div>
+      <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">👁️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Surveillance d'annonces</h3><p class="text-gray-500 text-sm leading-relaxed">Ajoute des annonces à ta liste de surveillance. Trakx te signale si le prix baisse ou si l'article est vendu.</p></div>
       <div class="feat-card reveal reveal-delay-2"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">📊</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Données de marché</h3><p class="text-gray-500 text-sm leading-relaxed">Prix médians, volumes, tendances par marque. Sache exactement à quel prix acheter pour maximiser ta marge.</p></div>
-      <div class="feat-card reveal reveal-delay-3"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🔗</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Import lien Vinted</h3><p class="text-gray-500 text-sm leading-relaxed">Colle un lien de recherche Vinted et Trakr extrait automatiquement tous les filtres pour créer ta niche.</p></div>
+      <div class="feat-card reveal reveal-delay-3"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🔗</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Import lien Vinted</h3><p class="text-gray-500 text-sm leading-relaxed">Colle un lien de recherche Vinted et Trakx extrait automatiquement tous les filtres pour créer ta niche.</p></div>
     </div>
   </div>
 </section>
@@ -267,7 +268,7 @@ tailwind.config = {
       </div>
       <div class="flex gap-6 items-start reveal reveal-delay-1">
         <div style="width:48px;height:48px;background:#f97316;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.25rem;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
-        <div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;" class="text-gray-900 mb-2">Configure tes niches</h3><p class="text-gray-500 leading-relaxed">Colle un lien Vinted ou configure manuellement tes filtres. Trakr compte les annonces disponibles en temps réel.</p></div>
+        <div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;" class="text-gray-900 mb-2">Configure tes niches</h3><p class="text-gray-500 leading-relaxed">Colle un lien Vinted ou configure manuellement tes filtres. Trakx compte les annonces disponibles en temps réel.</p></div>
       </div>
       <div class="flex gap-6 items-start reveal reveal-delay-2">
         <div style="width:48px;height:48px;background:#f97316;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.25rem;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
@@ -363,8 +364,8 @@ tailwind.config = {
     <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,2.5rem);" class="text-gray-900 text-center mb-12 reveal">Questions fréquentes</h2>
     <div class="space-y-3">
       <details class="bg-white border border-gray-200 rounded-2xl reveal">
-        <summary class="flex items-center justify-between px-6 py-5 text-gray-900" style="font-family:'Space Grotesk',sans-serif;font-weight:600;">Trakr est-il légal ?<span class="faq-icon text-xl text-gray-400 ml-4">+</span></summary>
-        <p class="px-6 pb-5 text-gray-500 text-sm leading-relaxed">Trakr scanne uniquement les annonces publiquement accessibles sur Vinted, comme le ferait n'importe quel utilisateur. Il s'agit de visualisation de données publiques. Aucune action n'est réalisée à ta place sur la plateforme.</p>
+        <summary class="flex items-center justify-between px-6 py-5 text-gray-900" style="font-family:'Space Grotesk',sans-serif;font-weight:600;">Trakx est-il légal ?<span class="faq-icon text-xl text-gray-400 ml-4">+</span></summary>
+        <p class="px-6 pb-5 text-gray-500 text-sm leading-relaxed">Trakx scanne uniquement les annonces publiquement accessibles sur Vinted, comme le ferait n'importe quel utilisateur. Il s'agit de visualisation de données publiques. Aucune action n'est réalisée à ta place sur la plateforme.</p>
       </details>
       <details class="bg-white border border-gray-200 rounded-2xl reveal reveal-delay-1">
         <summary class="flex items-center justify-between px-6 py-5 text-gray-900" style="font-family:'Space Grotesk',sans-serif;font-weight:600;">Est-ce que je peux annuler mon abonnement ?<span class="faq-icon text-xl text-gray-400 ml-4">+</span></summary>
@@ -386,7 +387,7 @@ tailwind.config = {
 <section style="background:#0f0f0f;" class="py-20 px-6">
   <div class="max-w-2xl mx-auto text-center reveal">
     <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);color:#fff;" class="mb-4">Prêt à reseller<br/><span class="grad">plus intelligemment ?</span></h2>
-    <p style="color:#9ca3af;" class="mb-8">Rejoins Trakr et commence à trouver des affaires que les autres ratent.</p>
+    <p style="color:#9ca3af;" class="mb-8">Rejoins Trakx et commence à trouver des affaires que les autres ratent.</p>
     <a href="#pricing" class="btn-orange" style="font-size:16px;padding:16px 32px;">Démarrer l'essai gratuit →</a>
     <p style="color:#6b7280;font-size:11px;margin-top:12px;">7 jours offerts · Starter 9,90€ · Pro 19,90€ · Expert 39,90€</p>
   </div>
@@ -396,8 +397,8 @@ tailwind.config = {
 <footer style="background:#0f0f0f;border-top:1px solid #1f2937;padding:40px 24px;">
   <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4" style="font-size:13px;color:#6b7280;">
     <div class="flex items-center gap-2">
-      <span>📡</span>
-      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#d1d5db;">Trakr</span>
+      <svg width="24" height="24" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#d1d5db;">Trak<span style="color:#F97316;">x</span></span>
       <span>· © 2026 Gatron Hugo</span>
     </div>
     <div class="flex gap-6">
