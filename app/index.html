@@ -1207,7 +1207,7 @@ async function loadSettings() {
     try {
       const rm = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
       const me = await rm.json();
-      if (me.plan === 'admin' || me.is_admin) {
+      if (me.is_admin) {
         document.getElementById('settings-admin-panel').classList.remove('hidden');
         document.getElementById('settings-price-input').value = _siteConfig.price_display || '';
         document.getElementById('settings-stripe-url-input').value = _siteConfig.stripe_url || '';
