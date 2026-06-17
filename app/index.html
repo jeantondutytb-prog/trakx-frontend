@@ -986,7 +986,7 @@ async function loadData() {
 
   // "Récentes (1h)" count — derived from opportunites already loaded (no extra API call)
   recentScanCount = allData.filter(a => {
-    const age = (Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000;
+    const age = (Date.now() - new Date((a.scraped_le||'')+('Z')).getTime())/60000;
     return age < 60;
   }).length;
 
@@ -1125,7 +1125,7 @@ function openPreview(a) {
   }
   document.getElementById('preview-title').textContent = a.titre || '—';
   const parts = [a.marque, a.taille].filter(Boolean);
-  const age = Math.floor((Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000);
+  const age = Math.floor((Date.now() - new Date((a.scraped_le||'')+('Z')).getTime())/60000);
   const ageStr = age < 60 ? `il y a ${age} min` : `il y a ${Math.floor(age/60)}h`;
   document.getElementById('preview-meta').textContent = parts.join(' · ') + (parts.length ? ' · ' : '') + ageStr;
   document.getElementById('preview-price').textContent = a.prix + '€';
@@ -1456,21 +1456,22 @@ async function loadFeedPage() {
 }
 
 function renderFeedCard(a) {
-  const age = Math.floor((Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000);
-  const ageStr = age < 60 ? age+'min' : Math.floor(age/60)+'h';
+  const scraped = a.scraped_le ? new Date(a.scraped_le + 'Z') : new Date();
+  const age = Math.floor((Date.now() - scraped.getTime()) / 60000);
+  const ageStr = age < 60 ? age + 'min' : Math.floor(age / 60) + 'h';
   const isNew  = age < 30;
   const photoUrl = safeUrl(a.photo);
   const photo = photoUrl ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '';
+  const favsHtml = a.nb_favoris > 0
+    ? `<span class="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:rgba(190,24,93,.75);"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>`
+    : '';
   return `
     <div class="feed-card cursor-pointer" onclick="openPreview(_feedItemsById.get(${a.id}))">
       <div class="relative h-40 flex items-center justify-center overflow-hidden" style="background:var(--hi);">
         ${photo || `<span style="font-size:2.5rem;">${getEmoji(a.marque,a.titre)}</span>`}
         ${isNew ? `<span class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:var(--pri);">NEW</span>` : ''}
         <span class="absolute top-1.5 right-1.5 text-white text-[9px] px-1.5 py-0.5 rounded-lg" style="background:rgba(0,0,0,.45);">${ageStr}</span>
-        ${a.nb_favoris > 0 ? `<span class="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:rgba(190,24,93,.75);"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
-        <button data-watch-btn data-ann-id="${a.id}" onclick="toggleWatchById(event,${a.id})" class="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full text-white flex items-center justify-center transition-all hover:scale-110" style="background:rgba(0,0,0,.45);" title="Surveiller">
-          <span class="material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' ${watchedIds.has(a.id)?1:0};">visibility</span>
-        </button>
+        ${favsHtml}
       </div>
       <div class="p-3">
         <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
@@ -1812,7 +1813,7 @@ async function openNicheDetail(n) {
     // Grid view
     gridEl.innerHTML = items.map(a => {
       const sold = !!a.sold_at;
-      const age = Math.floor((Date.now() - new Date(a.first_seen||Date.now()).getTime())/60000);
+      const age = Math.floor((Date.now() - new Date((a.first_seen||'')+('Z')).getTime())/60000);
       const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
       return `<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener"
           class="vs-card rounded-xl overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform ${sold ? 'opacity-50' : ''}">
@@ -1830,7 +1831,7 @@ async function openNicheDetail(n) {
     // Table view
     tableEl.innerHTML = items.map(a => {
       const sold = !!a.sold_at;
-      const age = Math.floor((Date.now() - new Date(a.first_seen||Date.now()).getTime())/60000);
+      const age = Math.floor((Date.now() - new Date((a.first_seen||'')+('Z')).getTime())/60000);
       const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
       return `<tr style="border-top:1px solid var(--border);${sold ? 'opacity:.5;' : ''}" class="tbl-row transition-colors">
         <td class="px-5 py-2.5">
