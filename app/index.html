@@ -254,6 +254,20 @@ tailwind.config = {
 </div>
 
 <!-- ══════════════════════════════════
+     PAYWALL OVERLAY
+════════════════════════════════════ -->
+<div id="paywall-overlay" class="fixed inset-0 z-[99] flex items-center justify-center p-6 hidden" style="background:var(--bg);">
+  <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm text-center">
+    <span class="text-4xl mb-4 block">📡</span>
+    <h2 class="mb-2" style="font-size:1.2rem;font-family:'Space Grotesk',sans-serif;font-weight:800;color:var(--pri);">Trakr</h2>
+    <p class="text-sm mb-1 font-semibold">Accès complet dès le premier mois</p>
+    <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed, aux niches et à la watchlist.</p>
+    <a id="paywall-stripe-link" href="#" target="_blank" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">S'abonner — 9,90€/mois</a>
+    <button onclick="paywallLogout()" class="text-xs hover:underline" style="color:var(--muted);">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
      SIDEBAR
 ════════════════════════════════════ -->
 <aside class="hidden md:flex flex-col vs-sidebar h-screen w-[220px] fixed left-0 z-50">
@@ -822,12 +836,41 @@ async function showApp() {
   document.getElementById('auth-overlay').classList.add('hidden');
   const { data } = await sb.auth.getUser();
   document.getElementById('auth-user-email').textContent = data.user?.email || '—';
+
+  // Check Stripe subscription
+  try {
+    const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
+    const me = await r.json();
+    if (!me.subscribed) {
+      // Show paywall — load Stripe URL from config
+      try {
+        const rc = await fetchWithTimeout(`${API}/config`);
+        const cfg = await rc.json();
+        const link = document.getElementById('paywall-stripe-link');
+        if (link && cfg.stripe_url) link.href = cfg.stripe_url;
+      } catch {}
+      document.getElementById('paywall-overlay').classList.remove('hidden');
+      return;
+    }
+  } catch {
+    // If /me fails entirely, block access
+    document.getElementById('paywall-overlay').classList.remove('hidden');
+    return;
+  }
+
+  document.getElementById('paywall-overlay').classList.add('hidden');
   if (!_appInitialized) {
     _appInitialized = true;
     loadData();
     loadWatchedIds();
     setInterval(loadData, 20*60*1000);
   }
+}
+
+async function paywallLogout() {
+  await sb.auth.signOut();
+  document.getElementById('paywall-overlay').classList.add('hidden');
+  document.getElementById('auth-overlay').classList.remove('hidden');
 }
 
 async function authHeader() {
