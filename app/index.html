@@ -490,20 +490,6 @@ tailwind.config = {
         <span class="material-symbols-outlined fpill-chevron">expand_more</span>
       </div>
 
-      <!-- État -->
-      <div class="fpill" id="fpill-etat">
-        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">verified</span>
-        <select id="feed-etat" onchange="feedFilterChange()">
-          <option value="">État</option>
-          <option value="Neuf avec étiquette">Neuf avec étiquette</option>
-          <option value="Neuf sans étiquette">Neuf sans étiquette</option>
-          <option value="Très bon état">Très bon état</option>
-          <option value="Bon état">Bon état</option>
-          <option value="Satisfaisant">Satisfaisant</option>
-        </select>
-        <span class="material-symbols-outlined fpill-chevron">expand_more</span>
-      </div>
-
       <div class="fpill-divider"></div>
 
       <!-- Prix min -->
@@ -555,8 +541,6 @@ tailwind.config = {
 
       <span class="text-[11px] font-medium ml-1" style="color:var(--muted);" id="feed-count"></span>
     </div>
-    <!-- Chips marques -->
-    <div id="feed-chips" class="flex flex-wrap gap-2 mb-4"></div>
     <!-- Grid -->
     <div id="feed-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     <!-- Infinite scroll sentinel -->
@@ -1054,31 +1038,6 @@ function deduplicate(data) {
 function buildMarques() {
   allMarques = [...new Set(allData.map(a => a.marque).filter(Boolean))].sort();
   renderFms(allMarques);
-  renderFeedChips();
-}
-
-function renderFeedChips() {
-  const counts = new Map();
-  allData.forEach(a => { if (a.marque) counts.set(a.marque, (counts.get(a.marque)||0)+1); });
-  const top = [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10).map(([m])=>m);
-  document.getElementById('feed-chips').innerHTML = top.map(m => `
-    <button onclick="feedChipClick('${esc(m).replace(/'/g,"\\'")}')" class="feed-chip tag hover:bg-orange-100 transition-colors cursor-pointer">${esc(m)}</button>
-  `).join('');
-}
-
-function feedChipClick(m) {
-  const active = feedSelectedMarques.has(m);
-  feedSelectedMarques.clear();
-  if (!active) feedSelectedMarques.add(m);
-  renderFms(allMarques);
-  updateFmsBtn();
-  document.querySelectorAll('.feed-chip').forEach(b => {
-    const isActive = !active && b.textContent.trim() === m;
-    b.style.background = isActive ? 'var(--pri)' : '';
-    b.style.color      = isActive ? '#fff' : '';
-    b.style.borderColor= isActive ? 'var(--pri)' : '';
-  });
-  feedFilterChange();
 }
 
 function renderFms(list) {
@@ -1133,7 +1092,6 @@ function resetFeedFilters() {
   document.getElementById('feed-taille-select').value = '';
   document.getElementById('feed-taille').value = '';
   document.getElementById('feed-taille').classList.add('hidden');
-  document.getElementById('feed-etat').value = '';
   document.getElementById('feed-pmin').value = '';
   document.getElementById('feed-favs').value = '';
   document.getElementById('feed-order').value = 'recent';
@@ -1142,7 +1100,6 @@ function resetFeedFilters() {
   renderFms(allMarques);
   updateFmsBtn();
   updateFeedPills();
-  document.querySelectorAll('.feed-chip').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
   resetFeed();
 }
 
@@ -1167,7 +1124,7 @@ function openPreview(a) {
     document.getElementById('preview-emoji').textContent = getEmoji(a.marque, a.titre);
   }
   document.getElementById('preview-title').textContent = a.titre || '—';
-  const parts = [a.marque, a.taille, a.etat].filter(Boolean);
+  const parts = [a.marque, a.taille].filter(Boolean);
   const age = Math.floor((Date.now() - new Date(a.scraped_le||Date.now()).getTime())/60000);
   const ageStr = age < 60 ? `il y a ${age} min` : `il y a ${Math.floor(age/60)}h`;
   document.getElementById('preview-meta').textContent = parts.join(' · ') + (parts.length ? ' · ' : '') + ageStr;
@@ -1414,7 +1371,6 @@ function updateFeedPills() {
     ? document.getElementById('feed-taille').value.trim()
     : document.getElementById('feed-taille-select').value;
   active('fpill-taille', !!tailleVal);
-  active('fpill-etat', !!document.getElementById('feed-etat').value);
   active('fpill-pmin', Number(document.getElementById('feed-pmin').value) > 0);
   active('fpill-favs', Number(document.getElementById('feed-favs').value) > 0);
   active('fpill-since', !!document.getElementById('feed-since').value);
@@ -1450,13 +1406,11 @@ async function loadFeedPage() {
   const tailleVal = document.getElementById('feed-taille-select').value === '__custom'
     ? document.getElementById('feed-taille').value.trim()
     : document.getElementById('feed-taille-select').value;
-  const etat   = document.getElementById('feed-etat').value;
   const pmin   = document.getElementById('feed-pmin').value;
   const favsMin = parseInt(document.getElementById('feed-favs').value) || 0;
   if (search) params.set('search', search);
   if (feedSelectedMarques.size) params.set('marque', [...feedSelectedMarques].join(','));
   if (tailleVal) params.set('taille', tailleVal);
-  if (etat)   params.set('etat', etat);
   if (pmin && Number(pmin) > 0) params.set('prix_min', pmin);
   const since = document.getElementById('feed-since').value;
   if (since) params.set('since_hours', since);
@@ -1468,7 +1422,6 @@ async function loadFeedPage() {
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
-      if (etat && a.etat !== etat) return false;
       if (favsMin > 0 && (a.nb_favoris||0) < favsMin) return false;
       return true;
     });
@@ -1514,6 +1467,7 @@ function renderFeedCard(a) {
         ${photo || `<span style="font-size:2.5rem;">${getEmoji(a.marque,a.titre)}</span>`}
         ${isNew ? `<span class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:var(--pri);">NEW</span>` : ''}
         <span class="absolute top-1.5 right-1.5 text-white text-[9px] px-1.5 py-0.5 rounded-lg" style="background:rgba(0,0,0,.45);">${ageStr}</span>
+        ${a.nb_favoris > 0 ? `<span class="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg" style="background:rgba(190,24,93,.75);"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
         <button data-watch-btn data-ann-id="${a.id}" onclick="toggleWatchById(event,${a.id})" class="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full text-white flex items-center justify-center transition-all hover:scale-110" style="background:rgba(0,0,0,.45);" title="Surveiller">
           <span class="material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' ${watchedIds.has(a.id)?1:0};">visibility</span>
         </button>
@@ -1521,9 +1475,8 @@ function renderFeedCard(a) {
       <div class="p-3">
         <p class="text-xs font-semibold truncate">${esc(a.titre)||'—'}</p>
         <p class="text-xs truncate mt-0.5" style="color:var(--muted);">${esc(a.marque)||''} ${a.taille?'· '+esc(a.taille):''}</p>
-        <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center mt-2">
           <span class="text-sm font-bold">${esc(String(a.prix))}€</span>
-          ${(a.nb_favoris > 0) ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
         </div>
       </div>
     </div>`;
