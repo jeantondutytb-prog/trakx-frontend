@@ -129,6 +129,46 @@ tailwind.config = {
   .btn-icon    { background: var(--hi); border: 1px solid var(--border); color: var(--muted); border-radius:10px; transition:all .15s; }
   .btn-icon:hover { border-color: var(--pri); color: var(--pri); }
 
+  /* filter pills */
+  .fpill {
+    display: inline-flex; align-items: center; gap: 5px;
+    height: 32px; padding: 0 11px; border-radius: 999px;
+    border: 1.5px solid var(--border);
+    font-size: 11px; font-weight: 600; color: var(--ink);
+    background: var(--card); cursor: pointer; white-space: nowrap;
+    transition: border-color .15s, color .15s, background .15s, box-shadow .15s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .fpill:hover { border-color: var(--pri); }
+  .fpill.active {
+    border-color: var(--pri); color: var(--pri);
+    background: rgba(249,115,22,.08);
+    box-shadow: 0 0 0 3px rgba(249,115,22,.10);
+  }
+  html.dark .fpill.active { background: rgba(251,146,60,.10); box-shadow: 0 0 0 3px rgba(251,146,60,.08); }
+  .fpill select, .fpill input[type=text], .fpill input[type=number] {
+    background: transparent; border: none; outline: none;
+    font-size: 11px; font-weight: 600; font-family: 'Space Grotesk', sans-serif;
+    color: inherit; cursor: pointer; max-width: 90px;
+  }
+  .fpill input[type=number] { max-width: 36px; -moz-appearance: textfield; }
+  .fpill input[type=number]::-webkit-inner-spin-button,
+  .fpill input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .fpill select { appearance: none; -webkit-appearance: none; }
+  .fpill select option { background: var(--card); color: var(--ink); }
+  .fpill-search { border-radius: 12px; flex: 1; min-width: 160px; max-width: 280px; gap: 7px; }
+  .fpill-search input { width: 100%; font-weight: 500; }
+  .fpill-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; align-self: center; }
+  .fpill-reset { padding: 0 10px; color: var(--muted); border-style: dashed; }
+  .fpill-reset:hover { color: var(--pri); border-color: var(--pri); border-style: solid; }
+  .fpill-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--pri); color: #fff; font-size: 9px; font-weight: 700;
+    border-radius: 999px; padding: 1px 5px; line-height: 1.4; min-width: 16px;
+  }
+  .fpill-chevron { color: var(--muted); font-size: 13px !important; transition: transform .15s; }
+  .fpill.open .fpill-chevron { transform: rotate(180deg); }
+
   /* nav link */
   .nav-link { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--muted);transition:all .15s; }
   .nav-link:hover { background: var(--hi); color: var(--ink); }
@@ -400,99 +440,120 @@ tailwind.config = {
   <!-- ═══ PAGE FEED ═══ -->
   <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
     <!-- Filtres -->
-    <div class="vs-card rounded-2xl p-3 mb-4">
-      <div class="flex flex-wrap gap-1.5 items-center">
-        <!-- Search -->
-        <div class="flex items-center gap-1.5 vs-input rounded-lg px-2.5 py-1.5 flex-1 min-w-[150px]">
-          <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">search</span>
-          <input id="feed-search" type="text" placeholder="Titre, marque…" class="border-none outline-none bg-transparent text-xs w-full" oninput="feedFilterChange()">
-        </div>
-        <!-- Marques dropdown -->
-        <div class="relative" id="fms-wrap">
-          <button onclick="toggleFms()" class="flex items-center gap-1.5 vs-input rounded-lg px-2.5 py-1.5 text-xs hover:border-orange-300 transition-colors">
-            <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">label</span>
-            <span id="fms-label">Marques</span>
-            <span id="fms-badge" class="hidden text-white text-[9px] rounded-full px-1 font-bold" style="background:var(--pri);">0</span>
-            <span class="material-symbols-outlined text-[12px]" style="color:var(--muted);">expand_more</span>
-          </button>
-          <div id="fms-dropdown" class="hidden absolute top-full left-0 mt-1 vs-card rounded-xl shadow-xl p-3 min-w-[220px] max-h-72 overflow-y-auto z-50" style="box-shadow:0 8px 32px rgba(0,0,0,.12);">
-            <input id="fms-search" type="text" placeholder="Chercher marque…" class="vs-input w-full rounded-lg px-3 py-2 text-sm mb-2" oninput="filterFms()">
-            <div id="fms-list"></div>
-            <div class="flex gap-2 mt-2 pt-2" style="border-top:1px solid var(--border);">
-              <button onclick="clearFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout décocher</button>
-              <button onclick="selectAllFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout cocher</button>
-            </div>
+    <!-- Filtres pills -->
+    <div class="flex flex-wrap gap-2 items-center mb-5" id="feed-filters-row">
+      <!-- Search -->
+      <div class="fpill fpill-search" id="fpill-search">
+        <span class="material-symbols-outlined" style="font-size:14px;color:var(--muted);">search</span>
+        <input id="feed-search" type="text" placeholder="Titre, marque, mot-clé…" oninput="feedFilterChange()">
+      </div>
+
+      <div class="fpill-divider"></div>
+
+      <!-- Marques -->
+      <div class="relative" id="fms-wrap">
+        <button onclick="toggleFms()" class="fpill" id="fms-pill">
+          <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">label</span>
+          <span id="fms-label">Marques</span>
+          <span id="fms-badge" class="hidden fpill-badge">0</span>
+          <span class="material-symbols-outlined fpill-chevron">expand_more</span>
+        </button>
+        <div id="fms-dropdown" class="hidden absolute top-full left-0 mt-2 vs-card rounded-xl p-3 min-w-[220px] max-h-72 overflow-y-auto z-50" style="box-shadow:0 8px 32px rgba(0,0,0,.18);">
+          <input id="fms-search" type="text" placeholder="Chercher marque…" class="vs-input w-full rounded-lg px-3 py-2 text-sm mb-2" oninput="filterFms()">
+          <div id="fms-list"></div>
+          <div class="flex gap-2 mt-2 pt-2" style="border-top:1px solid var(--border);">
+            <button onclick="clearFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout décocher</button>
+            <button onclick="selectAllFms()" class="flex-1 text-xs py-1.5 rounded-lg btn-ghost">Tout cocher</button>
           </div>
         </div>
-        <!-- Taille -->
-        <div class="flex items-center gap-1 vs-input rounded-lg px-2.5 py-1.5">
-          <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">straighten</span>
-          <select id="feed-taille-select" onchange="tailleSelectChange()" class="border-none outline-none bg-transparent text-xs" style="color:var(--ink);">
-            <option value="">Taille</option>
-            <optgroup label="Vêtements">
-              <option value="XXS">XXS</option><option value="XS">XS</option><option value="S">S</option>
-              <option value="M">M</option><option value="L">L</option><option value="XL">XL</option>
-              <option value="XXL">XXL</option><option value="XXXL">XXXL</option>
-            </optgroup>
-            <optgroup label="Chaussures">
-              <option value="36">36</option><option value="37">37</option><option value="38">38</option>
-              <option value="39">39</option><option value="40">40</option><option value="41">41</option>
-              <option value="42">42</option><option value="43">43</option><option value="44">44</option>
-              <option value="45">45</option><option value="46">46</option>
-            </optgroup>
-            <option value="__custom">Autre…</option>
-          </select>
-          <input id="feed-taille" type="text" placeholder="ex: 38" class="hidden border-none outline-none bg-transparent text-xs w-14" oninput="feedFilterChange()">
-        </div>
-        <!-- État -->
-        <div class="flex items-center gap-1 vs-input rounded-lg px-2.5 py-1.5">
-          <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">verified</span>
-          <select id="feed-etat" onchange="feedFilterChange()" class="border-none outline-none bg-transparent text-xs" style="color:var(--ink);">
-            <option value="">État</option>
-            <option value="Neuf avec étiquette">Neuf avec étiquette</option>
-            <option value="Neuf sans étiquette">Neuf sans étiquette</option>
-            <option value="Très bon état">Très bon état</option>
-            <option value="Bon état">Bon état</option>
-            <option value="Satisfaisant">Satisfaisant</option>
-          </select>
-        </div>
-        <!-- Prix min -->
-        <div class="flex items-center gap-1 vs-input rounded-lg px-2.5 py-1.5">
-          <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">payments</span>
-          <span class="text-xs" style="color:var(--muted);">Prix ≥</span>
-          <input id="feed-pmin" type="number" min="0" placeholder="0" class="w-12 border-none outline-none text-xs bg-transparent" oninput="feedFilterChange()">
-          <span class="text-xs" style="color:var(--muted);">€</span>
-        </div>
-        <!-- Favoris min -->
-        <div class="flex items-center gap-1 vs-input rounded-lg px-2.5 py-1.5">
-          <span class="material-symbols-outlined text-[14px]" style="color:#be185d;">favorite</span>
-          <span class="text-xs" style="color:var(--muted);">Favs ≥</span>
-          <input id="feed-favs" type="number" min="0" placeholder="0" class="w-10 border-none outline-none text-xs bg-transparent" oninput="feedFilterChange()">
-        </div>
-        <!-- Période -->
-        <div class="flex items-center gap-1 vs-input rounded-lg px-2.5 py-1.5">
-          <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">schedule</span>
-          <select id="feed-since" onchange="feedFilterChange()" class="border-none outline-none bg-transparent text-xs" style="color:var(--ink);">
-            <option value="">Période</option>
-            <option value="1">1h</option>
-            <option value="6">6h</option>
-            <option value="12">12h</option>
-            <option value="24">24h</option>
-          </select>
-        </div>
-        <!-- Tri -->
-        <select id="feed-order" onchange="feedFilterChange()" class="vs-input rounded-lg px-2.5 py-1.5 text-xs outline-none" style="color:var(--ink);">
+      </div>
+
+      <!-- Taille -->
+      <div class="fpill" id="fpill-taille">
+        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">straighten</span>
+        <select id="feed-taille-select" onchange="tailleSelectChange()">
+          <option value="">Taille</option>
+          <optgroup label="Vêtements">
+            <option value="XXS">XXS</option><option value="XS">XS</option><option value="S">S</option>
+            <option value="M">M</option><option value="L">L</option><option value="XL">XL</option>
+            <option value="XXL">XXL</option><option value="XXXL">XXXL</option>
+          </optgroup>
+          <optgroup label="Chaussures">
+            <option value="36">36</option><option value="37">37</option><option value="38">38</option>
+            <option value="39">39</option><option value="40">40</option><option value="41">41</option>
+            <option value="42">42</option><option value="43">43</option><option value="44">44</option>
+            <option value="45">45</option><option value="46">46</option>
+          </optgroup>
+          <option value="__custom">Autre…</option>
+        </select>
+        <input id="feed-taille" type="text" placeholder="ex: 38" class="hidden" oninput="feedFilterChange()" style="max-width:52px;">
+        <span class="material-symbols-outlined fpill-chevron">expand_more</span>
+      </div>
+
+      <!-- État -->
+      <div class="fpill" id="fpill-etat">
+        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">verified</span>
+        <select id="feed-etat" onchange="feedFilterChange()">
+          <option value="">État</option>
+          <option value="Neuf avec étiquette">Neuf avec étiquette</option>
+          <option value="Neuf sans étiquette">Neuf sans étiquette</option>
+          <option value="Très bon état">Très bon état</option>
+          <option value="Bon état">Bon état</option>
+          <option value="Satisfaisant">Satisfaisant</option>
+        </select>
+        <span class="material-symbols-outlined fpill-chevron">expand_more</span>
+      </div>
+
+      <div class="fpill-divider"></div>
+
+      <!-- Prix min -->
+      <div class="fpill" id="fpill-pmin">
+        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">payments</span>
+        <span style="color:var(--muted);font-size:11px;">Prix ≥</span>
+        <input id="feed-pmin" type="number" min="0" placeholder="0" oninput="feedFilterChange()">
+        <span style="color:var(--muted);font-size:11px;">€</span>
+      </div>
+
+      <!-- Favs min -->
+      <div class="fpill" id="fpill-favs">
+        <span class="material-symbols-outlined" style="font-size:13px;color:#e11d48;">favorite</span>
+        <span style="color:var(--muted);font-size:11px;">Favs ≥</span>
+        <input id="feed-favs" type="number" min="0" placeholder="0" oninput="feedFilterChange()">
+      </div>
+
+      <div class="fpill-divider"></div>
+
+      <!-- Période -->
+      <div class="fpill" id="fpill-since">
+        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">schedule</span>
+        <select id="feed-since" onchange="feedFilterChange()">
+          <option value="">Période</option>
+          <option value="1">1h</option>
+          <option value="6">6h</option>
+          <option value="12">12h</option>
+          <option value="24">24h</option>
+        </select>
+        <span class="material-symbols-outlined fpill-chevron">expand_more</span>
+      </div>
+
+      <!-- Tri -->
+      <div class="fpill" id="fpill-order">
+        <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">swap_vert</span>
+        <select id="feed-order" onchange="feedFilterChange()">
           <option value="recent">Plus récent</option>
           <option value="prix_asc">Prix ↑</option>
           <option value="prix_desc">Prix ↓</option>
           <option value="favs">Favoris ↓</option>
         </select>
-        <!-- Reset -->
-        <button onclick="resetFeedFilters()" title="Réinitialiser" class="btn-ghost flex items-center px-2 py-1.5 text-xs">
-          <span class="material-symbols-outlined text-[14px]">filter_alt_off</span>
-        </button>
-        <span class="text-xs" style="color:var(--muted);" id="feed-count"></span>
+        <span class="material-symbols-outlined fpill-chevron">expand_more</span>
       </div>
+
+      <!-- Reset -->
+      <button onclick="resetFeedFilters()" title="Réinitialiser les filtres" class="fpill fpill-reset">
+        <span class="material-symbols-outlined" style="font-size:14px;">filter_alt_off</span>
+      </button>
+
+      <span class="text-[11px] font-medium ml-1" style="color:var(--muted);" id="feed-count"></span>
     </div>
     <!-- Chips marques -->
     <div id="feed-chips" class="flex flex-wrap gap-2 mb-4"></div>
@@ -1042,7 +1103,11 @@ function updateFmsBtn() {
   const b = document.getElementById('fms-badge');
   n > 0 ? (b.textContent = n, b.classList.remove('hidden')) : b.classList.add('hidden');
 }
-function toggleFms() { fmsOpen = !fmsOpen; document.getElementById('fms-dropdown').classList.toggle('hidden', !fmsOpen); }
+function toggleFms() {
+  fmsOpen = !fmsOpen;
+  document.getElementById('fms-dropdown').classList.toggle('hidden', !fmsOpen);
+  document.getElementById('fms-pill')?.classList.toggle('open', fmsOpen);
+}
 
 function tailleSelectChange() {
   const sel = document.getElementById('feed-taille-select');
@@ -1076,6 +1141,7 @@ function resetFeedFilters() {
   feedSelectedMarques.clear();
   renderFms(allMarques);
   updateFmsBtn();
+  updateFeedPills();
   document.querySelectorAll('.feed-chip').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
   resetFeed();
 }
@@ -1341,7 +1407,24 @@ function showPage(name) {
 let feedOffset = 0, feedLoading = false, feedDone = false, feedTimer = null;
 const FEED_LIMIT = 40;
 
+function updateFeedPills() {
+  const active = (id, on) => document.getElementById(id)?.classList.toggle('active', on);
+  active('fpill-search', !!document.getElementById('feed-search').value.trim());
+  const tailleVal = document.getElementById('feed-taille-select').value === '__custom'
+    ? document.getElementById('feed-taille').value.trim()
+    : document.getElementById('feed-taille-select').value;
+  active('fpill-taille', !!tailleVal);
+  active('fpill-etat', !!document.getElementById('feed-etat').value);
+  active('fpill-pmin', Number(document.getElementById('feed-pmin').value) > 0);
+  active('fpill-favs', Number(document.getElementById('feed-favs').value) > 0);
+  active('fpill-since', !!document.getElementById('feed-since').value);
+  active('fpill-order', document.getElementById('feed-order').value !== 'recent');
+  const fmsPill = document.getElementById('fms-pill');
+  if (fmsPill) fmsPill.classList.toggle('active', feedSelectedMarques.size > 0);
+}
+
 function feedFilterChange() {
+  updateFeedPills();
   clearTimeout(feedTimer);
   feedTimer = setTimeout(() => resetFeed(), 400);
 }
