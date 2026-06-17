@@ -179,32 +179,6 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      PAYWALL OVERLAY
 ════════════════════════════════════ -->
-<!-- ══════════════════════════════════
-     UPGRADE MODAL
-════════════════════════════════════ -->
-<div id="upgrade-modal" class="hidden fixed inset-0 z-[99] flex items-center justify-center p-6" style="background:rgba(0,0,0,.45);">
-  <div class="vs-card rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center" style="box-shadow:0 24px 64px rgba(0,0,0,.2);">
-    <div class="w-14 h-14 hero-grad rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style="box-shadow:0 8px 24px rgba(249,115,22,.35);">
-      <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings:'FILL' 1;">bolt</span>
-    </div>
-    <h2 class="text-xl mb-1" style="font-family:'Space Grotesk',sans-serif;font-weight:800;">Passe à Pro</h2>
-    <p class="text-sm mb-5" id="upgrade-modal-reason" style="color:var(--muted);">Débloques toutes les fonctionnalités.</p>
-    <div class="text-left rounded-xl p-4 mb-5 space-y-2" style="background:var(--hi);border:1px solid var(--border);">
-      <p class="text-xs font-bold uppercase tracking-wide mb-2" style="color:var(--muted);">Plan Pro — <span class="stripe-price-display">9,90€/mois</span></p>
-      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Niches illimitées</div>
-      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Feed complet sans limite de temps</div>
-      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Watchlist &amp; alertes</div>
-      <div class="flex items-center gap-2 text-sm"><span style="color:var(--pri);">✓</span> Stats avancées</div>
-    </div>
-    <a href="https://buy.stripe.com/00w8wOcJObg0fIw422c7u00" target="_blank" rel="noopener"
-       class="btn-orange block w-full py-3 text-sm mb-3 stripe-checkout-link">
-      S'abonner pour <span class="stripe-price-display">9,90€/mois</span> →
-    </a>
-    <button onclick="document.getElementById('upgrade-modal').classList.add('hidden')" class="text-xs" style="color:var(--muted);">
-      Continuer avec le plan gratuit
-    </button>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════
      PREVIEW MODAL
@@ -317,7 +291,7 @@ tailwind.config = {
       <div class="flex items-center justify-between px-2 py-2" style="border-top:1px solid var(--border);">
         <div class="min-w-0">
           <span class="text-xs truncate block" style="color:var(--muted);" id="auth-user-email">—</span>
-          <span id="plan-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style="background:var(--hi);color:var(--muted);">Gratuit</span>
+          <span id="plan-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style="background:var(--hi);color:var(--muted);"></span>
         </div>
         <button onclick="authLogout()" class="text-xs font-bold hover:underline flex-shrink-0 ml-2" style="color:var(--pri);">Déco</button>
       </div>
@@ -411,12 +385,6 @@ tailwind.config = {
 
   <!-- ═══ PAGE FEED ═══ -->
   <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
-    <!-- Free tier banner -->
-    <div id="feed-free-banner" class="hidden rounded-xl px-4 py-3 mb-4 flex items-center gap-3" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
-      <span class="material-symbols-outlined text-[18px] flex-shrink-0" style="color:var(--pri);">schedule</span>
-      <p class="text-sm flex-1"><strong>Plan gratuit</strong> — annonces des dernières 24h uniquement.</p>
-      <button onclick="showUpgradeModal('Accède à tout l\'historique du feed avec le plan Pro.')" class="btn-orange text-xs px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">Passer à Pro</button>
-    </div>
     <!-- Filtres -->
     <div class="vs-card rounded-2xl p-3 mb-4">
       <div class="flex flex-wrap gap-1.5 items-center">
@@ -538,16 +506,6 @@ tailwind.config = {
     <!-- Panel : Mes niches -->
     <div id="niches-panel-mine" class="flex-1 p-5 md:p-6 overflow-auto">
 
-      <!-- Free tier banner -->
-      <div id="niches-free-banner" class="hidden rounded-xl px-4 py-3 mb-4 flex items-center gap-3" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
-        <span class="material-symbols-outlined text-[20px] flex-shrink-0" style="color:var(--pri);">bolt</span>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold">Plan gratuit — 1 niche maximum</p>
-          <p class="text-xs" style="color:var(--muted);">Passe à Pro pour des niches illimitées et le feed complet.</p>
-        </div>
-        <button onclick="showUpgradeModal('Crée des niches illimitées avec le plan Pro.')" class="btn-orange text-xs px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">Passer à Pro</button>
-      </div>
-
       <!-- Stats row -->
       <div id="niches-stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
 
@@ -590,12 +548,6 @@ tailwind.config = {
 
     <!-- Panel : Surveillance -->
     <div id="niches-panel-watch" class="hidden flex-1 p-5 md:p-6 overflow-auto">
-      <div id="watch-upgrade-banner" class="hidden rounded-xl px-4 py-6 mb-5 text-center" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.08));border:1px solid rgba(249,115,22,.25);">
-        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);font-variation-settings:'FILL' 1;">visibility</span>
-        <p class="font-semibold mb-1">Watchlist disponible avec Pro</p>
-        <p class="text-sm mb-4" style="color:var(--muted);">Surveille tes annonces préférées et sois alerté quand elles sont vendues.</p>
-        <button onclick="showUpgradeModal('La watchlist est disponible avec le plan Pro.')" class="btn-orange px-5 py-2 text-sm rounded-xl">Passer à Pro — 9,90€/mois</button>
-      </div>
       <div id="watch-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     </div>
   </div>
@@ -718,7 +670,7 @@ tailwind.config = {
       </h3>
       <p class="text-sm mb-3" style="color:var(--muted);" id="settings-email-display">—</p>
       <div class="flex items-center gap-3">
-        <span id="settings-plan-badge" class="text-xs font-bold px-2 py-1 rounded-lg" style="background:var(--hi);color:var(--muted);">Gratuit</span>
+        <span id="settings-plan-badge" class="text-xs font-bold px-2 py-1 rounded-lg" style="background:var(--hi);color:var(--muted);"></span>
         <button onclick="authLogout()" class="text-sm font-bold hover:underline" style="color:var(--red);">Se déconnecter</button>
       </div>
     </div>
@@ -865,12 +817,6 @@ async function authLogout() {
 }
 
 let _appInitialized = false;
-let _isSubscribed = false;
-
-function showUpgradeModal(reason) {
-  document.getElementById('upgrade-modal-reason').textContent = reason || 'Débloques toutes les fonctionnalités.';
-  document.getElementById('upgrade-modal').classList.remove('hidden');
-}
 
 async function showApp() {
   document.getElementById('auth-overlay').classList.add('hidden');
@@ -882,14 +828,6 @@ async function showApp() {
     loadWatchedIds();
     setInterval(loadData, 20*60*1000);
   }
-  // Fetch subscription status in parallel — don't block app startup on it
-  try {
-    const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
-    const me = await r.json();
-    _isSubscribed = !!me.subscribed;
-    const badge = document.getElementById('plan-badge');
-    if (badge) badge.textContent = _isSubscribed ? 'Pro' : 'Gratuit';
-  } catch {}
 }
 
 async function authHeader() {
@@ -1176,10 +1114,6 @@ async function loadSettings() {
   const { data } = await sb.auth.getUser();
   const email = data.user?.email || '—';
   document.getElementById('settings-email-display').textContent = email;
-  document.getElementById('settings-plan-badge').textContent = _isSubscribed ? 'Pro' : 'Gratuit';
-  document.getElementById('settings-plan-badge').style.color = _isSubscribed ? 'var(--pri)' : 'var(--muted)';
-  const planLabel = document.getElementById('settings-plan-label');
-  if (planLabel) planLabel.textContent = _isSubscribed ? 'Pro ✓' : 'Gratuit';
 
   // Load config from API
   try {
@@ -1378,9 +1312,6 @@ function resetFeed() {
 }
 
 async function loadFeedPage() {
-  // Show/hide free tier banner
-  const feedBanner = document.getElementById('feed-free-banner');
-  if (feedBanner) feedBanner.classList.toggle('hidden', _isSubscribed);
   if (feedLoading || feedDone) return;
   feedLoading = true;
   document.getElementById('feed-spinner').style.display = '';
@@ -1589,10 +1520,6 @@ async function parseNicheLink() {
 }
 
 function openNicheModal() {
-  if (!_isSubscribed && _allNiches.length >= 1) {
-    showUpgradeModal('Le plan gratuit est limité à 1 niche. Passe à Pro pour en créer autant que tu veux.');
-    return;
-  }
   _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
   document.getElementById('niche-link').value = '';
   document.getElementById('niche-nom').value = '';
@@ -1619,11 +1546,6 @@ async function submitNiche() {
     const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
-      if (r.status === 403 && body.error === 'niche_limit') {
-        closeNicheModal();
-        showUpgradeModal('Le plan gratuit est limité à 1 niche. Passe à Pro pour en créer autant que tu veux.');
-        return;
-      }
       errEl.textContent = "Erreur lors de la création."; errEl.classList.remove('hidden'); return;
     }
     closeNicheModal();
@@ -1658,15 +1580,8 @@ async function loadNiches() {
     const r = await fetchWithTimeout(`${API}/niches`, { headers: await authHeader() });
     const data = await r.json();
     _allNiches = Array.isArray(data) ? data : (data.niches || []);
-    // subscription state is managed by showApp() via /me — not updated here
-    const badge = document.getElementById('plan-badge');
-    if (badge) {
-      badge.textContent = _isSubscribed ? 'Pro' : 'Gratuit';
-      badge.style.color = _isSubscribed ? 'var(--pri)' : 'var(--muted)';
-    }
     renderNichesStatsRow();
     renderNichesTable();
-    renderFreeBanner();
   } catch {
     document.getElementById('niches-tbody').innerHTML =
       `<tr><td colspan="5" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">
@@ -1675,13 +1590,6 @@ async function loadNiches() {
         <button onclick="loadNiches()" class="block mx-auto mt-2 font-bold hover:underline" style="color:var(--pri);">Réessayer</button>
       </td></tr>`;
   }
-}
-
-function renderFreeBanner() {
-  const el = document.getElementById('niches-free-banner');
-  if (!el) return;
-  if (_isSubscribed) { el.classList.add('hidden'); return; }
-  el.classList.remove('hidden');
 }
 
 function renderNichesStatsRow() {
@@ -1873,13 +1781,6 @@ async function openNicheDetail(n) {
 
 async function loadWatchlist() {
   const list = document.getElementById('watch-list');
-  const upgradeBanner = document.getElementById('watch-upgrade-banner');
-  if (!_isSubscribed) {
-    if (upgradeBanner) upgradeBanner.classList.remove('hidden');
-    list.innerHTML = '';
-    return;
-  }
-  if (upgradeBanner) upgradeBanner.classList.add('hidden');
   list.innerHTML = `<div class="col-span-full text-center py-8"><div class="spinner mx-auto"></div></div>`;
   try {
     const r = await fetch(`${API}/surveillance`, { headers: await authHeader() });
