@@ -1191,15 +1191,8 @@ function applyConfigToModal() {
   if (stripe_url) {
     document.querySelectorAll('.stripe-checkout-link').forEach(el => el.href = stripe_url);
   }
-  // Show/hide portal button based on config
-  const portalWrap = document.getElementById('settings-portal-wrap');
-  const portalLink = document.getElementById('settings-stripe-portal-link');
-  if (stripe_portal_url && portalWrap && portalLink) {
-    portalLink.href = stripe_portal_url;
-    portalWrap.classList.remove('hidden');
-  } else if (portalWrap) {
-    portalWrap.classList.add('hidden');
-  }
+  const portalBtn = document.getElementById('settings-portal-btn');
+  if (stripe_portal_url && portalBtn) portalBtn.href = stripe_portal_url;
 }
 
 async function initConfig() {
