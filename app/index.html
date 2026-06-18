@@ -185,6 +185,7 @@ tailwind.config = {
 
   /* feed card */
   .feed-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; cursor:pointer; transition:box-shadow .15s, border-color .15s; }
+  #feed-grid { transition: opacity .15s; }
   .feed-card:hover { border-color:#fed7aa; box-shadow:0 8px 24px rgba(249,115,22,.1); }
 
   /* favs badge */
@@ -1073,6 +1074,7 @@ function resetFeedFilters() {
   renderFms(allMarques);
   updateFmsBtn();
   updateFeedPills();
+  document.getElementById('feed-free-hint')?.remove();
   resetFeed();
 }
 
@@ -1316,19 +1318,27 @@ function resetFeed() {
   feedOffset = 0;
   feedDone = false;
   const grid = document.getElementById('feed-grid');
-  // Show cached data instantly while fetching fresh data
-  try {
-    const cached = JSON.parse(localStorage.getItem('trakx-feed-cache') || 'null');
-    if (cached && cached.items && cached.items.length && feedOffset === 0) {
-      grid.innerHTML = cached.items.map(a => renderFeedCard(a)).join('');
-      document.getElementById('feed-count').textContent = `${cached.items.length} annonces`;
-    } else {
+  // Performance: keep current cards visible while loading instead of showing skeletons
+  // Only show skeletons on truly empty grid
+  if (!grid.querySelector('.feed-card')) {
+    try {
+      const cached = JSON.parse(localStorage.getItem('trakx-feed-cache') || 'null');
+      if (cached && cached.items && cached.items.length) {
+        grid.innerHTML = cached.items.map(a => renderFeedCard(a)).join('');
+      } else {
+        grid.innerHTML = feedSkeletons(8);
+      }
+    } catch {
       grid.innerHTML = feedSkeletons(8);
     }
-  } catch {
-    grid.innerHTML = feedSkeletons(8);
+  } else {
+    // Dim existing cards while new results load
+    grid.style.opacity = '0.45';
+    grid.style.pointerEvents = 'none';
   }
   document.getElementById('feed-count').textContent = '';
+  // Remove any stale free-plan hint from previous request
+  document.getElementById('feed-free-hint')?.remove();
   loadFeedPage();
 }
 
@@ -1359,11 +1369,17 @@ async function loadFeedPage() {
     const resp = await r.json();
     let items = Array.isArray(resp) ? resp : (resp.items || []);
     const isLimited = resp.is_limited || false;
+    const freeConstraints = resp.free_constraints || null;
     const rawCount = items.length;
     const isFirstPage = feedOffset === 0;
+    // Client-side refinement: also handle Vinted composite size format "S / 36 / 8"
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
-      if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
+      if (tailleVal) {
+        const t = tailleVal.toLowerCase();
+        const at = (a.taille||'').toLowerCase();
+        if (at !== t && !at.startsWith(t + ' / ')) return false;
+      }
       return true;
     });
     if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
@@ -1378,12 +1394,32 @@ async function loadFeedPage() {
       try { localStorage.setItem('trakx-feed-cache', JSON.stringify({ items: items.slice(0, 20), ts: Date.now() })); } catch {}
     }
     const grid = document.getElementById('feed-grid');
+    // Restore grid from dimmed state
+    grid.style.opacity = '';
+    grid.style.pointerEvents = '';
     if (isFirstPage) grid.innerHTML = ''; // clear skeletons / stale cache
+    // Show free plan filter constraints hint
+    if (isFirstPage && freeConstraints && (freeConstraints.prix_overridden || freeConstraints.favs_overridden)) {
+      const hints = [];
+      if (freeConstraints.prix_overridden) hints.push(`prix ≥ ${freeConstraints.prix_min}€`);
+      if (freeConstraints.favs_overridden) hints.push(`favoris ≥ ${freeConstraints.favs_min}`);
+      const hintEl = document.createElement('div');
+      hintEl.id = 'feed-free-hint';
+      hintEl.className = 'col-span-full mb-3 flex items-center gap-2 text-xs px-3 py-2 rounded-xl';
+      hintEl.style.cssText = 'background:var(--hi);color:#92400e;border:1px solid #fed7aa;';
+      hintEl.innerHTML = `<span class="material-symbols-outlined" style="font-size:15px;color:var(--pri);">info</span>
+        Plan gratuit : filtres minimum appliqués (${hints.join(', ')}).
+        <a href="#" onclick="showPage('subscription');return false;" class="font-bold ml-1 hover:underline" style="color:var(--pri);">Passer à Pro →</a>`;
+      grid.before(hintEl);
+    }
     if (isFirstPage && items.length === 0) {
+      const constraintNote = freeConstraints
+        ? `<p class="text-xs mt-2" style="color:var(--muted);">Plan gratuit : seules les annonces avec prix ≥ ${freeConstraints.prix_min}€ et ${freeConstraints.favs_min}+ favoris sont visibles.</p>`
+        : '';
       grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
         <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">search_off</span>
-        Aucune annonce ne correspond à ces filtres.<br/>
-        <button onclick="resetFeedFilters()" class="mt-3 font-bold text-sm hover:underline" style="color:var(--pri);">Réinitialiser les filtres</button>
+        Aucune annonce ne correspond à ces filtres.${constraintNote}
+        <button onclick="resetFeedFilters()" class="mt-3 font-bold text-sm hover:underline block mx-auto" style="color:var(--pri);">Réinitialiser les filtres</button>
       </div>`;
     } else {
       items.forEach(a => grid.insertAdjacentHTML('beforeend', renderFeedCard(a)));
@@ -1430,8 +1466,11 @@ async function loadFeedPage() {
   } catch(e) {
     feedDone = true;
     document.getElementById('feed-spinner').style.display = 'none';
+    const grid = document.getElementById('feed-grid');
+    grid.style.opacity = '';
+    grid.style.pointerEvents = '';
     if (feedOffset === 0) {
-      document.getElementById('feed-grid').innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
+      grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
         <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">cloud_off</span>
         Le serveur ne répond pas, nouvelle tentative dans quelques secondes…
       </div>`;
