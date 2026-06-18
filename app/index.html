@@ -1493,8 +1493,17 @@ async function loadFeedPage() {
     } else {
       items.forEach(a => grid.insertAdjacentHTML('beforeend', renderFeedCard(a)));
       if (isLimited && feedDone) {
-        // Show 5 blurred ghost cards using last items as base
-        const ghosts = items.slice(-5).concat(items.slice(0, Math.max(0, 5 - items.length)));
+        // Fetch different items for ghost cards (different sort order)
+        let ghosts = [];
+        try {
+          const gr = await fetchWithTimeout(`${API}/feed?limit=10&order=favs&offset=0`, {}, 10000);
+          const gd = await gr.json();
+          const gItems = Array.isArray(gd) ? gd : (gd.items || []);
+          // Exclude items already shown
+          const shownIds = new Set(items.map(a => a.id));
+          ghosts = gItems.filter(a => !shownIds.has(a.id)).slice(0, 5);
+        } catch {}
+        if (ghosts.length < 5) ghosts = [...ghosts, ...items.slice(0, 5 - ghosts.length)];
         const blurredCards = ghosts.map(a => `
           <div class="feed-card" style="filter:blur(6px);pointer-events:none;user-select:none;">
             <div class="relative h-40 flex items-center justify-center overflow-hidden" style="background:var(--hi);">
