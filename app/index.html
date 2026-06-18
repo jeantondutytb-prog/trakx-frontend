@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" integrity="sha384-nD3dwv4+ZqdYnmZKe/249ImlV04om7xTCcsoSeQYI+RO+XlKPoqAWaJR1M5SJH9p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
@@ -264,7 +264,7 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      AUTH OVERLAY
 ════════════════════════════════════ -->
-<div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-6 hidden" style="background:var(--bg);">
+<div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-6" style="background:var(--bg);">
   <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm">
     <div class="flex items-center gap-2 mb-6">
       <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
@@ -311,7 +311,7 @@ tailwind.config = {
     </div>
     <p class="text-sm mb-1 font-semibold">Accès complet dès le premier mois</p>
     <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed et aux trackers.</p>
-    <a href="https://trakx.fr/#pricing" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">Voir les tarifs</a>
+    <button onclick="paywallLogout();showPage('subscription')" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">Voir les plans →</button>
     <button onclick="paywallLogout()" class="text-xs hover:underline" style="color:var(--muted);">Se déconnecter</button>
   </div>
 </div>
@@ -857,6 +857,8 @@ tailwind.config = {
 
 <script>
 const API = 'https://api.trakx.fr';
+// Warm up Render immediately on page load — before the user even logs in
+fetch(API + '/ping', { signal: AbortSignal.timeout(60000) }).catch(() => {});
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
 let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
 
