@@ -310,7 +310,7 @@ tailwind.config = {
       <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.2rem;color:var(--ink);">Trak<span style="color:var(--pri);">x</span></span>
     </div>
     <p class="text-sm mb-1 font-semibold">Accès complet dès le premier mois</p>
-    <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed, aux niches et à la watchlist.</p>
+    <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed et aux trackers.</p>
     <a href="https://trakx.fr/#pricing" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">Voir les tarifs</a>
     <button onclick="paywallLogout()" class="text-xs hover:underline" style="color:var(--muted);">Se déconnecter</button>
   </div>
@@ -335,7 +335,7 @@ tailwind.config = {
         <span class="icon">insights</span><span>Marché</span>
       </a>
       <a class="nav-link" href="#" onclick="showPage('niches');return false;" id="nav-niches">
-        <span class="icon">bookmarks</span><span>Niches</span>
+        <span class="icon">bookmarks</span><span>Trackers</span>
       </a>
       <a class="nav-link" href="#" onclick="showPage('subscription');return false;" id="nav-subscription">
         <span class="icon">bolt</span><span>Abonnement</span>
@@ -563,11 +563,10 @@ tailwind.config = {
     <!-- Tabs header -->
     <div class="flex items-center justify-between px-5 md:px-6 pt-5" style="border-bottom:1px solid var(--border);">
       <div class="flex gap-0">
-        <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes niches</button>
-        <button id="niches-tab-watch" onclick="switchNichesTab('watch')" class="tab-btn">Surveillance</button>
+        <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes trackers</button>
       </div>
       <button onclick="openNicheModal()" class="btn-orange flex items-center gap-1.5 px-3 py-2 text-sm mb-1" id="btn-new-niche">
-        <span class="material-symbols-outlined text-[16px]">add</span> Nouvelle niche
+        <span class="material-symbols-outlined text-[16px]">add</span> Nouveau tracker
       </button>
     </div>
 
@@ -583,7 +582,7 @@ tailwind.config = {
         <div class="flex items-center gap-3 px-5 py-3" style="border-bottom:1px solid var(--border);">
           <div class="flex items-center gap-2 vs-input rounded-xl px-3 py-1.5 flex-1 max-w-xs">
             <span class="material-symbols-outlined text-[16px]" style="color:var(--muted);">search</span>
-            <input id="niches-search" type="text" placeholder="Rechercher une niche…" class="border-none outline-none bg-transparent text-sm w-full" oninput="filterNicheTable()">
+            <input id="niches-search" type="text" placeholder="Rechercher un tracker…" class="border-none outline-none bg-transparent text-sm w-full" oninput="filterNicheTable()">
           </div>
           <span class="text-xs ml-auto" style="color:var(--muted);" id="niches-count"></span>
         </div>
@@ -625,7 +624,7 @@ tailwind.config = {
     <!-- Header -->
     <div class="px-5 md:px-6 pt-5 pb-0">
       <button onclick="showPage('niches')" class="flex items-center gap-1 text-sm font-medium mb-4 hover:underline" style="color:var(--muted);">
-        <span class="material-symbols-outlined text-[16px]">arrow_back</span> Retour aux niches
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span> Retour aux trackers
       </button>
       <div class="flex items-start justify-between gap-4 mb-4">
         <div>
@@ -821,7 +820,7 @@ tailwind.config = {
 ════════════════════════════════════ -->
 <div id="niche-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6" style="background:rgba(0,0,0,.45);">
   <div class="vs-card rounded-2xl shadow-2xl p-6 w-full max-w-sm" style="box-shadow:0 24px 64px rgba(0,0,0,.2);">
-    <h3 class="text-lg font-bold mb-5">Nouvelle niche</h3>
+    <h3 class="text-lg font-bold mb-5">Nouveau tracker</h3>
     <div class="space-y-3">
       <!-- Lien Vinted -->
       <div>
@@ -868,7 +867,7 @@ tailwind.config = {
   </div>
   <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('niches');return false;" id="mnav-niches">
     <span class="material-symbols-outlined" style="font-size:22px;">bookmarks</span>
-    <span class="text-[10px] font-semibold">Niches</span>
+    <span class="text-[10px] font-semibold">Trackers</span>
   </a>
   <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('settings');return false;" id="mnav-settings">
     <span class="material-symbols-outlined" style="font-size:22px;">settings</span>
@@ -1364,52 +1363,69 @@ async function loadStats() {
   try {
     const r = await fetchWithTimeout(API+'/stats');
     const s = await r.json();
-    const niches = (s.niches||[]).filter(n=>n.marque).slice(0,15);
-    const maxMoy = Math.max(...niches.map(n=>n.prix_moy||0));
+    const brands = (s.niches||[]).filter(n=>n.marque).slice(0,30);
+    const maxMoy = Math.max(...brands.map(n=>n.prix_moy||0));
+    const top3 = brands.slice(0,3);
+    const rest = brands.slice(3);
+
+    // Score d'opportunité = (prix_moy - prix_min) / prix_moy * 100 — marge potentielle
+    const score = n => n.prix_moy > 0 ? Math.round(((n.prix_moy - n.prix_min) / n.prix_moy) * 100) : 0;
+    const scoreColor = s => s >= 50 ? '#22c55e' : s >= 30 ? '#F97316' : 'var(--muted)';
+
     document.getElementById('stats-body').innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="stat-card">
-          <h3 class="font-bold mb-4">Base de données</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Total annonces</span><span class="font-bold">${(s.annonces||0).toLocaleString('fr-FR')}</span></div>
-            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Historique prix</span><span class="font-bold">${(s.prix_history||0).toLocaleString('fr-FR')}</span></div>
-            <div class="flex justify-between text-sm"><span style="color:var(--muted);">Marques suivies</span><span class="font-bold">${niches.length}</span></div>
-          </div>
+      <!-- KPIs -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div class="vs-card rounded-2xl p-4 text-center">
+          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${(s.annonces||0).toLocaleString('fr-FR')}</p>
+          <p class="text-xs mt-1" style="color:var(--muted);">annonces en base</p>
         </div>
-        <div class="stat-card">
-          <h3 class="font-bold mb-4">Top marques · prix moyen</h3>
-          <div class="space-y-2">
-            ${niches.map(n=>`
-              <div class="flex items-center gap-3">
-                <span class="text-xs w-28 truncate" style="color:var(--muted);">${esc(n.marque)}</span>
-                <div class="flex-1 rounded-full h-1.5" style="background:var(--border);">
-                  <div class="h-1.5 rounded-full" style="width:${Math.round((n.prix_moy/maxMoy)*100)}%;background:var(--pri);"></div>
-                </div>
-                <span class="text-xs font-bold w-10 text-right">${Math.round(n.prix_moy)}€</span>
-              </div>`).join('')}
-          </div>
+        <div class="vs-card rounded-2xl p-4 text-center">
+          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${brands.length}</p>
+          <p class="text-xs mt-1" style="color:var(--muted);">marques analysées</p>
         </div>
-        <div class="stat-card md:col-span-2">
-          <h3 class="font-bold mb-4">Détail par marque</h3>
-          <table class="w-full text-sm">
-            <thead><tr class="text-xs uppercase" style="color:var(--muted);">
-              <th class="text-left pb-3">Marque</th>
-              <th class="text-right pb-3">Entrées</th>
-              <th class="text-right pb-3">Min</th>
-              <th class="text-right pb-3">Moy</th>
-              <th class="text-right pb-3">Max</th>
-            </tr></thead>
-            <tbody>
-              ${niches.map(n=>`<tr style="border-top:1px solid var(--border);">
-                <td class="py-2 font-medium">${esc(n.marque)}</td>
-                <td class="py-2 text-right" style="color:var(--muted);">${n.nb}</td>
-                <td class="py-2 text-right">${Math.round(n.prix_min)}€</td>
-                <td class="py-2 text-right font-bold" style="color:var(--pri);">${Math.round(n.prix_moy)}€</td>
-                <td class="py-2 text-right">${Math.round(n.prix_max)}€</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
+        <div class="vs-card rounded-2xl p-4 text-center col-span-2 md:col-span-1">
+          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${(s.prix_history||0).toLocaleString('fr-FR')}</p>
+          <p class="text-xs mt-1" style="color:var(--muted);">historique de prix</p>
         </div>
+      </div>
+
+      <!-- Top 3 podium -->
+      <h3 class="font-bold text-sm mb-3" style="color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">🏆 Top marques · prix de revente</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        ${top3.map((n,i)=>`
+          <div class="vs-card rounded-2xl p-5 cursor-pointer hover:border-orange-300 transition-all"
+               onclick="filterFeedByBrand('${esc(n.marque)}')"
+               style="${i===0?'border:2px solid #F97316;':''} ">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg">${['🥇','🥈','🥉'][i]}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold" style="background:${scoreColor(score(n))}22;color:${scoreColor(score(n))};">+${score(n)}% marge</span>
+            </div>
+            <p class="font-bold text-base truncate mb-1">${esc(n.marque)}</p>
+            <p class="text-2xl font-bold mb-1" style="font-family:'Space Grotesk',sans-serif;">${Math.round(n.prix_moy)}€</p>
+            <p class="text-xs" style="color:var(--muted);">moy · min ${Math.round(n.prix_min)}€ · max ${Math.round(n.prix_max)}€</p>
+            <p class="text-xs mt-2" style="color:var(--muted);">${n.nb} annonces</p>
+            <p class="text-xs mt-3 font-semibold" style="color:var(--pri);">Voir les annonces →</p>
+          </div>`).join('')}
+      </div>
+
+      <!-- Toutes les marques -->
+      <h3 class="font-bold text-sm mb-3" style="color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Toutes les marques</h3>
+      <div class="vs-card rounded-2xl overflow-hidden">
+        ${rest.map((n,i)=>`
+          <div class="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-orange-50 transition-colors"
+               onclick="filterFeedByBrand('${esc(n.marque)}')"
+               style="${i>0?'border-top:1px solid var(--border);':''}">
+            <span class="text-sm font-bold w-5 text-right" style="color:var(--muted);">${i+4}</span>
+            <span class="flex-1 font-medium text-sm truncate">${esc(n.marque)}</span>
+            <div class="hidden md:flex flex-1 items-center gap-2">
+              <div class="flex-1 rounded-full h-1.5" style="background:var(--border);">
+                <div class="h-1.5 rounded-full" style="width:${Math.round((n.prix_moy/maxMoy)*100)}%;background:var(--pri);"></div>
+              </div>
+            </div>
+            <span class="text-sm font-bold w-14 text-right">${Math.round(n.prix_moy)}€</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold hidden md:block" style="background:${scoreColor(score(n))}22;color:${scoreColor(score(n))};">+${score(n)}%</span>
+            <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">arrow_forward</span>
+          </div>`).join('')}
       </div>`;
   } catch(e) {
     document.getElementById('stats-body').innerHTML = `<div class="text-center py-20" style="color:var(--muted);">
@@ -1418,6 +1434,23 @@ async function loadStats() {
       <button onclick="loadStats()" class="mt-3 text-sm font-bold hover:underline" style="color:var(--pri);">Réessayer</button>
     </div>`;
   }
+}
+
+function filterFeedByBrand(brand) {
+  // Navigate to feed and apply brand filter
+  feedSelectedMarques = new Set([brand]);
+  resetFeed();
+  showPage('feed');
+  // Update the brand pill UI
+  setTimeout(() => {
+    const pill = document.getElementById('fms-pill');
+    if (pill) pill.classList.add('active');
+    const badge = document.getElementById('fms-badge');
+    if (badge) { badge.textContent = '1'; badge.classList.remove('hidden'); }
+    const label = document.getElementById('fms-label');
+    if (label) label.textContent = brand;
+    updateFeedPills();
+  }, 100);
 }
 
 // ---- UTILS ----
@@ -1439,7 +1472,7 @@ function showPage(name) {
   ['home','stats','feed','niches','niche-detail','settings','subscription'].forEach(p => {
     document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
   });
-  const titles = { home:'Accueil', stats:'Marché', feed:'Feed · Toutes les annonces', niches:'Niches', 'niche-detail':'Niche', settings:'Réglages', subscription:'Abonnement' };
+  const titles = { home:'Accueil', stats:'Marché · Opportunités', feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
   document.getElementById('page-title').textContent = titles[name] || '';
 
   // Desktop sidebar active state
@@ -1850,7 +1883,7 @@ function renderNichesStatsRow() {
   const topNiche = _allNiches.reduce((best,n) => (!best || (n.nb_items||0) > (best.nb_items||0)) ? n : best, null);
   document.getElementById('niches-stats-row').innerHTML = `
     <div class="stat-card">
-      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Niches créées</p>
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Trackers créés</p>
       <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${_allNiches.length}</p>
     </div>
     <div class="stat-card">
