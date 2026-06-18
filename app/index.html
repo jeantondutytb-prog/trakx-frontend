@@ -1756,6 +1756,27 @@ function switchDetailTab(tab) {
   document.getElementById('nd-tab-table').classList.toggle('active', tab === 'table');
 }
 
+const VINTED_CATALOGS = {
+  1:'Femmes', 2:'Hommes', 4:'Hommes', 5:'Garçons', 6:'Filles', 7:'Bébé', 12:'Maison',
+  2994:'Électronique', 2995:'Téléphones', 2996:'Ordinateurs', 2997:'TV & Home Cinéma',
+  2998:'Jeux vidéo', 2999:'Photo', 3000:'Audio', 3001:'Objets connectés',
+  3002:'Électroménager', 1191:'Chaussures femmes', 1192:'Chaussures hommes',
+  6:'Enfants', 79:'Vêtements femmes', 4:'Vêtements hommes',
+  258:'Montres', 403:'Sport', 1218:'Animaux', 147:'Livres', 139:'Films & Séries',
+  130:'Musique', 131:'Jeux & Jouets', 1320:'Art', 24:'Sacs', 22:'Bijoux',
+};
+
+function catalogLabel(lien) {
+  if (!lien) return null;
+  try {
+    const u = new URL(lien.startsWith('http') ? lien : `https://${lien}`);
+    const ids = u.searchParams.getAll('catalog[]');
+    if (!ids.length) return null;
+    const labels = ids.map(id => VINTED_CATALOGS[id]).filter(Boolean);
+    return labels.length ? labels[0] : null;
+  } catch { return null; }
+}
+
 let _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
 
 async function parseNicheLink() {
@@ -1974,7 +1995,9 @@ async function openNicheDetail(n) {
 
   // Header
   document.getElementById('niche-detail-title').textContent = n.nom;
+  const _cat = catalogLabel(n.lien);
   const tags = [
+    _cat ? `<span class="tag">${esc(_cat)}</span>` : '',
     n.recherche ? `<span class="tag">"${esc(n.recherche)}"</span>` : '',
     n.marque ? `<span class="tag">${esc(n.marque)}</span>` : '',
     n.taille ? `<span class="tag">Taille ${esc(n.taille)}</span>` : '',
