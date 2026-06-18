@@ -1005,8 +1005,12 @@ async function initAuth() {
     document.getElementById('auth-overlay').classList.remove('hidden');
   }
   sb.auth.onAuthStateChange((event, session) => {
-    if (session) showApp();
-    else document.getElementById('auth-overlay').classList.remove('hidden');
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+      if (session) showApp();
+      else document.getElementById('auth-overlay').classList.remove('hidden');
+    } else if (event === 'SIGNED_OUT') {
+      document.getElementById('auth-overlay').classList.remove('hidden');
+    }
   });
 }
 initAuth();
@@ -1231,16 +1235,24 @@ async function previewToggleWatch() {
   const btn = document.getElementById('preview-watch-btn');
   const icon = btn.querySelector('.material-symbols-outlined');
   const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
-  if (watchedIds.has(a.id)) {
-    watchedIds.delete(a.id);
-    icon.style.fontVariationSettings = "'FILL' 0";
-    await fetch(`${API}/surveillance/${a.id}`, { method: 'DELETE', headers });
-  } else {
-    watchedIds.add(a.id);
-    icon.style.fontVariationSettings = "'FILL' 1";
-    await fetch(`${API}/surveillance`, { method: 'POST', headers, body: JSON.stringify(a) });
+  const wasWatched = watchedIds.has(a.id);
+  try {
+    if (wasWatched) {
+      const r = await fetch(`${API}/surveillance/${a.id}`, { method: 'DELETE', headers });
+      if (!r.ok) throw new Error(r.status);
+      watchedIds.delete(a.id);
+      icon.style.fontVariationSettings = "'FILL' 0";
+    } else {
+      const r = await fetch(`${API}/surveillance`, { method: 'POST', headers, body: JSON.stringify(a) });
+      if (r.status === 403) { showPage('subscription'); return; }
+      if (!r.ok) throw new Error(r.status);
+      watchedIds.add(a.id);
+      icon.style.fontVariationSettings = "'FILL' 1";
+    }
+  } catch {
+    icon.style.fontVariationSettings = wasWatched ? "'FILL' 1" : "'FILL' 0";
+    return;
   }
-  // Sync feed card watch icon too
   document.querySelectorAll(`[data-watch-btn][data-ann-id="${a.id}"] .material-symbols-outlined`).forEach(el => {
     el.style.fontVariationSettings = watchedIds.has(a.id) ? "'FILL' 1" : "'FILL' 0";
   });
@@ -1463,6 +1475,7 @@ async function loadFeedPage() {
       return true;
     });
     if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
+    feedOffset += rawCount;
     items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
     // Cache first page of default feed for instant reload
     if (feedOffset === 0 && items.length > 0 && !isLimited) {
@@ -1515,7 +1528,6 @@ async function loadFeedPage() {
           </div>`);
       }
     }
-    feedOffset += items.length;
     document.getElementById('feed-count').textContent = feedOffset + ' annonces chargées';
     if (feedDone) document.getElementById('feed-spinner').style.display = 'none';
   } catch(e) {
@@ -1607,14 +1619,23 @@ async function toggleWatch(ev, a) {
   const btn = ev.currentTarget;
   const icon = btn.querySelector('.material-symbols-outlined');
   const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
-  if (watchedIds.has(a.id)) {
-    watchedIds.delete(a.id);
-    icon.style.fontVariationSettings = "'FILL' 0";
-    await fetch(`${API}/surveillance/${a.id}`, { method: 'DELETE', headers });
-  } else {
-    watchedIds.add(a.id);
-    icon.style.fontVariationSettings = "'FILL' 1";
-    await fetch(`${API}/surveillance`, { method: 'POST', headers, body: JSON.stringify(a) });
+  const wasWatched = watchedIds.has(a.id);
+  try {
+    if (wasWatched) {
+      const r = await fetch(`${API}/surveillance/${a.id}`, { method: 'DELETE', headers });
+      if (!r.ok) throw new Error(r.status);
+      watchedIds.delete(a.id);
+      icon.style.fontVariationSettings = "'FILL' 0";
+    } else {
+      const r = await fetch(`${API}/surveillance`, { method: 'POST', headers, body: JSON.stringify(a) });
+      if (r.status === 403) { showPage('subscription'); return; }
+      if (!r.ok) throw new Error(r.status);
+      watchedIds.add(a.id);
+      icon.style.fontVariationSettings = "'FILL' 1";
+    }
+  } catch {
+    icon.style.fontVariationSettings = wasWatched ? "'FILL' 1" : "'FILL' 0";
+    return;
   }
 }
 
@@ -1753,8 +1774,12 @@ async function deleteNiche(id) {
   if (!confirm('Supprimer ce tracker ? Cette action est irréversible.')) return;
   try {
     const headers = await authHeader();
-    await fetchWithTimeout(`${API}/niches/${id}`, { method: 'DELETE', headers });
-  } catch {}
+    const r = await fetchWithTimeout(`${API}/niches/${id}`, { method: 'DELETE', headers });
+    if (!r.ok) { alert('Erreur lors de la suppression, réessaie.'); return; }
+  } catch {
+    alert('Erreur réseau, réessaie.');
+    return;
+  }
   loadNiches();
 }
 
