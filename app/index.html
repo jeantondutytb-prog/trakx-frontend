@@ -380,60 +380,6 @@ tailwind.config = {
     </div>
   </header>
 
-  <!-- ═══ PAGE ACCUEIL ═══ -->
-  <div id="page-home" class="hidden flex-1 p-5 md:p-6 space-y-5">
-
-    <!-- Hero banner -->
-    <div class="hero-grad rounded-2xl p-6 text-white shadow-lg" style="box-shadow:0 8px 32px rgba(249,115,22,.3);">
-      <div class="flex items-center gap-2 mb-2">
-        <div class="w-2 h-2 rounded-full bg-white/80 pulse-dot" style="background:rgba(255,255,255,.9);"></div>
-        <span class="text-xs font-medium opacity-90">Scanner actif · toutes les 20 min</span>
-      </div>
-      <h2 class="text-2xl font-bold mb-1" id="home-greeting">Bienvenue sur Trakx</h2>
-      <p class="text-sm opacity-85" id="home-summary">Analyse en cours…</p>
-    </div>
-
-    <!-- Stats row -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <div class="stat-card">
-        <div class="flex items-center gap-1.5 text-xs font-medium mb-2" style="color:var(--muted);">
-          <span class="material-symbols-outlined" style="font-size:15px;">bolt</span> Récentes (1h)
-        </div>
-        <p class="text-3xl font-bold" id="h-new" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">—</p>
-        <p class="text-xs mt-1" style="color:var(--muted);">annonces scannées</p>
-      </div>
-      <div class="stat-card">
-        <div class="flex items-center gap-1.5 text-xs font-medium mb-2" style="color:var(--muted);">
-          <span class="material-symbols-outlined" style="font-size:15px;">database</span> Stockées
-        </div>
-        <p class="text-3xl font-bold" id="h-total" style="font-family:'Space Grotesk',sans-serif;color:var(--ink);">—</p>
-        <p class="text-xs mt-1" style="color:var(--muted);">au total en base</p>
-      </div>
-    </div>
-
-    <!-- Recent list -->
-    <div class="vs-card rounded-2xl overflow-hidden">
-      <div class="flex items-center justify-between px-5 py-3" style="border-bottom:1px solid var(--border);">
-        <span class="text-sm font-semibold">Dernières annonces</span>
-        <a href="#" onclick="showPage('feed');return false;" class="text-xs font-bold hover:underline" style="color:var(--pri);">Voir tout →</a>
-      </div>
-      <div id="home-top5">
-        <div class="px-5 py-10 text-center"><div class="spinner mx-auto"></div></div>
-      </div>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <button onclick="showPage('feed')" class="vs-card rounded-2xl p-5 text-left transition-all hover:border-orange-200" style="border-color:var(--border);">
-        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);">grid_view</span>
-        <p class="font-bold mb-1">Explorer le feed</p>
-        <p class="text-xs" style="color:var(--muted);">Toutes les annonces scannées, filtrables par prix, marque et plus.</p>
-      </button>
-    </div>
-  </div>
-
-  <!-- ═══ PAGE STATS ═══ -->
-
   <!-- ═══ PAGE FEED ═══ -->
   <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
     <!-- Filtres -->
@@ -973,7 +919,6 @@ async function showApp() {
     showPage('feed');
     loadData();
     loadWatchedIds();
-    setInterval(loadData, 20*60*1000);
     // Keep API warm — ping every 14 min to avoid Render cold starts
     setInterval(() => fetchWithTimeout(`${API}/ping`).catch(()=>{}), 14*60*1000);
   }
@@ -1043,83 +988,23 @@ document.addEventListener('click', e => {
 });
 
 // ---- LOAD ----
+// Fetches recent listings to populate the brand filter dropdown
 async function loadData() {
-  if (!allData.length) {
-    try {
-      const cached = JSON.parse(localStorage.getItem('trakr-cache') || 'null');
-      if (cached && cached.data && cached.data.length) {
-        allData = cached.data;
-        buildMarques();
-        loadHome();
-        document.getElementById('last-update').textContent = 'MAJ ' + new Date(cached.ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) + ' (cache)';
-      }
-    } catch {}
-  }
+  try {
+    const cached = JSON.parse(localStorage.getItem('trakr-cache') || 'null');
+    if (cached && cached.data && cached.data.length) {
+      allData = cached.data;
+      buildMarques();
+    }
+  } catch {}
   try {
     const r = await fetchWithTimeout(API + '/opportunites?limit=100');
     if (!r.ok) throw new Error('Erreur ' + r.status);
     const raw = await r.json();
-    allData = deduplicate(raw);
-    const ts = Date.now();
-    try { localStorage.setItem('trakr-cache', JSON.stringify({ data: allData, ts })); } catch {}
-    document.getElementById('last-update').textContent = 'MAJ ' + new Date(ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    allData = raw;
+    try { localStorage.setItem('trakr-cache', JSON.stringify({ data: allData, ts: Date.now() })); } catch {}
     buildMarques();
-    loadHome();
   } catch(e) {}
-
-  try {
-    const r2 = await fetchWithTimeout(API + '/ping');
-    if (r2.ok) { const p = await r2.json(); dbTotal = p.annonces || 0; }
-  } catch {}
-
-  // "Récentes (1h)" count — derived from opportunites already loaded (no extra API call)
-  recentScanCount = allData.filter(a => {
-    const age = (Date.now() - new Date((a.scraped_le||'')+('Z')).getTime())/60000;
-    return age < 60;
-  }).length;
-
-  loadHome();
-}
-
-// ---- HOME ----
-let dbTotal = 0;
-let recentScanCount = 0;
-function loadHome() {
-  const hour = new Date().getHours();
-  document.getElementById('home-greeting').textContent =
-    hour < 12 ? 'Bonjour 👋' : hour < 18 ? 'Bon après-midi 👋' : 'Bonsoir 👋';
-
-  document.getElementById('h-new').textContent = recentScanCount.toLocaleString('fr-FR');
-  document.getElementById('h-total').textContent = (dbTotal || allData.length).toLocaleString('fr-FR');
-  document.getElementById('home-summary').textContent = allData.length
-    ? `${allData.length} annonces analysées. Le scanner tourne toutes les 20 minutes.`
-    : 'Analyse en cours, le scan revient toutes les 20 minutes.';
-
-  const top5 = [...allData].sort((a,b)=> new Date(b.scraped_le||0) - new Date(a.scraped_le||0)).slice(0,5);
-  document.getElementById('home-top5').innerHTML = top5.length ? top5.map(a => {
-    const photoUrl = safeUrl(a.photo);
-    const photo = photoUrl
-      ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.parentNode.innerHTML='${getEmoji(a.marque,a.titre)}'"/>`
-      : `<span class="text-xl">${getEmoji(a.marque,a.titre)}</span>`;
-    return `<div class="flex items-center gap-3 px-5 py-3 cursor-pointer transition-colors hover:bg-orange-50/60" onclick="openPreview(allData.find(x=>x.id===${a.id}))" style="border-bottom:1px solid var(--border);">
-      <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:var(--hi);">${photo}</div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold truncate">${esc(a.titre)||'—'}</p>
-        <p class="text-xs" style="color:var(--muted);">${esc(String(a.prix))}€${a.marque ? ' · ' + esc(a.marque) : ''}</p>
-      </div>
-      ${a.nb_favoris > 0 ? `<span class="favs-badge"><span class="material-symbols-outlined" style="font-size:10px;font-variation-settings:'FILL' 1;">favorite</span>${esc(String(a.nb_favoris))}</span>` : ''}
-    </div>`;
-  }).join('') : `<div class="px-5 py-10 text-center text-sm" style="color:var(--muted);">Rien à afficher pour l'instant.</div>`;
-}
-
-function deduplicate(data) {
-  const seen = new Map();
-  return data.filter(a => {
-    const k = (a.vendeur||'') + '|' + (a.titre||'').toLowerCase().substring(0,25);
-    if (seen.has(k)) return false;
-    seen.set(k, true);
-    return true;
-  });
 }
 
 // ---- MARQUES ----
@@ -1297,19 +1182,6 @@ async function loadSettings() {
   } catch {}
 }
 
-function applyConfigToModal() {
-  if (!_siteConfig) return;
-  const { price_display, stripe_url, stripe_portal_url } = _siteConfig;
-  if (price_display) {
-    document.querySelectorAll('.stripe-price-display').forEach(el => el.textContent = price_display);
-  }
-  if (stripe_url) {
-    const urlWithEmail = stripe_url + (_currentUserEmail ? `?prefilled_email=${encodeURIComponent(_currentUserEmail)}` : '');
-    document.querySelectorAll('.stripe-checkout-link').forEach(el => el.href = urlWithEmail);
-  }
-  const portalBtn = document.getElementById('settings-portal-btn');
-  if (stripe_portal_url && portalBtn) portalBtn.href = stripe_portal_url;
-}
 
 function showSubscriptionPage() {
   const cfg = _siteConfig || {};
@@ -1349,7 +1221,6 @@ async function initConfig() {
   try {
     const r = await fetchWithTimeout(`${API}/config`);
     _siteConfig = await r.json();
-    applyConfigToModal();
   } catch {}
 }
 
@@ -1369,14 +1240,14 @@ function getEmoji(m,t) {
 
 // ---- NAVIGATION ----
 function showPage(name) {
-  ['home','feed','niches','niche-detail','settings','subscription'].forEach(p => {
+  ['feed','niches','niche-detail','settings','subscription'].forEach(p => {
     document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
   });
-  const titles = { home:'Accueil', feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
+  const titles = { feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
   document.getElementById('page-title').textContent = titles[name] || '';
 
   // Desktop sidebar active state
-  ['home','feed','niches','settings','subscription'].forEach(p => {
+  ['feed','niches','settings','subscription'].forEach(p => {
     const el = document.getElementById('nav-'+p);
     if (el) el.classList.toggle('active', p === name);
     const mel = document.getElementById('mnav-'+p);
@@ -1488,6 +1359,10 @@ async function loadFeedPage() {
     if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
     feedOffset += rawCount;
     items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
+    // Enrich brand filter with any new brands discovered from this page
+    let brandsChanged = false;
+    items.forEach(a => { if (a.marque && !allMarques.includes(a.marque)) { allMarques.push(a.marque); brandsChanged = true; } });
+    if (brandsChanged) { allMarques.sort(); renderFms(allMarques); }
     // Cache first page of default feed for instant reload
     if (isFirstPage && items.length > 0 && !isLimited) {
       try { localStorage.setItem('trakx-feed-cache', JSON.stringify({ items: items.slice(0, 20), ts: Date.now() })); } catch {}
@@ -1666,13 +1541,12 @@ function switchDetailTab(tab) {
 }
 
 const VINTED_CATALOGS = {
-  1:'Femmes', 2:'Hommes', 4:'Hommes', 5:'Garçons', 6:'Filles', 7:'Bébé', 12:'Maison',
-  2994:'Électronique', 2995:'Téléphones', 2996:'Ordinateurs', 2997:'TV & Home Cinéma',
-  2998:'Jeux vidéo', 2999:'Photo', 3000:'Audio', 3001:'Objets connectés',
-  3002:'Électroménager', 1191:'Chaussures femmes', 1192:'Chaussures hommes',
-  6:'Enfants', 79:'Vêtements femmes', 4:'Vêtements hommes',
-  258:'Montres', 403:'Sport', 1218:'Animaux', 147:'Livres', 139:'Films & Séries',
-  130:'Musique', 131:'Jeux & Jouets', 1320:'Art', 24:'Sacs', 22:'Bijoux',
+  1:'Femmes', 2:'Hommes', 4:'Vêtements hommes', 5:'Garçons', 6:'Enfants', 7:'Bébé', 12:'Maison',
+  22:'Bijoux', 24:'Sacs', 79:'Vêtements femmes', 130:'Musique', 131:'Jeux & Jouets',
+  139:'Films & Séries', 147:'Livres', 258:'Montres', 403:'Sport', 1191:'Chaussures femmes',
+  1192:'Chaussures hommes', 1218:'Animaux', 1320:'Art', 2994:'Électronique', 2995:'Téléphones',
+  2996:'Ordinateurs', 2997:'TV & Home Cinéma', 2998:'Jeux vidéo', 2999:'Photo',
+  3000:'Audio', 3001:'Objets connectés', 3002:'Électroménager',
 };
 
 function catalogLabel(lien) {
