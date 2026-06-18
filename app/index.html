@@ -1341,102 +1341,6 @@ async function initConfig() {
   } catch {}
 }
 
-// ---- STATS ----
-async function loadStats() {
-  document.getElementById('stats-body').innerHTML = '<div class="flex items-center justify-center py-20"><div class="spinner"></div></div>';
-  try {
-    const r = await fetchWithTimeout(API+'/stats');
-    const s = await r.json();
-    const brands = (s.niches||[]).filter(n=>n.marque).slice(0,30);
-    const maxMoy = Math.max(...brands.map(n=>n.prix_moy||0));
-    const top3 = brands.slice(0,3);
-    const rest = brands.slice(3);
-
-    // Score d'opportunité = (prix_moy - prix_min) / prix_moy * 100 — marge potentielle
-    const score = n => n.prix_moy > 0 ? Math.round(((n.prix_moy - n.prix_min) / n.prix_moy) * 100) : 0;
-    const scoreColor = s => s >= 50 ? '#22c55e' : s >= 30 ? '#F97316' : 'var(--muted)';
-
-    document.getElementById('stats-body').innerHTML = `
-      <!-- KPIs -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div class="vs-card rounded-2xl p-4 text-center">
-          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${(s.annonces||0).toLocaleString('fr-FR')}</p>
-          <p class="text-xs mt-1" style="color:var(--muted);">annonces en base</p>
-        </div>
-        <div class="vs-card rounded-2xl p-4 text-center">
-          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${brands.length}</p>
-          <p class="text-xs mt-1" style="color:var(--muted);">marques analysées</p>
-        </div>
-        <div class="vs-card rounded-2xl p-4 text-center col-span-2 md:col-span-1">
-          <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${(s.prix_history||0).toLocaleString('fr-FR')}</p>
-          <p class="text-xs mt-1" style="color:var(--muted);">historique de prix</p>
-        </div>
-      </div>
-
-      <!-- Top 3 podium -->
-      <h3 class="font-bold text-sm mb-3" style="color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">🏆 Top marques · prix de revente</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        ${top3.map((n,i)=>`
-          <div class="vs-card rounded-2xl p-5 cursor-pointer hover:border-orange-300 transition-all"
-               onclick="filterFeedByBrand('${esc(n.marque)}')"
-               style="${i===0?'border:2px solid #F97316;':''} ">
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-lg">${['🥇','🥈','🥉'][i]}</span>
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold" style="background:${scoreColor(score(n))}22;color:${scoreColor(score(n))};">+${score(n)}% marge</span>
-            </div>
-            <p class="font-bold text-base truncate mb-1">${esc(n.marque)}</p>
-            <p class="text-2xl font-bold mb-1" style="font-family:'Space Grotesk',sans-serif;">${Math.round(n.prix_moy)}€</p>
-            <p class="text-xs" style="color:var(--muted);">moy · min ${Math.round(n.prix_min)}€ · max ${Math.round(n.prix_max)}€</p>
-            <p class="text-xs mt-2" style="color:var(--muted);">${n.nb} annonces</p>
-            <p class="text-xs mt-3 font-semibold" style="color:var(--pri);">Voir les annonces →</p>
-          </div>`).join('')}
-      </div>
-
-      <!-- Toutes les marques -->
-      <h3 class="font-bold text-sm mb-3" style="color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Toutes les marques</h3>
-      <div class="vs-card rounded-2xl overflow-hidden">
-        ${rest.map((n,i)=>`
-          <div class="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-orange-50 transition-colors"
-               onclick="filterFeedByBrand('${esc(n.marque)}')"
-               style="${i>0?'border-top:1px solid var(--border);':''}">
-            <span class="text-sm font-bold w-5 text-right" style="color:var(--muted);">${i+4}</span>
-            <span class="flex-1 font-medium text-sm truncate">${esc(n.marque)}</span>
-            <div class="hidden md:flex flex-1 items-center gap-2">
-              <div class="flex-1 rounded-full h-1.5" style="background:var(--border);">
-                <div class="h-1.5 rounded-full" style="width:${Math.round((n.prix_moy/maxMoy)*100)}%;background:var(--pri);"></div>
-              </div>
-            </div>
-            <span class="text-sm font-bold w-14 text-right">${Math.round(n.prix_moy)}€</span>
-            <span class="text-xs px-2 py-0.5 rounded-full font-bold hidden md:block" style="background:${scoreColor(score(n))}22;color:${scoreColor(score(n))};">+${score(n)}%</span>
-            <span class="material-symbols-outlined text-[14px]" style="color:var(--muted);">arrow_forward</span>
-          </div>`).join('')}
-      </div>`;
-  } catch(e) {
-    document.getElementById('stats-body').innerHTML = `<div class="text-center py-20" style="color:var(--muted);">
-      <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">cloud_off</span>
-      <p>Erreur chargement stats</p>
-      <button onclick="loadStats()" class="mt-3 text-sm font-bold hover:underline" style="color:var(--pri);">Réessayer</button>
-    </div>`;
-  }
-}
-
-function filterFeedByBrand(brand) {
-  // Navigate to feed and apply brand filter
-  feedSelectedMarques = new Set([brand]);
-  resetFeed();
-  showPage('feed');
-  // Update the brand pill UI
-  setTimeout(() => {
-    const pill = document.getElementById('fms-pill');
-    if (pill) pill.classList.add('active');
-    const badge = document.getElementById('fms-badge');
-    if (badge) { badge.textContent = '1'; badge.classList.remove('hidden'); }
-    const label = document.getElementById('fms-label');
-    if (label) label.textContent = brand;
-    updateFeedPills();
-  }, 100);
-}
-
 // ---- UTILS ----
 function getEmoji(m,t) {
   const s = ((m||'')+(t||'')).toLowerCase();
@@ -1453,7 +1357,7 @@ function getEmoji(m,t) {
 
 // ---- NAVIGATION ----
 function showPage(name) {
-  ['home','stats','feed','niches','niche-detail','settings','subscription'].forEach(p => {
+  ['home','feed','niches','niche-detail','settings','subscription'].forEach(p => {
     document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
   });
   const titles = { home:'Accueil', feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
@@ -1911,7 +1815,7 @@ function renderNichesStatsRow() {
       <p class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">${totalVendus.toLocaleString('fr-FR')}</p>
     </div>
     <div class="stat-card">
-      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Niche la plus active</p>
+      <p class="text-xs font-medium mb-1" style="color:var(--muted);">Tracker le plus actif</p>
       <p class="text-base font-bold truncate" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">${topNiche && topNiche.nb_items > 0 ? esc(topNiche.nom) : '—'}</p>
     </div>`;
 }
