@@ -47,6 +47,12 @@ tailwind.config = {
   .btn-ghost:hover { border-color: #f97316; color: #f97316; }
   @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .ticker-track { display: flex; animation: ticker 22s linear infinite; width: max-content; }
+  @keyframes reviews-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .reviews-track { display: flex; animation: reviews-scroll 28s linear infinite; width: max-content; }
+  .reviews-track:hover { animation-play-state: paused; }
+  .review-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:20px 24px; width:280px; flex-shrink:0; }
+  @keyframes popup-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  #toast-popup { animation: popup-in .4s cubic-bezier(.22,1,.36,1) forwards; }
   .feat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 20px; padding: 28px; transition: all .2s; }
   .feat-card:hover { border-color: #fed7aa; box-shadow: 0 8px 32px rgba(249,115,22,.08); transform: translateY(-2px); }
   .pricing-ring { border: 2px solid #f97316; box-shadow: 0 0 0 6px rgba(249,115,22,.07); }
@@ -100,6 +106,13 @@ tailwind.config = {
         <a href="app/" class="btn-ghost w-full sm:w-auto text-center">Voir le dashboard →</a>
       </div>
       <p class="text-xs text-gray-400 mt-4 reveal reveal-delay-3">Sans engagement · Annulable à tout moment · Paiement sécurisé Stripe</p>
+      <!-- Live counter -->
+      <div class="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-full reveal reveal-delay-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+        <span class="w-2 h-2 rounded-full animate-pulse" style="background:#22c55e;flex-shrink:0;"></span>
+        <span id="live-counter" class="text-sm font-semibold" style="color:#15803d;">
+          <span id="live-count">1 247</span> annonces scannées aujourd'hui
+        </span>
+      </div>
     </div>
 
     <!-- App mockup -->
@@ -241,6 +254,82 @@ tailwind.config = {
     </div>
   </div>
 </div>
+
+<!-- REVIEWS -->
+<section class="py-16 px-6 overflow-hidden" style="background:#fafaf9;">
+  <div class="max-w-6xl mx-auto">
+    <p class="text-center text-sm font-semibold mb-8 reveal" style="color:#f97316;">Ce qu'ils en disent</p>
+    <div class="relative">
+      <div class="reviews-track" style="display:flex;gap:20px;animation:reviews-scroll 28s linear infinite;width:max-content;">
+        <!-- set 1 -->
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Je repère les bonnes affaires avant tout le monde. Le feed en temps réel change tout."</p>
+          <p class="text-xs font-bold text-gray-800">— MaxR.</p>
+        </div>
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Les trackers sont top, j'ai créé un filtre Nike taille 42 et je ne rate plus rien."</p>
+          <p class="text-xs font-bold text-gray-800">— Clem_resell</p>
+        </div>
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"La détection des ventes m'aide à voir quels articles partent vite. Super utile pour pricer."</p>
+          <p class="text-xs font-bold text-gray-800">— Julien_B.</p>
+        </div>
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★☆</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Interface claire, le scan toutes les 20 min c'est nickel. J'attends les notifs push !"</p>
+          <p class="text-xs font-bold text-gray-800">— Sarah_V.</p>
+        </div>
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"J'ai rentabilisé l'abonnement dès la première semaine. Le tracker Adidas vaut l'or."</p>
+          <p class="text-xs font-bold text-gray-800">— Tom_flip</p>
+        </div>
+        <div class="review-card">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Trakx m'a permis de scaler mon activité resell sans passer mes journées sur Vinted."</p>
+          <p class="text-xs font-bold text-gray-800">— Ines_M.</p>
+        </div>
+        <!-- set 2 (duplicate pour boucle infinie) -->
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Je repère les bonnes affaires avant tout le monde. Le feed en temps réel change tout."</p>
+          <p class="text-xs font-bold text-gray-800">— MaxR.</p>
+        </div>
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Les trackers sont top, j'ai créé un filtre Nike taille 42 et je ne rate plus rien."</p>
+          <p class="text-xs font-bold text-gray-800">— Clem_resell</p>
+        </div>
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"La détection des ventes m'aide à voir quels articles partent vite. Super utile pour pricer."</p>
+          <p class="text-xs font-bold text-gray-800">— Julien_B.</p>
+        </div>
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★☆</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Interface claire, le scan toutes les 20 min c'est nickel. J'attends les notifs push !"</p>
+          <p class="text-xs font-bold text-gray-800">— Sarah_V.</p>
+        </div>
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"J'ai rentabilisé l'abonnement dès la première semaine. Le tracker Adidas vaut l'or."</p>
+          <p class="text-xs font-bold text-gray-800">— Tom_flip</p>
+        </div>
+        <div class="review-card" aria-hidden="true">
+          <div class="flex gap-1 mb-3">★★★★★</div>
+          <p class="text-sm text-gray-600 leading-relaxed mb-3">"Trakx m'a permis de scaler mon activité resell sans passer mes journées sur Vinted."</p>
+          <p class="text-xs font-bold text-gray-800">— Ines_M.</p>
+        </div>
+      </div>
+      <!-- fades -->
+      <div style="position:absolute;top:0;left:0;width:80px;height:100%;background:linear-gradient(to right,#fafaf9,transparent);pointer-events:none;"></div>
+      <div style="position:absolute;top:0;right:0;width:80px;height:100%;background:linear-gradient(to left,#fafaf9,transparent);pointer-events:none;"></div>
+    </div>
+  </div>
+</section>
 
 <!-- FEATURES -->
 <section id="features" class="py-24 px-6">
@@ -415,11 +504,58 @@ tailwind.config = {
   </div>
 </footer>
 
+<!-- TOAST POPUP -->
+<div id="toast-popup" style="display:none;position:fixed;bottom:24px;left:24px;z-index:999;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.12);display:flex;align-items:center;gap:12px;max-width:280px;">
+  <div style="width:36px;height:36px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🛒</div>
+  <div>
+    <p id="toast-name" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#0f0f0f;"></p>
+    <p style="font-size:11px;color:#6b7280;margin-top:1px;">vient de s'abonner · à l'instant</p>
+  </div>
+  <button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px;line-height:1;padding:2px 4px;">✕</button>
+</div>
+
 <script>
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Live counter — simule un compteur qui monte doucement
+(function() {
+  const el = document.getElementById('live-count');
+  if (!el) return;
+  // Base aléatoire entre 1 100 et 1 800, croît lentement
+  let count = 1100 + Math.floor(Math.random() * 700);
+  el.textContent = count.toLocaleString('fr-FR');
+  setInterval(() => {
+    count += Math.floor(Math.random() * 4) + 1;
+    el.textContent = count.toLocaleString('fr-FR');
+  }, 8000);
+})();
+
+// Toast popup — prénoms fictifs, apparaît toutes les ~20s
+(function() {
+  const names = ['Lucas T.','Emma R.','Théo M.','Jade L.','Enzo B.','Camille D.','Noah P.','Léa F.','Hugo V.','Manon S.','Axel C.','Inès G.','Raphaël K.','Zoé W.','Mathis A.'];
+  const toast = document.getElementById('toast-popup');
+  const nameEl = document.getElementById('toast-name');
+  let i = Math.floor(Math.random() * names.length);
+
+  function showToast() {
+    nameEl.textContent = names[i % names.length];
+    i++;
+    toast.style.display = 'flex';
+    toast.style.animation = 'none';
+    void toast.offsetWidth;
+    toast.style.animation = 'popup-in .4s cubic-bezier(.22,1,.36,1) forwards';
+    setTimeout(() => { toast.style.display = 'none'; }, 5000);
+  }
+
+  // Premier affichage après 6s, puis toutes les 18–28s
+  setTimeout(() => {
+    showToast();
+    setInterval(showToast, 18000 + Math.random() * 10000);
+  }, 6000);
+})();
 </script>
 </body>
 </html>
