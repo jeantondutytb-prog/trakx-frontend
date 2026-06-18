@@ -328,10 +328,7 @@ tailwind.config = {
     </div>
     <!-- Nav -->
     <nav class="flex flex-col gap-1 flex-1">
-      <a class="nav-link active" href="#" onclick="showPage('home');return false;" id="nav-home">
-        <span class="icon">home</span><span>Accueil</span>
-      </a>
-      <a class="nav-link" href="#" onclick="showPage('feed');return false;" id="nav-feed">
+      <a class="nav-link active" href="#" onclick="showPage('feed');return false;" id="nav-feed">
         <span class="icon">grid_view</span><span>Feed</span>
       </a>
       <a class="nav-link" href="#" onclick="showPage('stats');return false;" id="nav-stats">
@@ -833,9 +830,9 @@ tailwind.config = {
      MOBILE BOTTOM NAV
 ════════════════════════════════════ -->
 <nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-end justify-around z-50" style="height:64px;" id="mobile-nav">
-  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link active rounded-none" href="#" onclick="showPage('home');return false;" id="mnav-home">
-    <span class="material-symbols-outlined" style="font-size:22px;">home</span>
-    <span class="text-[10px] font-semibold">Accueil</span>
+  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link active rounded-none" href="#" onclick="showPage('feed');return false;" id="mnav-home">
+    <span class="material-symbols-outlined" style="font-size:22px;">grid_view</span>
+    <span class="text-[10px] font-semibold">Feed</span>
   </a>
   <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('stats');return false;" id="mnav-stats">
     <span class="material-symbols-outlined" style="font-size:22px;">insights</span>
@@ -960,6 +957,7 @@ async function showApp() {
   document.getElementById('paywall-overlay').classList.add('hidden');
   if (!_appInitialized) {
     _appInitialized = true;
+    showPage('feed');
     loadData();
     loadWatchedIds();
     setInterval(loadData, 20*60*1000);
