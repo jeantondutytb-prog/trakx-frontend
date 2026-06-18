@@ -340,6 +340,9 @@ tailwind.config = {
       <a class="nav-link" href="#" onclick="showPage('niches');return false;" id="nav-niches">
         <span class="icon">bookmarks</span><span>Niches</span>
       </a>
+      <a class="nav-link" href="#" onclick="showPage('subscription');return false;" id="nav-subscription">
+        <span class="icon">bolt</span><span>Abonnement</span>
+      </a>
       <a class="nav-link" href="#" onclick="showPage('settings');return false;" id="nav-settings">
         <span class="icon">settings</span><span>Réglages</span>
       </a>
@@ -688,6 +691,79 @@ tailwind.config = {
     </div>
   </div>
 
+  <!-- ═══ PAGE ABONNEMENT ═══ -->
+  <div id="page-subscription" class="hidden flex-1 p-5 md:p-6 max-w-3xl mx-auto w-full">
+    <h2 class="text-lg font-bold mb-2" style="font-family:'Space Grotesk',sans-serif;">Choisir un plan</h2>
+    <p class="text-sm mb-6" style="color:var(--muted);">7 jours gratuits · Sans engagement · Résiliable à tout moment</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Starter -->
+      <div class="vs-card rounded-2xl p-5 flex flex-col">
+        <p class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--muted);">Starter</p>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">9,90€</span>
+          <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
+        </div>
+        <ul class="space-y-2 mb-6 flex-1 text-sm" style="color:var(--muted);">
+          <li>✓ Feed temps réel</li>
+          <li>✓ 1 niche de surveillance</li>
+          <li>✗ Watchlist</li>
+        </ul>
+        <a id="sub-starter-btn" href="#" target="_blank" rel="noopener"
+          class="block text-center py-3 rounded-xl text-sm font-semibold transition-colors"
+          style="border:2px solid var(--border);color:var(--fg);">
+          Commencer →
+        </a>
+      </div>
+      <!-- Pro -->
+      <div class="rounded-2xl p-5 flex flex-col" style="background:#fff7ed;border:2px solid #F97316;">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold uppercase tracking-widest" style="color:#F97316;">Pro</p>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#F97316;color:#fff;">Populaire</span>
+        </div>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">19,90€</span>
+          <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
+        </div>
+        <ul class="space-y-2 mb-6 flex-1 text-sm" style="color:#78350f;">
+          <li>✓ Feed temps réel</li>
+          <li>✓ 5 niches de surveillance</li>
+          <li>✓ Watchlist & détection ventes</li>
+          <li>✓ Score d'opportunité</li>
+        </ul>
+        <a id="sub-pro-btn" href="#" target="_blank" rel="noopener"
+          class="block text-center py-3 rounded-xl text-sm font-semibold"
+          style="background:#F97316;color:#fff;">
+          Commencer →
+        </a>
+      </div>
+      <!-- Expert -->
+      <div class="vs-card rounded-2xl p-5 flex flex-col" style="border:2px solid #0f0f0f;">
+        <p class="text-xs font-bold uppercase tracking-widest mb-3">Expert</p>
+        <div class="flex items-end gap-1 mb-4">
+          <span class="text-3xl font-bold" style="font-family:'Space Grotesk',sans-serif;">39,90€</span>
+          <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
+        </div>
+        <ul class="space-y-2 mb-6 flex-1 text-sm" style="color:var(--muted);">
+          <li>✓ Tout du plan Pro</li>
+          <li>✓ Niches illimitées</li>
+          <li>✓ Support prioritaire</li>
+          <li>✓ Accès prioritaire nouveautés</li>
+        </ul>
+        <a id="sub-expert-btn" href="#" target="_blank" rel="noopener"
+          class="block text-center py-3 rounded-xl text-sm font-semibold"
+          style="background:#0f0f0f;color:#fff;">
+          Commencer →
+        </a>
+      </div>
+    </div>
+
+    <div id="sub-already-subscribed" class="hidden vs-card rounded-2xl p-4 text-sm flex items-center gap-3">
+      <span class="material-symbols-outlined" style="color:#22c55e;">check_circle</span>
+      <span>Tu es abonné au plan <strong id="sub-current-plan">—</strong>. <a id="sub-portal-link" href="#" target="_blank" rel="noopener" style="color:var(--pri);" class="underline">Gérer mon abonnement →</a></span>
+    </div>
+  </div>
+
   <!-- ═══ PAGE RÉGLAGES ═══ -->
   <div id="page-settings" class="hidden flex-1 p-5 md:p-6 max-w-2xl mx-auto w-full">
     <h2 class="text-lg font-bold mb-6">Réglages</h2>
@@ -793,7 +869,7 @@ tailwind.config = {
 <script>
 const API = 'https://api.trakx.fr';
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
-let _currentUserEmail = null;
+let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
 
 function fetchWithTimeout(url, opts = {}, ms = 30000) {
   const ctrl = new AbortController();
@@ -869,28 +945,16 @@ async function showApp() {
   const { data } = await sb.auth.getUser();
   document.getElementById('auth-user-email').textContent = data.user?.email || '—';
 
-  // Check Stripe subscription
+  // Load user info — free plan allowed
   try {
     const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
     const me = await r.json();
     _currentUserEmail = me.email || null;
-    if (!me.subscribed) {
-      // Show paywall — load Stripe URL from config
-      try {
-        const rc = await fetchWithTimeout(`${API}/config`);
-        const cfg = await rc.json();
-        const link = document.getElementById('paywall-stripe-link');
-        if (link && cfg.stripe_url) {
-          link.href = cfg.stripe_url + (me.email ? `?prefilled_email=${encodeURIComponent(me.email)}` : '');
-        }
-      } catch {}
-      document.getElementById('paywall-overlay').classList.remove('hidden');
-      return;
-    }
+    _userPlan = me.plan || 'free';
+    _userSubscribed = me.subscribed || false;
   } catch {
-    // If /me fails entirely, block access
-    document.getElementById('paywall-overlay').classList.remove('hidden');
-    return;
+    _userPlan = 'free';
+    _userSubscribed = false;
   }
 
   document.getElementById('paywall-overlay').classList.add('hidden');
@@ -1205,6 +1269,40 @@ function applyConfigToModal() {
   if (stripe_portal_url && portalBtn) portalBtn.href = stripe_portal_url;
 }
 
+function showSubscriptionPage() {
+  const cfg = _siteConfig || {};
+  const email = _currentUserEmail || '';
+  const emailParam = email ? `?prefilled_email=${encodeURIComponent(email)}` : '';
+
+  // Payment links — use the 3 production links
+  const links = {
+    starter: (cfg.stripe_url_starter || 'https://buy.stripe.com/4gM5kCfW0abW1RGbuuc7u01') + emailParam,
+    pro:     (cfg.stripe_url_pro     || 'https://buy.stripe.com/7sY8wO9xCdo867W2XYc7u02') + emailParam,
+    expert:  (cfg.stripe_url_expert  || 'https://buy.stripe.com/4gM8wO39eabWbsgbuuc7u03') + emailParam,
+  };
+
+  const starterBtn = document.getElementById('sub-starter-btn');
+  const proBtn     = document.getElementById('sub-pro-btn');
+  const expertBtn  = document.getElementById('sub-expert-btn');
+  if (starterBtn) starterBtn.href = links.starter;
+  if (proBtn)     proBtn.href     = links.pro;
+  if (expertBtn)  expertBtn.href  = links.expert;
+
+  // Show "already subscribed" banner if subscribed
+  const banner = document.getElementById('sub-already-subscribed');
+  if (banner) {
+    if (_userSubscribed) {
+      banner.classList.remove('hidden');
+      const planEl = document.getElementById('sub-current-plan');
+      if (planEl) planEl.textContent = _userPlan;
+      const portalLink = document.getElementById('sub-portal-link');
+      if (portalLink && cfg.stripe_portal_url) portalLink.href = cfg.stripe_portal_url;
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+}
+
 async function initConfig() {
   try {
     const r = await fetchWithTimeout(`${API}/config`);
@@ -1291,14 +1389,14 @@ function getEmoji(m,t) {
 
 // ---- NAVIGATION ----
 function showPage(name) {
-  ['home','stats','feed','niches','niche-detail','settings'].forEach(p => {
+  ['home','stats','feed','niches','niche-detail','settings','subscription'].forEach(p => {
     document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
   });
-  const titles = { home:'Accueil', stats:'Marché', feed:'Feed · Toutes les annonces', niches:'Niches', 'niche-detail':'Niche', settings:'Réglages' };
+  const titles = { home:'Accueil', stats:'Marché', feed:'Feed · Toutes les annonces', niches:'Niches', 'niche-detail':'Niche', settings:'Réglages', subscription:'Abonnement' };
   document.getElementById('page-title').textContent = titles[name] || '';
 
   // Desktop sidebar active state
-  ['home','feed','stats','niches','settings'].forEach(p => {
+  ['home','feed','stats','niches','settings','subscription'].forEach(p => {
     const el = document.getElementById('nav-'+p);
     if (el) el.classList.toggle('active', p === name);
     const mel = document.getElementById('mnav-'+p);
@@ -1308,6 +1406,7 @@ function showPage(name) {
   if (name==='stats') loadStats();
   if (name==='niches') { loadNiches(); loadWatchlist(); }
   if (name==='settings') loadSettings();
+  if (name==='subscription') showSubscriptionPage();
   if (name==='feed') {
     if (feedOffset === 0) resetFeed();
     feedObserver.observe(document.getElementById('feed-sentinel'));
@@ -1373,15 +1472,16 @@ async function loadFeedPage() {
   if (since) params.set('since_hours', since);
   try {
     const r = await fetchWithTimeout(`${API}/feed?${params}`, { headers: await authHeader() }, 60000);
-    let items = await r.json();
-    if (!Array.isArray(items)) items = [];
+    const resp = await r.json();
+    let items = Array.isArray(resp) ? resp : (resp.items || []);
+    const isLimited = resp.is_limited || false;
     const rawCount = items.length;
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
       return true;
     });
-    if (rawCount < FEED_LIMIT) feedDone = true;
+    if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
     items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
     const grid = document.getElementById('feed-grid');
     if (feedOffset === 0 && items.length === 0) {
@@ -1392,6 +1492,18 @@ async function loadFeedPage() {
       </div>`;
     } else {
       items.forEach(a => grid.insertAdjacentHTML('beforeend', renderFeedCard(a)));
+      if (isLimited && feedDone) {
+        const stripeUrl = (_siteConfig?.stripe_url || '') + (_currentUserEmail ? `?prefilled_email=${encodeURIComponent(_currentUserEmail)}` : '');
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="col-span-full relative" style="margin-top:-80px;">
+            <div style="height:120px;background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none;"></div>
+            <div class="text-center py-8 px-4" style="background:var(--bg);">
+              <div class="text-2xl font-bold mb-2" style="font-family:'Space Grotesk',sans-serif;">🔓 Débloquer toutes les annonces</div>
+              <p class="mb-4" style="color:var(--muted);">Tu vois les 20 meilleures opportunités. Abonne-toi pour accéder à toutes les annonces en temps réel.</p>
+              <button onclick="showPage('subscription')" style="background:#F97316;color:#fff;font-weight:700;padding:14px 32px;border-radius:12px;font-size:15px;border:none;cursor:pointer;">Voir les plans →</button>
+            </div>
+          </div>`);
+      }
     }
     feedOffset += items.length;
     document.getElementById('feed-count').textContent = feedOffset + ' annonces chargées';
