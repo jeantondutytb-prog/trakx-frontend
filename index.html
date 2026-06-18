@@ -106,12 +106,16 @@ tailwind.config = {
         <a href="app/" class="btn-ghost w-full sm:w-auto text-center">Voir le dashboard →</a>
       </div>
       <p class="text-xs text-gray-400 mt-4 reveal reveal-delay-3">Sans engagement · Annulable à tout moment · Paiement sécurisé Stripe</p>
-      <!-- Live counter -->
-      <div class="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-full reveal reveal-delay-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
-        <span class="w-2 h-2 rounded-full animate-pulse" style="background:#22c55e;flex-shrink:0;"></span>
-        <span id="live-counter" class="text-sm font-semibold" style="color:#15803d;">
-          <span id="live-count">1 247</span> annonces scannées aujourd'hui
-        </span>
+      <!-- Live counters -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 reveal reveal-delay-3">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+          <span class="w-2 h-2 rounded-full animate-pulse" style="background:#22c55e;flex-shrink:0;"></span>
+          <span class="text-sm font-semibold" style="color:#15803d;"><span id="live-subscribers">247</span> abonnés actifs</span>
+        </div>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full" style="background:#fff7ed;border:1px solid #fed7aa;">
+          <span class="w-2 h-2 rounded-full animate-pulse" style="background:#f97316;flex-shrink:0;"></span>
+          <span class="text-sm font-semibold" style="color:#ea580c;"><span id="live-scanned">84 312</span> annonces scannées</span>
+        </div>
       </div>
     </div>
 
@@ -520,16 +524,22 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Live counter — simule un compteur qui monte doucement
+// Live counters
 (function() {
-  const el = document.getElementById('live-count');
-  if (!el) return;
-  // Base aléatoire entre 1 100 et 1 800, croît lentement
-  let count = 1100 + Math.floor(Math.random() * 700);
-  el.textContent = count.toLocaleString('fr-FR');
+  let subs = 230 + Math.floor(Math.random() * 40);
+  let scanned = 84000 + Math.floor(Math.random() * 1000);
+  const subEl = document.getElementById('live-subscribers');
+  const scanEl = document.getElementById('live-scanned');
+  if (subEl) subEl.textContent = subs.toLocaleString('fr-FR');
+  if (scanEl) scanEl.textContent = scanned.toLocaleString('fr-FR');
   setInterval(() => {
-    count += Math.floor(Math.random() * 4) + 1;
-    el.textContent = count.toLocaleString('fr-FR');
+    // abonnés: monte de 0 ou 1 toutes les 12s
+    if (Math.random() > 0.6) { subs++; if (subEl) subEl.textContent = subs.toLocaleString('fr-FR'); }
+  }, 12000);
+  setInterval(() => {
+    // annonces: monte de 80-160 toutes les 20min simulées en 8s
+    scanned += 80 + Math.floor(Math.random() * 80);
+    if (scanEl) scanEl.textContent = scanned.toLocaleString('fr-FR');
   }, 8000);
 })();
 
