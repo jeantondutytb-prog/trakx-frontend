@@ -592,7 +592,7 @@ tailwind.config = {
           <table class="w-full text-sm" id="niches-table">
             <thead>
               <tr style="border-bottom:1px solid var(--border);background:var(--hi);">
-                <th class="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style="color:var(--muted);">Niche</th>
+                <th class="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style="color:var(--muted);">Tracker</th>
                 <th class="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer hover:text-orange-500 transition-colors" style="color:var(--muted);" onclick="sortNiches('nb_items')">
                   Captés <span id="sort-nb" class="text-[10px]"></span>
                 </th>
@@ -1828,7 +1828,14 @@ async function submitNiche() {
     const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
-      errEl.textContent = "Erreur lors de la création."; errEl.classList.remove('hidden'); return;
+      if (r.status === 403 && body.error === 'niche_limit') {
+        errEl.textContent = `Limite atteinte (${body.limit} tracker${body.limit>1?'s':''} max sur ton plan). Passe au plan supérieur.`;
+      } else if (r.status === 403) {
+        errEl.textContent = "Abonnement requis pour créer un tracker.";
+      } else {
+        errEl.textContent = body.detail || body.error || "Erreur lors de la création.";
+      }
+      errEl.classList.remove('hidden'); return;
     }
     closeNicheModal();
     loadNiches();
@@ -1840,7 +1847,7 @@ async function submitNiche() {
 }
 
 async function deleteNiche(id) {
-  if (!confirm('Supprimer cette niche ? Cette action est irréversible.')) return;
+  if (!confirm('Supprimer ce tracker ? Cette action est irréversible.')) return;
   try {
     const headers = await authHeader();
     await fetchWithTimeout(`${API}/niches/${id}`, { method: 'DELETE', headers });
@@ -1908,7 +1915,7 @@ function renderNichesTable() {
     const av = a[col] ?? -Infinity, bv = b[col] ?? -Infinity;
     return (av > bv ? 1 : av < bv ? -1 : 0) * dir;
   });
-  document.getElementById('niches-count').textContent = `${rows.length} niche${rows.length !== 1 ? 's' : ''}`;
+  document.getElementById('niches-count').textContent = `${rows.length} tracker${rows.length !== 1 ? 's' : ''}`;
   [['nb_items','nb'],['nb_vendus','vendus'],['prix_moyen','prix']].forEach(([c,id]) => {
     const el = document.getElementById('sort-'+id);
     if (el) el.textContent = c === col ? (dir === -1 ? '↓' : '↑') : '';
@@ -1916,7 +1923,7 @@ function renderNichesTable() {
   if (!rows.length) {
     document.getElementById('niches-tbody').innerHTML =
       `<tr><td colspan="5" class="px-5 py-12 text-center text-sm" style="color:var(--muted);">
-        ${q ? 'Aucune niche ne correspond à cette recherche.' : 'Aucune niche. Crée-en une avec le bouton ci-dessus.'}
+        ${q ? 'Aucun tracker ne correspond à cette recherche.' : 'Aucun tracker. Crée-en un avec le bouton ci-dessus.'}
       </td></tr>`;
     return;
   }
@@ -1994,8 +2001,8 @@ async function openNicheDetail(n) {
     const items = await r.json();
     if (!Array.isArray(items) || !items.length) {
       const empty = n.lien
-        ? `Les nouvelles annonces de cette niche apparaîtront ici au prochain scan (toutes les 20 min).`
-        : `Aucune annonce pour cette niche.`;
+        ? `Les nouvelles annonces de ce tracker apparaîtront ici au prochain scan (toutes les 20 min).`
+        : `Aucune annonce pour ce tracker.`;
       gridEl.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">${empty}</div>`;
       tableEl.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">${empty}</td></tr>`;
       document.getElementById('nd-nb').textContent = '0';
