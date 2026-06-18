@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Trakx — L'outil de resell le plus utile</title>
 <link rel="icon" type="image/svg+xml" href="app/favicon.svg"/>
-<meta name="description" content="Scanne Vinted en temps réel, détecte les bonnes affaires avant tout le monde. +84 000 annonces analysées. 19€/mois."/>
+<meta name="description" content="Scanne Vinted en temps réel, détecte les bonnes affaires avant tout le monde. +450 000 annonces analysées. 19€/mois."/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://va.vercel-scripts.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms; frame-src https://buy.stripe.com;">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
@@ -93,7 +93,7 @@ tailwind.config = {
     <div class="text-center max-w-3xl mx-auto">
       <div class="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full mb-6 reveal" style="background:#fff7ed;border:1px solid #fed7aa;color:#ea580c;">
         <span class="w-2 h-2 rounded-full animate-pulse" style="background:#f97316;"></span>
-        +84 000 annonces scannées · mis à jour toutes les 20 min
+        +450 000 annonces scannées · mis à jour toutes les 20 min
       </div>
       <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2.8rem,7vw,4.5rem);line-height:1.05;letter-spacing:-.02em;" class="text-gray-900 mb-6 reveal reveal-delay-1">
         L'outil de resell<br/><span class="grad">le plus utile</span><br/>sur Vinted.
@@ -114,7 +114,7 @@ tailwind.config = {
         </div>
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full" style="background:#fff7ed;border:1px solid #fed7aa;">
           <span class="w-2 h-2 rounded-full animate-pulse" style="background:#f97316;flex-shrink:0;"></span>
-          <span class="text-sm font-semibold" style="color:#ea580c;"><span id="live-scanned">84 312</span> annonces scannées</span>
+          <span class="text-sm font-semibold" style="color:#ea580c;"><span id="live-scanned">450 312</span> annonces scannées</span>
         </div>
       </div>
     </div>
@@ -382,7 +382,7 @@ tailwind.config = {
 <section class="py-20 px-6">
   <div class="max-w-5xl mx-auto">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div class="reveal"><p style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);" class="text-gray-900">84K+</p><p class="text-gray-500 text-sm mt-1">annonces analysées</p></div>
+      <div class="reveal"><p style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);" class="text-gray-900">450K+</p><p class="text-gray-500 text-sm mt-1">annonces analysées</p></div>
       <div class="reveal reveal-delay-1"><p style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);" class="text-gray-900">500+</p><p class="text-gray-500 text-sm mt-1">marques suivies</p></div>
       <div class="reveal reveal-delay-2"><p style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);" class="text-gray-900">20min</p><p class="text-gray-500 text-sm mt-1">fréquence de scan</p></div>
       <div class="reveal reveal-delay-3"><p class="grad" style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);">100%</p><p class="text-gray-500 text-sm mt-1">automatisé</p></div>
@@ -527,7 +527,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 // Live counters
 (function() {
   let subs = 230 + Math.floor(Math.random() * 40);
-  let scanned = 84000 + Math.floor(Math.random() * 1000);
+  let scanned = 450000 + Math.floor(Math.random() * 1000);
   const subEl = document.getElementById('live-subscribers');
   const scanEl = document.getElementById('live-scanned');
   if (subEl) subEl.textContent = subs.toLocaleString('fr-FR');
