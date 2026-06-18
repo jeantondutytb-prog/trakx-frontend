@@ -1823,7 +1823,9 @@ async function submitNiche() {
   const btn = document.querySelector('#niche-modal button[onclick="submitNiche()"]');
   if (btn) btn.disabled = true;
   try {
-    const payload = { nom, lien, ..._nicheExtracted };
+    // Strip null fields — FastAPI rejects null for Optional[str] in strict mode
+    const extracted = Object.fromEntries(Object.entries(_nicheExtracted).filter(([,v]) => v !== null && v !== undefined && v !== ''));
+    const payload = { nom, lien, ...extracted };
     const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
     const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
     if (!r.ok) {
@@ -1833,7 +1835,10 @@ async function submitNiche() {
       } else if (r.status === 403) {
         errEl.textContent = "Abonnement requis pour créer un tracker.";
       } else {
-        errEl.textContent = body.detail || body.error || "Erreur lors de la création.";
+        const detail = Array.isArray(body.detail)
+          ? body.detail.map(e => e.msg || JSON.stringify(e)).join(', ')
+          : (body.detail || body.error || "Erreur lors de la création.");
+        errEl.textContent = detail;
       }
       errEl.classList.remove('hidden'); return;
     }
