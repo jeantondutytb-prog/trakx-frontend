@@ -906,7 +906,7 @@ async function authSubmit() {
   btn.disabled = true;
   const { data, error } = authMode === 'login'
     ? await sb.auth.signInWithPassword({ email, password })
-    : await sb.auth.signUp({ email, password });
+    : await sb.auth.signUp({ email, password, options: { emailRedirectTo: 'https://trakx.fr/app/' } });
   btn.disabled = false;
   if (error) {
     errEl.textContent = error.message;
