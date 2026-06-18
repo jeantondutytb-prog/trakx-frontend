@@ -927,7 +927,7 @@ async function authSubmit() {
   btn.disabled = false;
   if (error) {
     const msg = error.message || '';
-    if (msg.toLowerCase().includes('rate limit') || msg.includes('{}') || msg === '') {
+    if (msg.toLowerCase().includes('rate limit') || msg.includes('{}')) {
       showEmailSentMsg(email);
     } else {
       errEl.textContent = msg;
@@ -953,6 +953,7 @@ async function authWithApple() {
 async function authLogout() {
   await sb.auth.signOut();
   _appInitialized = false;
+  if (authMode !== 'login') authToggleMode();
   document.getElementById('auth-overlay').classList.remove('hidden');
 }
 
@@ -1769,6 +1770,16 @@ async function loadNiches() {
     `<tr><td colspan="5" class="px-5 py-12 text-center"><div class="spinner mx-auto"></div></td></tr>`;
   try {
     const r = await fetchWithTimeout(`${API}/niches`, { headers: await authHeader() });
+    if (r.status === 403) {
+      document.getElementById('niches-tbody').innerHTML =
+        `<tr><td colspan="5" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">
+          <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">lock</span>
+          Un abonnement est requis pour créer des trackers.
+          <button onclick="showPage('subscription')" class="block mx-auto mt-3 px-5 py-2 rounded-xl font-bold text-white" style="background:var(--pri);">Voir les plans →</button>
+        </td></tr>`;
+      return;
+    }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     _allNiches = Array.isArray(data) ? data : (data.niches || []);
     renderNichesStatsRow();
@@ -1979,6 +1990,15 @@ async function loadWatchlist() {
   list.innerHTML = `<div class="col-span-full text-center py-8"><div class="spinner mx-auto"></div></div>`;
   try {
     const r = await fetch(`${API}/surveillance`, { headers: await authHeader() });
+    if (r.status === 403) {
+      list.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">
+        <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">lock</span>
+        Un abonnement est requis pour la surveillance.
+        <button onclick="showPage('subscription')" class="block mx-auto mt-3 px-5 py-2 rounded-xl font-bold text-white" style="background:var(--pri);">Voir les plans →</button>
+      </div>`;
+      return;
+    }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const items = await r.json();
     watchedIds = new Set(items.map(i => i.annonce_id));
     if (!Array.isArray(items) || !items.length) {
