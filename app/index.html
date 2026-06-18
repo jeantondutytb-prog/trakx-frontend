@@ -1954,7 +1954,9 @@ function renderNichesTable() {
     return;
   }
   document.getElementById('niches-tbody').innerHTML = rows.map(n => {
+    const _c = catalogLabel(n.lien);
     const tags = [
+      _c          ? `<span class="tag">${esc(_c)}</span>` : '',
       n.recherche ? `<span class="tag">"${esc(n.recherche)}"</span>` : '',
       n.marque    ? `<span class="tag">${esc(n.marque)}</span>` : '',
       n.taille    ? `<span class="tag">Taille ${esc(n.taille)}</span>` : '',
