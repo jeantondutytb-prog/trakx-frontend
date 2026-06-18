@@ -893,6 +893,29 @@ function authToggleMode() {
   document.getElementById('auth-error').classList.add('hidden');
 }
 
+function showEmailSentMsg(email) {
+  const errEl = document.getElementById('auth-error');
+  errEl.innerHTML = `
+    <span>Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse.</span><br>
+    <button id="resend-btn" onclick="resendConfirmEmail('${email.replace(/'/g,"\\'")}', this)"
+      style="margin-top:8px;font-size:12px;text-decoration:underline;background:none;border:none;cursor:pointer;color:var(--green);">
+      Pas reçu ? Renvoyer l'email
+    </button>`;
+  errEl.style.color = 'var(--green)';
+  errEl.classList.remove('hidden');
+}
+
+async function resendConfirmEmail(email, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  const { error } = await sb.auth.resend({ type: 'signup', email, options: { emailRedirectTo: 'https://trakx.fr/app/' } });
+  if (error) {
+    btn.textContent = 'Erreur, réessaie plus tard.';
+  } else {
+    btn.textContent = '✓ Email renvoyé !';
+  }
+}
+
 async function authSubmit() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
@@ -913,19 +936,16 @@ async function authSubmit() {
   if (error) {
     const msg = error.message || '';
     if (msg.toLowerCase().includes('rate limit') || msg.includes('{}') || msg === '') {
-      errEl.textContent = 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.';
-      errEl.style.color = 'var(--green)';
+      showEmailSentMsg(email);
     } else {
       errEl.textContent = msg;
       errEl.style.color = '';
+      errEl.classList.remove('hidden');
     }
-    errEl.classList.remove('hidden');
     return;
   }
   if (authMode === 'signup' && !data.session) {
-    errEl.textContent = 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.';
-    errEl.classList.remove('hidden');
-    errEl.style.color = 'var(--green)';
+    showEmailSentMsg(email);
     return;
   }
   showApp();
