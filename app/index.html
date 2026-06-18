@@ -877,7 +877,9 @@ function fetchWithTimeout(url, opts = {}, ms = 30000) {
 // ---- AUTH ----
 const SUPABASE_URL = 'https://apwedqsklyzroeyrokqb.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ExNINsgU98WsaiqBeW0x-A_HXqQFLz1';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { flowType: 'implicit' }
+});
 let authMode = 'login';
 
 function authToggleMode() {
