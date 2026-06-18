@@ -793,6 +793,7 @@ tailwind.config = {
 <script>
 const API = 'https://api.trakx.fr';
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
+let _currentUserEmail = null;
 
 function fetchWithTimeout(url, opts = {}, ms = 30000) {
   const ctrl = new AbortController();
@@ -872,13 +873,16 @@ async function showApp() {
   try {
     const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
     const me = await r.json();
+    _currentUserEmail = me.email || null;
     if (!me.subscribed) {
       // Show paywall — load Stripe URL from config
       try {
         const rc = await fetchWithTimeout(`${API}/config`);
         const cfg = await rc.json();
         const link = document.getElementById('paywall-stripe-link');
-        if (link && cfg.stripe_url) link.href = cfg.stripe_url;
+        if (link && cfg.stripe_url) {
+          link.href = cfg.stripe_url + (me.email ? `?prefilled_email=${encodeURIComponent(me.email)}` : '');
+        }
       } catch {}
       document.getElementById('paywall-overlay').classList.remove('hidden');
       return;
@@ -1194,7 +1198,8 @@ function applyConfigToModal() {
     document.querySelectorAll('.stripe-price-display').forEach(el => el.textContent = price_display);
   }
   if (stripe_url) {
-    document.querySelectorAll('.stripe-checkout-link').forEach(el => el.href = stripe_url);
+    const urlWithEmail = stripe_url + (_currentUserEmail ? `?prefilled_email=${encodeURIComponent(_currentUserEmail)}` : '');
+    document.querySelectorAll('.stripe-checkout-link').forEach(el => el.href = urlWithEmail);
   }
   const portalBtn = document.getElementById('settings-portal-btn');
   if (stripe_portal_url && portalBtn) portalBtn.href = stripe_portal_url;
