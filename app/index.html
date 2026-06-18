@@ -942,18 +942,6 @@ async function showApp() {
   const { data } = await sb.auth.getUser();
   document.getElementById('auth-user-email').textContent = data.user?.email || '—';
 
-  // Load user info — free plan allowed
-  try {
-    const r = await fetchWithTimeout(`${API}/me`, { headers: await authHeader() });
-    const me = await r.json();
-    _currentUserEmail = me.email || null;
-    _userPlan = me.plan || 'free';
-    _userSubscribed = me.subscribed || false;
-  } catch {
-    _userPlan = 'free';
-    _userSubscribed = false;
-  }
-
   document.getElementById('paywall-overlay').classList.add('hidden');
   if (!_appInitialized) {
     _appInitialized = true;
@@ -961,7 +949,19 @@ async function showApp() {
     loadData();
     loadWatchedIds();
     setInterval(loadData, 20*60*1000);
+    // Keep API warm — ping every 14 min to avoid Render cold starts
+    setInterval(() => fetchWithTimeout(`${API}/ping`).catch(()=>{}), 14*60*1000);
   }
+
+  // Load user plan in background — doesn't block feed
+  fetchWithTimeout(`${API}/me`, { headers: await authHeader() })
+    .then(r => r.json())
+    .then(me => {
+      _currentUserEmail = me.email || null;
+      _userPlan = me.plan || 'free';
+      _userSubscribed = me.subscribed || false;
+    })
+    .catch(() => { _userPlan = 'free'; _userSubscribed = false; });
 }
 
 async function paywallLogout() {
@@ -1438,10 +1438,34 @@ function feedFilterChange() {
   feedTimer = setTimeout(() => resetFeed(), 400);
 }
 
+function feedSkeletons(n = 8) {
+  return Array.from({length: n}, () => `
+    <div class="feed-card animate-pulse">
+      <div class="h-40" style="background:var(--hi);border-radius:8px 8px 0 0;"></div>
+      <div class="p-3 space-y-2">
+        <div style="height:12px;background:var(--hi);border-radius:4px;width:80%;"></div>
+        <div style="height:10px;background:var(--hi);border-radius:4px;width:50%;"></div>
+        <div style="height:14px;background:var(--hi);border-radius:4px;width:35%;margin-top:8px;"></div>
+      </div>
+    </div>`).join('');
+}
+
 function resetFeed() {
   feedOffset = 0;
   feedDone = false;
-  document.getElementById('feed-grid').innerHTML = '';
+  const grid = document.getElementById('feed-grid');
+  // Show cached data instantly while fetching fresh data
+  try {
+    const cached = JSON.parse(localStorage.getItem('trakx-feed-cache') || 'null');
+    if (cached && cached.items && cached.items.length && feedOffset === 0) {
+      grid.innerHTML = cached.items.map(a => renderFeedCard(a)).join('');
+      document.getElementById('feed-count').textContent = `${cached.items.length} annonces`;
+    } else {
+      grid.innerHTML = feedSkeletons(8);
+    }
+  } catch {
+    grid.innerHTML = feedSkeletons(8);
+  }
   document.getElementById('feed-count').textContent = '';
   loadFeedPage();
 }
@@ -1481,7 +1505,12 @@ async function loadFeedPage() {
     });
     if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
     items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
+    // Cache first page of default feed for instant reload
+    if (feedOffset === 0 && items.length > 0 && !isLimited) {
+      try { localStorage.setItem('trakx-feed-cache', JSON.stringify({ items: items.slice(0, 20), ts: Date.now() })); } catch {}
+    }
     const grid = document.getElementById('feed-grid');
+    if (feedOffset === 0) grid.innerHTML = ''; // clear skeletons / stale cache
     if (feedOffset === 0 && items.length === 0) {
       grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
         <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">search_off</span>
