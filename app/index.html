@@ -909,7 +909,14 @@ async function authSubmit() {
     : await sb.auth.signUp({ email, password, options: { emailRedirectTo: 'https://trakx.fr/app/' } });
   btn.disabled = false;
   if (error) {
-    errEl.textContent = error.message;
+    const msg = error.message || '';
+    if (msg.toLowerCase().includes('rate limit') || msg.includes('{}') || msg === '') {
+      errEl.textContent = 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.';
+      errEl.style.color = 'var(--green)';
+    } else {
+      errEl.textContent = msg;
+      errEl.style.color = '';
+    }
     errEl.classList.remove('hidden');
     return;
   }
