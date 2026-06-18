@@ -78,11 +78,11 @@ tailwind.config = {
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
       <a href="#features" class="hover:text-gray-900 transition-colors">Fonctionnalités</a>
       <a href="#how" class="hover:text-gray-900 transition-colors">Comment ça marche</a>
-      <a href="#pricing" class="hover:text-gray-900 transition-colors">Tarifs</a>
+      
     </div>
     <div class="flex items-center gap-3">
       <a href="app/" class="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">Connexion</a>
-      <a href="#pricing" class="btn-orange text-sm" style="padding:10px 20px;">Essai 7 jours →</a>
+      <a href="app/" class="btn-orange text-sm" style="padding:10px 20px;">Essai 7 jours →</a>
     </div>
   </div>
 </nav>
@@ -102,7 +102,7 @@ tailwind.config = {
         Détecte les bonnes affaires avant tout le monde. Suis tes marques, crée tes niches, surveille tes annonces — en pilote automatique.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 reveal reveal-delay-3">
-        <a href="#pricing" class="btn-orange w-full sm:w-auto text-center">Voir les offres →</a>
+        <a href="app/" class="btn-orange w-full sm:w-auto text-center">Voir les offres →</a>
         <a href="app/" class="btn-ghost w-full sm:w-auto text-center">Voir le dashboard →</a>
       </div>
       <p class="text-xs text-gray-400 mt-4 reveal reveal-delay-3">Sans engagement · Annulable à tout moment · Paiement sécurisé Stripe</p>
@@ -390,71 +390,6 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- PRICING -->
-<section id="pricing" class="py-24 px-6 bg-white border-y border-gray-200">
-  <div class="max-w-5xl mx-auto text-center">
-    <p class="text-sm font-semibold mb-3 reveal" style="color:#f97316;">Tarifs</p>
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);" class="text-gray-900 mb-4 reveal reveal-delay-1">7 jours d'essai offerts sur tous les plans.</h2>
-    <p class="text-gray-500 mb-12 reveal reveal-delay-2">Sans engagement · résiliable à tout moment · CB requise pour l'essai.</p>
-    <div class="grid md:grid-cols-3 gap-6 text-left reveal reveal-delay-1">
-
-      <!-- Plan Starter -->
-      <div class="rounded-2xl p-8 border-2 border-gray-200 bg-white flex flex-col">
-        <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Starter</p>
-        <div class="flex items-end gap-1 mb-1">
-          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:3rem;line-height:1;" class="text-gray-900">9,90€</span>
-          <span class="text-gray-400 mb-2">/ mois</span>
-        </div>
-        <p class="text-gray-400 text-sm mb-8">7 jours offerts · puis 9,90€/mois</p>
-        <ul class="space-y-3 mb-8 flex-1">
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#6b7280;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Feed temps réel</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#6b7280;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> 1 tracker</li>
-          <li class="flex items-center gap-3 text-sm text-gray-400"><span style="width:20px;height:20px;background:#f9fafb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✕</span> Surveillance & détection des ventes</li>
-          <li class="flex items-center gap-3 text-sm text-gray-400"><span style="width:20px;height:20px;background:#f9fafb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✕</span> Trackers multiples</li>
-        </ul>
-        <a href="https://trakx.fr/app/" class="block w-full text-center py-3.5 rounded-xl font-semibold text-sm border-2 border-gray-200 text-gray-700 hover:border-orange-400 hover:text-orange-500 transition-colors">Commencer gratuitement →</a>
-      </div>
-
-      <!-- Plan Pro -->
-      <div class="pricing-ring rounded-2xl p-8 bg-white flex flex-col relative">
-        <span class="absolute top-4 right-4 text-xs font-bold px-2.5 py-1 rounded-full" style="background:#fff7ed;color:#f97316;">Le plus populaire</span>
-        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#f97316;">Pro</p>
-        <div class="flex items-end gap-1 mb-1">
-          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:3rem;line-height:1;" class="text-gray-900">19,90€</span>
-          <span class="text-gray-400 mb-2">/ mois</span>
-        </div>
-        <p class="text-gray-400 text-sm mb-8">7 jours offerts · puis 19,90€/mois</p>
-        <ul class="space-y-3 mb-8 flex-1">
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#fff7ed;color:#f97316;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Annonces en temps réel</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#fff7ed;color:#f97316;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> 5 trackers actifs</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#fff7ed;color:#f97316;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Filtrage du feed</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#fff7ed;color:#f97316;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Surveillance & détection des ventes</li>
-        </ul>
-        <a href="https://trakx.fr/app/" class="btn-orange block w-full text-center" style="padding:14px;font-size:15px;">Commencer gratuitement →</a>
-        <p class="text-xs text-gray-400 mt-3 text-center">7 jours offerts · Sans carte requise</p>
-      </div>
-
-      <!-- Plan Expert -->
-      <div class="rounded-2xl p-8 border-2 border-gray-200 bg-white flex flex-col" style="border-color:#0f0f0f;">
-        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#0f0f0f;">Expert</p>
-        <div class="flex items-end gap-1 mb-1">
-          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:3rem;line-height:1;" class="text-gray-900">39,90€</span>
-          <span class="text-gray-400 mb-2">/ mois</span>
-        </div>
-        <p class="text-gray-400 text-sm mb-8">7 jours offerts · puis 39,90€/mois</p>
-        <ul class="space-y-3 mb-8 flex-1">
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#0f0f0f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Annonces en temps réel</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#0f0f0f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Trackers illimités</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#0f0f0f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Filtrage du feed</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#0f0f0f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Surveillance & détection des ventes</li>
-          <li class="flex items-center gap-3 text-sm text-gray-700"><span style="width:20px;height:20px;background:#f3f4f6;color:#0f0f0f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">✓</span> Support prioritaire</li>
-        </ul>
-        <a href="https://trakx.fr/app/" class="block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-colors" style="background:#0f0f0f;color:#fff;border-radius:12px;">Commencer gratuitement →</a>
-      </div>
-
-    </div>
-  </div>
-</section>
 
 <!-- FAQ -->
 <section class="py-24 px-6">
@@ -486,7 +421,7 @@ tailwind.config = {
   <div class="max-w-2xl mx-auto text-center reveal">
     <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);color:#fff;" class="mb-4">Prêt à reseller<br/><span class="grad">plus intelligemment ?</span></h2>
     <p style="color:#9ca3af;" class="mb-8">Rejoins Trakx et commence à trouver des affaires que les autres ratent.</p>
-    <a href="#pricing" class="btn-orange" style="font-size:16px;padding:16px 32px;">Démarrer l'essai gratuit →</a>
+    <a href="app/" class="btn-orange" style="font-size:16px;padding:16px 32px;">Démarrer l'essai gratuit →</a>
     <p style="color:#6b7280;font-size:11px;margin-top:12px;">7 jours offerts · Starter 9,90€ · Pro 19,90€ · Expert 39,90€</p>
   </div>
 </section>
