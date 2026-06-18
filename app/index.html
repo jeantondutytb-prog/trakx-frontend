@@ -331,9 +331,7 @@ tailwind.config = {
       <a class="nav-link active" href="#" onclick="showPage('feed');return false;" id="nav-feed">
         <span class="icon">grid_view</span><span>Feed</span>
       </a>
-      <a class="nav-link" href="#" onclick="showPage('stats');return false;" id="nav-stats">
-        <span class="icon">insights</span><span>Marché</span>
-      </a>
+
       <a class="nav-link" href="#" onclick="showPage('niches');return false;" id="nav-niches">
         <span class="icon">bookmarks</span><span>Trackers</span>
       </a>
@@ -431,20 +429,10 @@ tailwind.config = {
         <p class="font-bold mb-1">Explorer le feed</p>
         <p class="text-xs" style="color:var(--muted);">Toutes les annonces scannées, filtrables par prix, marque et plus.</p>
       </button>
-      <button onclick="showPage('stats')" class="vs-card rounded-2xl p-5 text-left transition-all hover:border-orange-200" style="border-color:var(--border);">
-        <span class="material-symbols-outlined text-3xl mb-2 block" style="color:var(--pri);">insights</span>
-        <p class="font-bold mb-1">Tendances du marché</p>
-        <p class="text-xs" style="color:var(--muted);">Prix moyens par marque et volumes suivis.</p>
-      </button>
     </div>
   </div>
 
   <!-- ═══ PAGE STATS ═══ -->
-  <div id="page-stats" class="hidden flex-1 p-5 md:p-6">
-    <div id="stats-body" class="flex items-center justify-center py-20">
-      <div class="spinner"></div>
-    </div>
-  </div>
 
   <!-- ═══ PAGE FEED ═══ -->
   <div id="page-feed" class="flex-1 p-5 md:p-6">
@@ -852,10 +840,6 @@ tailwind.config = {
   <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link active rounded-none" href="#" onclick="showPage('feed');return false;" id="mnav-home">
     <span class="material-symbols-outlined" style="font-size:22px;">grid_view</span>
     <span class="text-[10px] font-semibold">Feed</span>
-  </a>
-  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('stats');return false;" id="mnav-stats">
-    <span class="material-symbols-outlined" style="font-size:22px;">insights</span>
-    <span class="text-[10px] font-semibold">Marché</span>
   </a>
   <!-- Feed center TikTok-style -->
   <div class="flex-1 flex flex-col items-center justify-end pb-3 relative">
@@ -1472,18 +1456,17 @@ function showPage(name) {
   ['home','stats','feed','niches','niche-detail','settings','subscription'].forEach(p => {
     document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
   });
-  const titles = { home:'Accueil', stats:'Marché · Opportunités', feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
+  const titles = { home:'Accueil', feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
   document.getElementById('page-title').textContent = titles[name] || '';
 
   // Desktop sidebar active state
-  ['home','feed','stats','niches','settings','subscription'].forEach(p => {
+  ['home','feed','niches','settings','subscription'].forEach(p => {
     const el = document.getElementById('nav-'+p);
     if (el) el.classList.toggle('active', p === name);
     const mel = document.getElementById('mnav-'+p);
     if (mel) mel.classList.toggle('active', p === name);
   });
 
-  if (name==='stats') loadStats();
   if (name==='niches') { loadNiches(); loadWatchlist(); }
   if (name==='settings') loadSettings();
   if (name==='subscription') showSubscriptionPage();
