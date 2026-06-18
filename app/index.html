@@ -435,7 +435,7 @@ tailwind.config = {
   <!-- ═══ PAGE STATS ═══ -->
 
   <!-- ═══ PAGE FEED ═══ -->
-  <div id="page-feed" class="flex-1 p-5 md:p-6">
+  <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
     <!-- Filtres -->
     <!-- Filtres pills -->
     <div class="flex flex-wrap gap-2 items-center mb-5" id="feed-filters-row">
@@ -552,6 +552,7 @@ tailwind.config = {
     <div class="flex items-center justify-between px-5 md:px-6 pt-5" style="border-bottom:1px solid var(--border);">
       <div class="flex gap-0">
         <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes trackers</button>
+        <button id="niches-tab-watch" onclick="switchNichesTab('watch')" class="tab-btn">Surveillance</button>
       </div>
       <button onclick="openNicheModal()" class="btn-orange flex items-center gap-1.5 px-3 py-2 text-sm mb-1" id="btn-new-niche">
         <span class="material-symbols-outlined text-[16px]">add</span> Nouveau tracker
@@ -704,7 +705,7 @@ tailwind.config = {
         </a>
       </div>
       <!-- Pro -->
-      <div class="rounded-2xl p-6 flex flex-col" style="background:#fff7ed;border:2px solid #F97316;">
+      <div class="rounded-2xl p-6 flex flex-col" style="background:var(--hi);border:2px solid #F97316;">
         <div class="flex items-center justify-between mb-4">
           <p class="text-xs font-bold uppercase tracking-widest" style="color:#F97316;">Pro</p>
           <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#F97316;color:#fff;">Populaire</span>
@@ -984,6 +985,13 @@ async function showApp() {
       _currentUserEmail = me.email || null;
       _userPlan = me.plan || 'free';
       _userSubscribed = me.subscribed || false;
+      const planLabel = _userPlan.charAt(0).toUpperCase() + _userPlan.slice(1);
+      const pb = document.getElementById('plan-badge');
+      if (pb) { pb.textContent = planLabel; pb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
+      const spl = document.getElementById('settings-plan-label');
+      if (spl) spl.textContent = planLabel;
+      const spb = document.getElementById('settings-plan-badge');
+      if (spb) { spb.textContent = planLabel; spb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
     })
     .catch(() => { _userPlan = 'free'; _userSubscribed = false; });
 }
@@ -1471,6 +1479,7 @@ async function loadFeedPage() {
     let items = Array.isArray(resp) ? resp : (resp.items || []);
     const isLimited = resp.is_limited || false;
     const rawCount = items.length;
+    const isFirstPage = feedOffset === 0;
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal && (a.taille||'').toLowerCase() !== tailleVal.toLowerCase()) return false;
@@ -1480,12 +1489,12 @@ async function loadFeedPage() {
     feedOffset += rawCount;
     items.forEach(a => { _feedItemsById.set(a.id, a); _feedItemsById.set(String(a.id), a); });
     // Cache first page of default feed for instant reload
-    if (feedOffset === 0 && items.length > 0 && !isLimited) {
+    if (isFirstPage && items.length > 0 && !isLimited) {
       try { localStorage.setItem('trakx-feed-cache', JSON.stringify({ items: items.slice(0, 20), ts: Date.now() })); } catch {}
     }
     const grid = document.getElementById('feed-grid');
-    if (feedOffset === 0) grid.innerHTML = ''; // clear skeletons / stale cache
-    if (feedOffset === 0 && items.length === 0) {
+    if (isFirstPage) grid.innerHTML = ''; // clear skeletons / stale cache
+    if (isFirstPage && items.length === 0) {
       grid.innerHTML = `<div class="col-span-full text-center py-16" style="color:var(--muted);">
         <span class="material-symbols-outlined block mb-2" style="font-size:40px;opacity:.4;">search_off</span>
         Aucune annonce ne correspond à ces filtres.<br/>
@@ -1530,7 +1539,8 @@ async function loadFeedPage() {
           </div>`);
       }
     }
-    document.getElementById('feed-count').textContent = feedOffset + ' annonces chargées';
+    const totalVisible = document.getElementById('feed-grid').querySelectorAll('.feed-card').length;
+    document.getElementById('feed-count').textContent = totalVisible + ' annonces';
     if (feedDone) document.getElementById('feed-spinner').style.display = 'none';
   } catch(e) {
     feedDone = true;
@@ -1590,9 +1600,8 @@ function toggleDark() {
   const saved = localStorage.getItem('trakr-theme');
   const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
   if (dark) document.documentElement.classList.add('dark');
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('dark-icon').textContent = dark ? 'light_mode' : 'dark_mode';
-  });
+  const _darkIconEl = document.getElementById('dark-icon');
+  if (_darkIconEl) _darkIconEl.textContent = dark ? 'light_mode' : 'dark_mode';
 })();
 
 // ---- NICHES & SURVEILLANCE ----
@@ -1702,7 +1711,7 @@ async function parseNicheLink() {
   if (brandIds.length) {
     loadingEl.classList.remove('hidden');
     try {
-      const r = await fetch(`${API}/vinted/brand/${brandIds[0]}`);
+      const r = await fetch(`${API}/vinted/brand/${brandIds[0]}`, { headers: await authHeader() });
       const data = await r.json();
       if (data.title) {
         _nicheExtracted.marque = data.title;
@@ -2062,9 +2071,11 @@ async function removeWatch(ev, annonceId) {
   ev.preventDefault();
   ev.stopPropagation();
   const headers = await authHeader();
-  await fetch(`${API}/surveillance/${annonceId}`, { method: 'DELETE', headers });
-  watchedIds.delete(annonceId);
-  loadWatchlist();
+  const r = await fetch(`${API}/surveillance/${annonceId}`, { method: 'DELETE', headers });
+  if (r.ok) {
+    watchedIds.delete(annonceId);
+    loadWatchlist();
+  }
 }
 
 // Data loading is triggered by showApp() after auth + subscription are confirmed
