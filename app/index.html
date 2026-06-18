@@ -805,6 +805,11 @@ fetch(API + '/ping', { signal: AbortSignal.timeout(60000) }).catch(() => {});
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
 let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
 
+function trackEvent(name, params = {}) {
+  try { gtag('event', name, params); } catch {}
+  try { clarity('event', name); } catch {}
+}
+
 function fetchWithTimeout(url, opts = {}, ms = 30000) {
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), ms);
@@ -882,13 +887,16 @@ async function authSubmit() {
     return;
   }
   if (authMode === 'signup' && !data.session) {
+    trackEvent('sign_up', { method: 'email' });
     showEmailSentMsg(email);
     return;
   }
+  if (authMode === 'login') trackEvent('login', { method: 'email' });
   showApp();
 }
 
 async function authWithGoogle() {
+  trackEvent('login', { method: 'google' });
   await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://trakx.fr/app/' } });
 }
 async function authLogout() {
@@ -1191,9 +1199,18 @@ function showSubscriptionPage() {
   const starterBtn = document.getElementById('sub-starter-btn');
   const proBtn     = document.getElementById('sub-pro-btn');
   const expertBtn  = document.getElementById('sub-expert-btn');
-  if (starterBtn) starterBtn.href = links.starter;
-  if (proBtn)     proBtn.href     = links.pro;
-  if (expertBtn)  expertBtn.href  = links.expert;
+  if (starterBtn) {
+    starterBtn.href = links.starter;
+    starterBtn.onclick = () => trackEvent('begin_checkout', { plan: 'starter', value: 9.90, currency: 'EUR' });
+  }
+  if (proBtn) {
+    proBtn.href = links.pro;
+    proBtn.onclick = () => trackEvent('begin_checkout', { plan: 'pro', value: 19.90, currency: 'EUR' });
+  }
+  if (expertBtn) {
+    expertBtn.href = links.expert;
+    expertBtn.onclick = () => trackEvent('begin_checkout', { plan: 'expert', value: 39.90, currency: 'EUR' });
+  }
 
   // Show "already subscribed" banner if subscribed
   const banner = document.getElementById('sub-already-subscribed');
@@ -1249,7 +1266,7 @@ function showPage(name) {
 
   if (name==='niches') { loadNiches(); loadWatchlist(); }
   if (name==='settings') loadSettings();
-  if (name==='subscription') showSubscriptionPage();
+  if (name==='subscription') { showSubscriptionPage(); trackEvent('view_subscription_page', { plan: _userPlan }); }
   if (name==='feed') {
     if (feedOffset === 0) resetFeed();
     feedObserver.observe(document.getElementById('feed-sentinel'));
@@ -1607,6 +1624,7 @@ async function submitNiche() {
       }
       errEl.classList.remove('hidden'); return;
     }
+    trackEvent('niche_created', { plan: _userPlan });
     closeNicheModal();
     loadNiches();
   } catch {
