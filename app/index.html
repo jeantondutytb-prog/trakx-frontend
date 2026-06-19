@@ -275,6 +275,37 @@ tailwind.config = {
     .feed-card:active { border-color: #fed7aa; box-shadow: 0 4px 12px rgba(249,115,22,.15); }
     .feed-card:hover { border-color: var(--border); box-shadow: none; }
   }
+
+  /* ══════════════════════════════════════
+     iOS / MOBILE ZOOM & TAP PREVENTION
+     ══════════════════════════════════════
+     iOS Safari zooms when input font-size < 16px.
+     Force 16px on all inputs on mobile, then scale
+     visually back with transform so design is unchanged. */
+  @media (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+    /* Filter pills inputs need special treatment to stay compact */
+    .fpill input, .fpill select {
+      font-size: 16px !important;
+      /* Scale down visually while keeping font-size at 16px for iOS */
+      transform: scale(0.875);
+      transform-origin: left center;
+      width: calc(100% / 0.875);
+      margin-right: calc(-100% * 0.125 / 0.875);
+    }
+  }
+
+  /* Remove 300ms tap delay + prevent accidental double-tap zoom on buttons/links */
+  a, button, [role="button"], .feed-card, .niche-card, .fpill, .nav-link, .mnav-item {
+    touch-action: manipulation;
+  }
+
+  /* Prevent text selection flash on tap (iOS) */
+  button, a, .feed-card, .niche-card {
+    -webkit-tap-highlight-color: transparent;
+  }
 </style>
 </head>
 <body class="flex min-h-screen">
