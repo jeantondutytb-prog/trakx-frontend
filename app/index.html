@@ -11,46 +11,19 @@
 <script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","x8h0vr362b");</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://api.trakx.fr https://trakx-api.onrender.com https://vintedspy-api.onrender.com https://apwedqsklyzroeyrokqb.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://api.trakx.fr https://trakx-api.onrender.com https://vintedspy-api.onrender.com https://apwedqsklyzroeyrokqb.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms;">
 <title>Trakx - Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link rel="manifest" href="/app/manifest.json"/>
+<meta name="theme-color" content="#f97316"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Trakx"/>
+<link rel="apple-touch-icon" href="/app/icons/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        ink:    "#0f0f0f",
-        muted:  "#6b7280",
-        border: "#e5e7eb",
-        card:   "#ffffff",
-        surface:"#fafaf9",
-        "surface-hi":  "#fff7ed",
-        "surface-mid": "#ffedd5",
-        primary:"#f97316",
-        "primary-dk":  "#ea580c",
-        "primary-lt":  "#fff7ed",
-        success:"#16a34a",
-        danger: "#dc2626",
-        // dark mode aliases – overridden by :root .dark vars
-        "d-bg":   "#0f0f0f",
-        "d-card": "#1a1a1a",
-        "d-border":"#2a2a2a",
-        "d-muted": "#71717a",
-      },
-      fontFamily: {
-        sans:    ["Inter","sans-serif"],
-        display: ["Space Grotesk","sans-serif"],
-      },
-      borderRadius: { lg:"12px", xl:"16px", "2xl":"20px" },
-    }
-  }
-}
-</script>
+<link rel="stylesheet" href="/app/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" integrity="sha384-nD3dwv4+ZqdYnmZKe/249ImlV04om7xTCcsoSeQYI+RO+XlKPoqAWaJR1M5SJH9p" crossorigin="anonymous"></script>
 <style>
   * { -webkit-font-smoothing: antialiased; }
   :root {
@@ -353,6 +326,9 @@ tailwind.config = {
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T62953HS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
+<!-- ══ TOAST CONTAINER ══ -->
+<div id="toast-container" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:min(360px,90vw);"></div>
+
 <!-- ══════════════════════════════════
      PAYWALL OVERLAY
 ════════════════════════════════════ -->
@@ -507,7 +483,7 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      MAIN
 ════════════════════════════════════ -->
-<main class="flex-1 flex flex-col min-h-screen" id="main-content" style="margin-left:0;">
+<main class="flex-1 flex flex-col min-h-screen" id="main-content">
 
   <!-- Topbar -->
   <header class="vs-topbar sticky top-0 z-40 h-16 flex items-center px-6 justify-between w-full">
@@ -1095,6 +1071,13 @@ tailwind.config = {
 const API = 'https://api.trakx.fr';
 // Warm up Render immediately on page load — before the user even logs in
 fetch(API + '/ping', { signal: AbortSignal.timeout(60000) }).catch(() => {});
+
+// ---- SERVICE WORKER (PWA) ----
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/app/sw.js').catch(() => {});
+  });
+}
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
 let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
 
@@ -1103,10 +1086,39 @@ function trackEvent(name, params = {}) {
   try { clarity('event', name); } catch {}
 }
 
+// ---- TOASTS ----
+function showToast(msg, type = 'error', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const t = document.createElement('div');
+  const bg = type === 'error' ? 'var(--red)' : type === 'success' ? 'var(--green)' : 'var(--pri)';
+  t.style.cssText = `background:${bg};color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:auto;opacity:0;transition:opacity .2s;max-width:100%;text-align:center;`;
+  t.textContent = msg;
+  container.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; });
+  setTimeout(() => {
+    t.style.opacity = '0';
+    setTimeout(() => t.remove(), 220);
+  }, duration);
+}
+
+// ---- FETCH WITH TIMEOUT + 401 INTERCEPTOR ----
 function fetchWithTimeout(url, opts = {}, ms = 30000) {
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(tid));
+  return fetch(url, { ...opts, signal: ctrl.signal })
+    .then(r => {
+      if (r.status === 401) {
+        // Token expiré — déconnexion propre
+        sb?.auth?.signOut().catch(() => {});
+        _appInitialized = false;
+        document.getElementById('auth-overlay')?.classList.remove('hidden');
+        showToast('Session expirée, reconnecte-toi.', 'error');
+        return r;
+      }
+      return r;
+    })
+    .finally(() => clearTimeout(tid));
 }
 
 // ---- AUTH ----
@@ -1290,12 +1302,22 @@ async function authHeader() {
 }
 
 async function initAuth() {
-  const { data } = await sb.auth.getSession();
-  if (data.session) {
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000));
+  let session = null;
+  try {
+    const { data } = await Promise.race([sb.auth.getSession(), timeout]);
+    session = data?.session ?? null;
+  } catch {
+    // Supabase indisponible ou trop lent — affiche login quand même
+    showToast('Connexion lente, réessaie si besoin.', 'info', 6000);
+  }
+
+  if (session) {
     showApp();
   } else {
     document.getElementById('auth-overlay').classList.remove('hidden');
   }
+
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
       if (session) showApp();
@@ -1733,9 +1755,9 @@ function resetFeed() {
       grid.innerHTML = feedSkeletons(8);
     }
   } else {
-    // Dim existing cards while new results load
-    grid.style.opacity = '0.45';
-    grid.style.pointerEvents = 'none';
+    // Keep cards visible and interactive — spinner in count area signals background refresh
+    grid.style.opacity = '';
+    grid.style.pointerEvents = '';
   }
   document.getElementById('feed-count').textContent = '';
   const _fcm = document.getElementById('feed-count-mobile'); if(_fcm) _fcm.textContent = '';
@@ -2069,6 +2091,7 @@ async function submitNiche() {
     }
     trackEvent('niche_created', { plan: _userPlan });
     closeNicheModal();
+    showToast('Tracker créé !', 'success', 3000);
     loadNiches();
   } catch {
     errEl.textContent = "Erreur réseau. Réessaie."; errEl.classList.remove('hidden');
@@ -2082,11 +2105,12 @@ async function deleteNiche(id) {
   try {
     const headers = await authHeader();
     const r = await fetchWithTimeout(`${API}/niches/${id}`, { method: 'DELETE', headers });
-    if (!r.ok) { alert('Erreur lors de la suppression, réessaie.'); return; }
+    if (!r.ok) { showToast('Erreur lors de la suppression, réessaie.'); return; }
   } catch {
-    alert('Erreur réseau, réessaie.');
+    showToast('Erreur réseau, réessaie.');
     return;
   }
+  showToast('Tracker supprimé.', 'info', 2500);
   loadNiches();
 }
 
@@ -2166,10 +2190,21 @@ function renderNichesTable() {
     if (el) el.textContent = c === col ? (dir === -1 ? '↓' : '↑') : '';
   });
   if (!rows.length) {
-    document.getElementById('niches-tbody').innerHTML =
-      `<tr><td colspan="5" class="px-5 py-12 text-center text-sm" style="color:var(--muted);">
-        ${q ? 'Aucun tracker ne correspond à cette recherche.' : 'Aucun tracker. Crée-en un avec le bouton ci-dessus.'}
-      </td></tr>`;
+    document.getElementById('niches-tbody').innerHTML = q
+      ? `<tr><td colspan="5" class="px-5 py-12 text-center text-sm" style="color:var(--muted);">
+           <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">search_off</span>
+           Aucun tracker ne correspond à "${esc(q)}".
+         </td></tr>`
+      : `<tr><td colspan="5" class="px-4 py-10 text-center">
+           <div style="width:64px;height:64px;background:var(--hi);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+             <span class="material-symbols-outlined" style="font-size:32px;color:var(--pri);">radar</span>
+           </div>
+           <p class="font-bold text-base mb-1" style="font-family:'Space Grotesk',sans-serif;">Crée ton premier tracker</p>
+           <p class="text-sm mb-4" style="color:var(--muted);max-width:260px;margin-left:auto;margin-right:auto;">Surveille une recherche Vinted et reçois les nouvelles annonces dès qu'elles apparaissent.</p>
+           <button onclick="openNicheModal()" style="background:var(--pri);color:#fff;font-weight:700;padding:10px 24px;border-radius:12px;font-size:14px;border:none;cursor:pointer;">
+             <span style="vertical-align:middle;margin-right:4px;">+</span> Nouveau tracker
+           </button>
+         </td></tr>`;
     return;
   }
   document.getElementById('niches-tbody').innerHTML = rows.map(n => {

@@ -1,2 +1,6 @@
 .vercel
 .env*
+node_modules/
+graphify-out/
+send_reengagement.py
+package-lock.json

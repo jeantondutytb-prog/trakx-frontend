@@ -1,0 +1,35 @@
+{
+  "name": "Trakx",
+  "short_name": "Trakx",
+  "description": "Surveille Vinted et trouve les meilleures opportunités de revente.",
+  "start_url": "/app/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/app/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/app/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/app/icons/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Feed Trakx"
+    }
+  ],
+  "categories": ["shopping", "finance", "lifestyle"],
+  "lang": "fr"
+}

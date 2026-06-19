@@ -1,0 +1,15 @@
+{
+  "name": "trakx-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i app/input.css -o app/style.css --minify",
+    "watch:css": "tailwindcss -i app/input.css -o app/style.css --watch",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/container-queries": "^0.1.1"
+  }
+}
