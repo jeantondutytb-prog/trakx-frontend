@@ -362,6 +362,20 @@ tailwind.config = {
 </aside>
 
 <!-- ══════════════════════════════════
+     TRIAL BANNER
+════════════════════════════════════ -->
+<div id="trial-banner" class="hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 px-4 py-2.5 md:pl-[220px]"
+     style="background:linear-gradient(90deg,#f97316,#fb923c);color:#fff;font-size:13px;font-weight:600;">
+  <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1;">bolt</span>
+  <span>Essai Expert gratuit —</span>
+  <span id="trial-countdown" style="font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.5px;"></span>
+  <span>restant</span>
+  <a href="#" onclick="showPage('subscription');return false;"
+     class="ml-2 px-2.5 py-1 rounded-lg text-xs font-bold"
+     style="background:rgba(0,0,0,.2);color:#fff;">S'abonner →</a>
+</div>
+
+<!-- ══════════════════════════════════
      MAIN
 ════════════════════════════════════ -->
 <main class="flex-1 md:ml-[220px] flex flex-col min-h-screen pb-16 md:pb-0">
@@ -458,10 +472,10 @@ tailwind.config = {
         <span class="material-symbols-outlined" style="font-size:13px;color:var(--muted);">schedule</span>
         <select id="feed-since" onchange="feedFilterChange()">
           <option value="">Période</option>
-          <option value="1">1h</option>
           <option value="6">6h</option>
           <option value="12">12h</option>
           <option value="24">24h</option>
+          <option value="168">1 semaine</option>
         </select>
         <span class="material-symbols-outlined fpill-chevron">expand_more</span>
       </div>
@@ -924,8 +938,12 @@ async function showApp() {
     setInterval(() => fetchWithTimeout(`${API}/ping`).catch(()=>{}), 14*60*1000);
   }
 
+  // Auto-start 24h Expert trial for new users (server no-ops if already used)
+  const headers = await authHeader();
+  fetchWithTimeout(`${API}/trial/start`, { method: 'POST', headers }).catch(() => {});
+
   // Load user plan in background — doesn't block feed
-  fetchWithTimeout(`${API}/me`, { headers: await authHeader() })
+  fetchWithTimeout(`${API}/me`, { headers })
     .then(r => r.json())
     .then(me => {
       _currentUserEmail = me.email || null;
@@ -938,8 +956,46 @@ async function showApp() {
       if (spl) spl.textContent = planLabel;
       const spb = document.getElementById('settings-plan-badge');
       if (spb) { spb.textContent = planLabel; spb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
+      if (me.is_trial && me.trial_expires_at) startTrialCountdown(me.trial_expires_at);
     })
     .catch(() => { _userPlan = 'free'; _userSubscribed = false; });
+}
+
+let _trialInterval = null;
+function startTrialCountdown(expiresAt) {
+  const banner = document.getElementById('trial-banner');
+  const countEl = document.getElementById('trial-countdown');
+  if (!banner || !countEl) return;
+
+  // Push sticky topbar below the fixed banner
+  document.querySelector('header.vs-topbar')?.style.setProperty('top', '44px');
+  document.body.style.paddingTop = '44px';
+
+  banner.classList.remove('hidden');
+  if (_trialInterval) clearInterval(_trialInterval);
+
+  function tick() {
+    const ms = new Date(expiresAt) - Date.now();
+    if (ms <= 0) {
+      clearInterval(_trialInterval);
+      banner.classList.add('hidden');
+      document.querySelector('header.vs-topbar')?.style.removeProperty('top');
+      document.body.style.paddingTop = '';
+      // Reload plan — trial expired
+      _userPlan = 'free'; _userSubscribed = false;
+      const pb = document.getElementById('plan-badge');
+      if (pb) { pb.textContent = 'Free'; pb.style.color = 'var(--muted)'; }
+      return;
+    }
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    countEl.textContent = h > 0
+      ? `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`
+      : `${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  }
+  tick();
+  _trialInterval = setInterval(tick, 1000);
 }
 
 async function paywallLogout() {
