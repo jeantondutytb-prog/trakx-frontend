@@ -1157,8 +1157,17 @@ function openPreview(a) {
   document.getElementById('preview-title').textContent = a.titre || '—';
   const parts = [a.marque, a.taille].filter(Boolean);
   const _scrDate = a.publie_le || a.scraped_le || '';
-  const ageStr = 'il y a ' + formatAge(Date.now() - new Date(_scrDate.endsWith('Z') ? _scrDate : _scrDate + 'Z').getTime());
-  document.getElementById('preview-meta').textContent = parts.join(' · ') + (parts.length ? ' · ' : '') + ageStr;
+  const metaEl = document.getElementById('preview-meta');
+  const buildMeta = (dateStr) => parts.join(' · ') + (parts.length ? ' · ' : '') + 'il y a ' + formatAge(Date.now() - new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z').getTime());
+  metaEl.textContent = buildMeta(_scrDate);
+  // Fetch real Vinted creation date asynchronously
+  if (a.id) {
+    authHeader().then(h => fetchWithTimeout(`${API}/vinted/item/${a.id}`, { headers: h }, 8000))
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && d.created_at) metaEl.textContent = buildMeta(d.created_at);
+      }).catch(() => {});
+  }
   document.getElementById('preview-price').textContent = a.prix + '€';
   const favsEl = document.getElementById('preview-favs');
   if (a.nb_favoris > 0) {
