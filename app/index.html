@@ -277,34 +277,42 @@ tailwind.config = {
   }
 
   /* ══════════════════════════════════════
-     iOS / MOBILE ZOOM & TAP PREVENTION
-     ══════════════════════════════════════
-     iOS Safari zooms when input font-size < 16px.
-     Force 16px on all inputs on mobile, then scale
-     visually back with transform so design is unchanged. */
-  @media (max-width: 767px) {
-    input, select, textarea {
-      font-size: 16px !important;
-    }
-    /* Filter pills inputs need special treatment to stay compact */
-    .fpill input, .fpill select {
-      font-size: 16px !important;
-      /* Scale down visually while keeping font-size at 16px for iOS */
-      transform: scale(0.875);
-      transform-origin: left center;
-      width: calc(100% / 0.875);
-      margin-right: calc(-100% * 0.125 / 0.875);
-    }
+     iOS / MOBILE — ANTI-ZOOM + LAYOUT FIX
+     ══════════════════════════════════════ */
+
+  /* Prevent horizontal overflow that breaks grid layout */
+  html, body { overflow-x: hidden; max-width: 100%; }
+
+  /* iOS Safari zooms when input font-size < 16px — fix without transform */
+  input, select, textarea { font-size: 16px !important; }
+  /* Override back to normal on desktop so design is unchanged */
+  @media (min-width: 768px) {
+    input, select, textarea { font-size: inherit !important; }
+    .fpill input, .fpill select { font-size: 11px !important; }
   }
 
-  /* Remove 300ms tap delay + prevent accidental double-tap zoom on buttons/links */
+  /* Remove 300ms tap delay + prevent double-tap zoom */
   a, button, [role="button"], .feed-card, .niche-card, .fpill, .nav-link, .mnav-item {
     touch-action: manipulation;
   }
 
-  /* Prevent text selection flash on tap (iOS) */
-  button, a, .feed-card, .niche-card {
-    -webkit-tap-highlight-color: transparent;
+  /* Remove blue flash on tap (iOS) */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* ── Mobile grid: force 2 columns, portrait cards ── */
+  @media (max-width: 639px) {
+    #feed-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+    /* Constrain filter row so it never causes page-level overflow */
+    #feed-filters-row {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+    }
+    /* Feed page padding on mobile */
+    #page-feed { padding: 12px !important; }
   }
 </style>
 </head>
