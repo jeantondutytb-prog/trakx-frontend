@@ -10,7 +10,7 @@
 <!-- Microsoft Clarity -->
 <script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","x8h0vr362b");</script>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://api.trakx.fr https://trakx-api.onrender.com https://vintedspy-api.onrender.com https://apwedqsklyzroeyrokqb.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms;">
 <title>Trakx - Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
@@ -217,6 +217,64 @@ tailwind.config = {
     .spinner, .pulse-dot { animation:none; }
     .btn-orange:hover, .btn-ghost:hover { transform:none; }
   }
+
+  /* ── Safe area (iPhone notch / home indicator) ── */
+  @media (max-width:767px) {
+    #main-content { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    #mobile-nav { padding-bottom: env(safe-area-inset-bottom, 0px); height: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  }
+
+  /* ── Feed filters: scrollable row on mobile ── */
+  #feed-filters-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    gap: 6px;
+  }
+  #feed-filters-row::-webkit-scrollbar { display: none; }
+  @media (min-width:768px) {
+    #feed-filters-row { flex-wrap: wrap; overflow-x: visible; }
+  }
+
+  /* ── Feed grid gap ── */
+  @media (max-width:639px) {
+    #feed-grid { gap: 10px; }
+    .niche-detail-list { gap: 10px; }
+  }
+
+  /* ── Mobile nav items ── */
+  .mnav-item {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 2px; flex: 1; padding: 8px 4px;
+    color: var(--muted); font-size: 10px; font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: color .15s;
+    text-decoration: none;
+  }
+  .mnav-item.active { color: var(--pri); }
+  .mnav-item .mnav-icon {
+    font-size: 22px; font-family: 'Material Symbols Outlined';
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    transition: font-variation-settings .15s;
+  }
+  .mnav-item.active .mnav-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  /* ── Trial banner compact on mobile ── */
+  @media (max-width: 639px) {
+    #trial-banner-text { display: none; }
+    #trial-banner { font-size: 12px; gap: 6px; justify-content: center; }
+  }
+
+  /* ── Topbar shadow ── */
+  .vs-topbar { box-shadow: 0 1px 0 var(--border); }
+
+  /* ── Card hover tap highlight mobile ── */
+  @media (hover: none) {
+    .feed-card:active { border-color: #fed7aa; box-shadow: 0 4px 12px rgba(249,115,22,.15); }
+    .feed-card:hover { border-color: var(--border); box-shadow: none; }
+  }
 </style>
 </head>
 <body class="flex min-h-screen">
@@ -364,21 +422,21 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      TRIAL BANNER
 ════════════════════════════════════ -->
-<div id="trial-banner" class="hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-3 px-4 py-2.5 md:pl-[220px]"
+<div id="trial-banner" class="hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 px-4 py-2.5 md:pl-[220px]"
      style="background:linear-gradient(90deg,#f97316,#fb923c);color:#fff;font-size:13px;font-weight:600;">
   <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1;">bolt</span>
-  <span>Essai Expert gratuit —</span>
+  <span id="trial-banner-text">Essai Expert gratuit —</span>
   <span id="trial-countdown" style="font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.5px;"></span>
-  <span>restant</span>
+  <span id="trial-banner-text2">restant</span>
   <a href="#" onclick="showPage('subscription');return false;"
-     class="ml-2 px-2.5 py-1 rounded-lg text-xs font-bold"
+     class="ml-1 px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0"
      style="background:rgba(0,0,0,.2);color:#fff;">S'abonner →</a>
 </div>
 
 <!-- ══════════════════════════════════
      MAIN
 ════════════════════════════════════ -->
-<main class="flex-1 md:ml-[220px] flex flex-col min-h-screen pb-16 md:pb-0">
+<main class="flex-1 md:ml-[220px] flex flex-col min-h-screen" id="main-content">
 
   <!-- Topbar -->
   <header class="vs-topbar sticky top-0 z-40 h-16 flex items-center px-6 justify-between w-full">
@@ -787,22 +845,22 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      MOBILE BOTTOM NAV
 ════════════════════════════════════ -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-end justify-around z-50" style="height:64px;" id="mobile-nav">
-  <!-- Feed center TikTok-style -->
-  <div class="flex-1 flex flex-col items-center justify-end pb-3 relative">
-    <a href="#" onclick="showPage('feed');return false;" id="mnav-feed"
-       class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95"
-       style="background:var(--pri);box-shadow:0 4px 16px rgba(249,115,22,.45);margin-bottom:2px;">
-      <span class="material-symbols-outlined text-white" style="font-size:26px;font-variation-settings:'FILL' 1;">grid_view</span>
-    </a>
-  </div>
-  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('niches');return false;" id="mnav-niches">
-    <span class="material-symbols-outlined" style="font-size:22px;">bookmarks</span>
-    <span class="text-[10px] font-semibold">Trackers</span>
+<nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-stretch justify-around z-50" style="height:64px;" id="mobile-nav">
+  <a class="mnav-item active" href="#" onclick="showPage('feed');return false;" id="mnav-feed">
+    <span class="mnav-icon">grid_view</span>
+    <span>Feed</span>
   </a>
-  <a class="flex flex-col items-center gap-0.5 flex-1 h-full justify-center nav-link rounded-none" href="#" onclick="showPage('settings');return false;" id="mnav-settings">
-    <span class="material-symbols-outlined" style="font-size:22px;">settings</span>
-    <span class="text-[10px] font-semibold">Réglages</span>
+  <a class="mnav-item" href="#" onclick="showPage('niches');return false;" id="mnav-niches">
+    <span class="mnav-icon">bookmarks</span>
+    <span>Trackers</span>
+  </a>
+  <a class="mnav-item" href="#" onclick="showPage('subscription');return false;" id="mnav-subscription">
+    <span class="mnav-icon">bolt</span>
+    <span>Abonnement</span>
+  </a>
+  <a class="mnav-item" href="#" onclick="showPage('settings');return false;" id="mnav-settings">
+    <span class="mnav-icon">settings</span>
+    <span>Réglages</span>
   </a>
 </nav>
 
