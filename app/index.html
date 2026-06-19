@@ -22,7 +22,6 @@
 <link rel="apple-touch-icon" href="/app/icons/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/app/style.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" integrity="sha384-nD3dwv4+ZqdYnmZKe/249ImlV04om7xTCcsoSeQYI+RO+XlKPoqAWaJR1M5SJH9p" crossorigin="anonymous"></script>
 <style>
   * { -webkit-font-smoothing: antialiased; }
@@ -320,6 +319,7 @@
   /* ── Nav center button ne prend pas l'état active comme les autres ── */
   #mnav-feed.active { color: inherit; }
 </style>
+<link rel="stylesheet" href="/app/style.css"/>
 </head>
 <body class="flex min-h-screen">
 <!-- Google Tag Manager (noscript) -->
@@ -841,7 +841,7 @@
     <p class="text-sm mb-8" style="color:var(--muted);">7 jours gratuits · Sans engagement · Résiliable à tout moment</p>
 
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
       <!-- Starter -->
       <div class="vs-card rounded-2xl p-6 flex flex-col">
         <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:var(--muted);">Starter</p>
@@ -850,6 +850,7 @@
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">9,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
+        <p class="text-xs mb-1" style="color:var(--muted);">soit 0,33€/jour</p>
         <p class="text-xs mb-5" style="color:#22c55e;">✓ 7 jours gratuits</p>
         <ul class="space-y-3 mb-8 flex-1 text-sm" style="color:var(--muted);">
           <li>✓ Annonces en temps réel</li>
@@ -864,16 +865,17 @@
         </a>
       </div>
       <!-- Pro -->
-      <div class="rounded-2xl p-6 flex flex-col" style="background:var(--hi);border:2px solid #F97316;">
+      <div class="rounded-2xl p-6 flex flex-col relative" style="background:var(--hi);border:2px solid #F97316;">
         <div class="flex items-center justify-between mb-4">
           <p class="text-xs font-bold uppercase tracking-widest" style="color:#F97316;">Pro</p>
-          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#F97316;color:#fff;">Populaire</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#F97316;color:#fff;">Le plus choisi</span>
         </div>
         <p class="text-xs mb-4" style="color:#92400e;">Pour les revendeurs sérieux</p>
         <div class="flex items-end gap-1 mb-1">
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">19,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
+        <p class="text-xs mb-1" style="color:#78350f;">soit 0,66€/jour</p>
         <p class="text-xs mb-5" style="color:#22c55e;">✓ 7 jours gratuits</p>
         <ul class="space-y-3 mb-8 flex-1 text-sm" style="color:#78350f;">
           <li>✓ Annonces en temps réel</li>
@@ -895,6 +897,7 @@
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">39,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
+        <p class="text-xs mb-1" style="color:var(--muted);">soit 1,33€/jour</p>
         <p class="text-xs mb-5" style="color:#22c55e;">✓ 7 jours gratuits</p>
         <ul class="space-y-3 mb-8 flex-1 text-sm" style="color:var(--muted);">
           <li>✓ Annonces en temps réel</li>
@@ -910,6 +913,11 @@
         </a>
       </div>
     </div>
+
+    <p class="text-xs text-center mb-6 flex items-center justify-center gap-2" style="color:var(--muted);">
+      <span class="material-symbols-outlined" style="font-size:16px;">lock</span>
+      Paiement sécurisé par Stripe · Annulable en 1 clic, à tout moment
+    </p>
 
     <div id="sub-already-subscribed" class="hidden vs-card rounded-2xl p-4 text-sm flex items-center gap-3">
       <span class="material-symbols-outlined" style="color:#22c55e;">check_circle</span>
@@ -1001,7 +1009,7 @@
 ════════════════════════════════════ -->
 <div id="niche-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6" style="background:rgba(0,0,0,.45);">
   <div class="vs-card rounded-2xl shadow-2xl p-6 w-full max-w-sm" style="box-shadow:0 24px 64px rgba(0,0,0,.2);">
-    <h3 class="text-lg font-bold mb-5">Nouveau tracker</h3>
+    <h3 class="text-lg font-bold mb-5" id="niche-modal-title">Nouveau tracker</h3>
     <div class="space-y-3">
       <!-- Lien Vinted -->
       <div>
@@ -1021,7 +1029,7 @@
     <p id="niche-error" class="text-xs mt-2 hidden" style="color:var(--red);"></p>
     <div class="flex gap-2 mt-5">
       <button onclick="closeNicheModal()" class="btn-ghost flex-1 py-2.5 text-sm rounded-xl">Annuler</button>
-      <button onclick="submitNiche()" class="btn-orange flex-1 py-2.5 text-sm rounded-xl">Créer</button>
+      <button id="niche-modal-submit-btn" onclick="submitNiche()" class="btn-orange flex-1 py-2.5 text-sm rounded-xl">Créer</button>
     </div>
   </div>
 </div>
@@ -1084,6 +1092,14 @@ let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
 function trackEvent(name, params = {}) {
   try { gtag('event', name, params); } catch {}
   try { clarity('event', name); } catch {}
+}
+
+let _checkoutClickLock = false;
+function checkoutClickGuard(e, plan, value) {
+  if (_checkoutClickLock) { e.preventDefault(); return; }
+  _checkoutClickLock = true;
+  setTimeout(() => { _checkoutClickLock = false; }, 1500);
+  trackEvent('begin_checkout', { plan, value, currency: 'EUR' });
 }
 
 // ---- TOASTS ----
@@ -1176,9 +1192,17 @@ async function authSubmit() {
   }
   const btn = document.getElementById('auth-submit');
   btn.disabled = true;
-  const { data, error } = authMode === 'login'
-    ? await sb.auth.signInWithPassword({ email, password })
-    : await sb.auth.signUp({ email, password, options: { emailRedirectTo: 'https://trakx.fr/app/' } });
+  let data, error;
+  try {
+    ({ data, error } = authMode === 'login'
+      ? await sb.auth.signInWithPassword({ email, password })
+      : await sb.auth.signUp({ email, password, options: { emailRedirectTo: 'https://trakx.fr/app/' } }));
+  } catch {
+    btn.disabled = false;
+    errEl.textContent = 'Connexion impossible. Vérifie ta connexion internet et réessaie.';
+    errEl.classList.remove('hidden');
+    return;
+  }
   btn.disabled = false;
   if (error) {
     const msg = error.message || '';
@@ -1605,15 +1629,15 @@ function showSubscriptionPage() {
   const expertBtn  = document.getElementById('sub-expert-btn');
   if (starterBtn) {
     starterBtn.href = links.starter;
-    starterBtn.onclick = () => trackEvent('begin_checkout', { plan: 'starter', value: 9.90, currency: 'EUR' });
+    starterBtn.onclick = (e) => checkoutClickGuard(e, 'starter', 9.90);
   }
   if (proBtn) {
     proBtn.href = links.pro;
-    proBtn.onclick = () => trackEvent('begin_checkout', { plan: 'pro', value: 19.90, currency: 'EUR' });
+    proBtn.onclick = (e) => checkoutClickGuard(e, 'pro', 19.90);
   }
   if (expertBtn) {
     expertBtn.href = links.expert;
-    expertBtn.onclick = () => trackEvent('begin_checkout', { plan: 'expert', value: 39.90, currency: 'EUR' });
+    expertBtn.onclick = (e) => checkoutClickGuard(e, 'expert', 39.90);
   }
 
   // Show "already subscribed" banner if subscribed
@@ -2048,10 +2072,29 @@ async function parseNicheLink() {
   }
 }
 
+let _editingNicheId = null;
+
 function openNicheModal() {
+  _editingNicheId = null;
   _nicheExtracted = { marque: null, taille: null, prix_min: null, recherche: null };
+  document.getElementById('niche-modal-title').textContent = 'Nouveau tracker';
+  document.getElementById('niche-modal-submit-btn').textContent = 'Créer';
   document.getElementById('niche-link').value = '';
   document.getElementById('niche-nom').value = '';
+  document.getElementById('niche-link-status').classList.add('hidden');
+  document.getElementById('niche-link-loading').classList.add('hidden');
+  document.getElementById('niche-error').classList.add('hidden');
+  document.getElementById('niche-modal').classList.remove('hidden');
+}
+function openEditNicheModal(id) {
+  const n = _allNiches.find(n => n.id === id);
+  if (!n) return;
+  _editingNicheId = id;
+  _nicheExtracted = { marque: n.marque || null, taille: n.taille || null, prix_min: n.prix_min || null, recherche: n.recherche || null };
+  document.getElementById('niche-modal-title').textContent = 'Modifier le tracker';
+  document.getElementById('niche-modal-submit-btn').textContent = 'Enregistrer';
+  document.getElementById('niche-link').value = n.lien || '';
+  document.getElementById('niche-nom').value = n.nom || '';
   document.getElementById('niche-link-status').classList.add('hidden');
   document.getElementById('niche-link-loading').classList.add('hidden');
   document.getElementById('niche-error').classList.add('hidden');
@@ -2067,31 +2110,40 @@ async function submitNiche() {
   const errEl = document.getElementById('niche-error');
   if (!lien) { errEl.textContent = 'Le lien Vinted est requis.'; errEl.classList.remove('hidden'); return; }
   if (!nom) { errEl.textContent = 'Le titre est requis.'; errEl.classList.remove('hidden'); return; }
-  const btn = document.querySelector('#niche-modal button[onclick="submitNiche()"]');
+  const btn = document.getElementById('niche-modal-submit-btn');
   if (btn) btn.disabled = true;
+  const isEdit = _editingNicheId !== null;
   try {
     // Strip null fields — FastAPI rejects null for Optional[str] in strict mode
     const extracted = Object.fromEntries(Object.entries(_nicheExtracted).filter(([,v]) => v !== null && v !== undefined && v !== ''));
     const payload = { nom, lien, ...extracted };
     const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
-    const r = await fetchWithTimeout(`${API}/niches`, { method: 'POST', headers, body: JSON.stringify(payload) });
+    const url = isEdit ? `${API}/niches/${_editingNicheId}` : `${API}/niches`;
+    const method = isEdit ? 'PATCH' : 'POST';
+    const r = await fetchWithTimeout(url, { method, headers, body: JSON.stringify(payload) });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
       if (r.status === 403 && body.error === 'niche_limit') {
         errEl.textContent = `Limite atteinte (${body.limit} tracker${body.limit>1?'s':''} max sur ton plan). Passe au plan supérieur.`;
       } else if (r.status === 403) {
         errEl.textContent = "Abonnement requis pour créer un tracker.";
+      } else if (r.status === 404) {
+        errEl.textContent = "Tracker introuvable.";
       } else {
         const detail = Array.isArray(body.detail)
           ? body.detail.map(e => e.msg || JSON.stringify(e)).join(', ')
-          : (body.detail || body.error || "Erreur lors de la création.");
+          : (body.detail || body.error || (isEdit ? "Erreur lors de la modification." : "Erreur lors de la création."));
         errEl.textContent = detail;
       }
       errEl.classList.remove('hidden'); return;
     }
-    trackEvent('niche_created', { plan: _userPlan });
+    if (isEdit) {
+      showToast('Tracker modifié !', 'success', 3000);
+    } else {
+      trackEvent('niche_created', { plan: _userPlan });
+      showToast('Tracker créé !', 'success', 3000);
+    }
     closeNicheModal();
-    showToast('Tracker créé !', 'success', 3000);
     loadNiches();
   } catch {
     errEl.textContent = "Erreur réseau. Réessaie."; errEl.classList.remove('hidden');
@@ -2228,7 +2280,10 @@ function renderNichesTable() {
       <td class="px-4 py-3">
         <div class="flex items-center gap-2" data-no-row-click>
           <button onclick="event.stopPropagation();openNicheDetailById(${n.id})" class="text-xs font-bold hover:underline whitespace-nowrap" style="color:var(--pri);">Voir →</button>
-          <button onclick="event.stopPropagation();deleteNiche(${n.id})" class="hover:text-red-500 transition-colors" style="color:var(--muted);">
+          <button onclick="event.stopPropagation();openEditNicheModal(${n.id})" class="transition-colors" style="color:var(--muted);" title="Modifier">
+            <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+          </button>
+          <button onclick="event.stopPropagation();deleteNiche(${n.id})" class="hover:text-red-500 transition-colors" style="color:var(--muted);" title="Supprimer">
             <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
           </button>
         </div>

@@ -14,23 +14,9 @@
 <title>Trakx — L'outil de resell le plus utile</title>
 <link rel="icon" type="image/svg+xml" href="app/favicon.svg"/>
 <meta name="description" content="Scanne Vinted en temps réel, détecte les bonnes affaires avant tout le monde. +450 000 annonces analysées. 19€/mois."/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://va.vercel-scripts.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms; frame-src https://buy.stripe.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://va.vercel-scripts.com https://www.google-analytics.com https://region1.google-analytics.com https://www.clarity.ms https://e.clarity.ms; frame-src https://buy.stripe.com;">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        ink: "#0f0f0f", muted: "#6b7280", surface: "#fafaf9", card: "#ffffff", border: "#e5e7eb",
-        "orange-400": "#fb923c", "orange-500": "#f97316", "orange-600": "#ea580c",
-      },
-      fontFamily: { sans: ["Inter","sans-serif"], display: ["Space Grotesk","sans-serif"] }
-    }
-  }
-}
-</script>
 <style>
   * { -webkit-font-smoothing: antialiased; }
   body { background: #fafaf9; color: #0f0f0f; font-family: 'Inter', sans-serif; }
@@ -61,6 +47,7 @@ tailwind.config = {
   details[open] summary .faq-icon { transform: rotate(45deg); }
   .faq-icon { transition: transform .2s; }
 </style>
+<link rel="stylesheet" href="/app/style.css"/>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
@@ -385,7 +372,7 @@ function closeMobileNav(){
 
       <!-- Pro — highlighted -->
       <div class="feat-card reveal reveal-delay-1 flex flex-col pricing-ring relative" style="background:#fff;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;">Le plus populaire</div>
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;">Le plus choisi</div>
         <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#f97316;">Pro</p>
         <div class="mb-1">
           <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:#0f0f0f;">19,90€</span>
