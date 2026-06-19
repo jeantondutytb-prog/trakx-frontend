@@ -731,7 +731,7 @@ tailwind.config = {
   <!-- ═══ PAGE NICHES ═══ -->
   <div id="page-niches" class="hidden flex-1 flex flex-col" style="min-height:0;">
     <!-- Tabs header -->
-    <div class="flex items-center justify-between px-3 md:px-6 pt-4 pb-0" style="border-bottom:1px solid var(--border);">
+    <div class="flex items-center justify-between px-3 md:px-6 pt-4 pb-0 vs-topbar" id="niches-tabs-bar" style="border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:30;">
       <div class="flex gap-0">
         <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes trackers</button>
         <button id="niches-tab-watch" onclick="switchNichesTab('watch')" class="tab-btn">Surveillance</button>
@@ -943,12 +943,14 @@ tailwind.config = {
 
   <!-- ═══ PAGE COMPTE (mobile) ═══ -->
   <div id="page-account" class="hidden flex-1 p-5 max-w-2xl mx-auto w-full">
-    <div class="vs-card rounded-2xl p-6 mb-4 flex flex-col items-center text-center">
-      <div class="w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:var(--hi);">
-        <span class="material-symbols-outlined" style="font-size:32px;color:var(--muted);">person</span>
+    <div class="vs-card rounded-2xl p-4 mb-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:var(--hi);">
+        <span class="material-symbols-outlined" style="font-size:20px;color:var(--muted);">person</span>
       </div>
-      <p class="font-bold text-lg mb-0.5" id="account-email-display">—</p>
-      <span id="account-plan-badge" class="text-xs font-bold px-2 py-1 rounded-lg mt-1" style="background:var(--hi);color:var(--muted);"></span>
+      <div class="min-w-0">
+        <p class="font-semibold text-sm truncate" id="account-email-display">—</p>
+        <span id="account-plan-badge" class="text-xs font-bold px-1.5 py-0.5 rounded-md" style="background:var(--hi);color:var(--muted);"></span>
+      </div>
     </div>
     <div class="vs-card rounded-2xl overflow-hidden mb-4">
       <a href="#" onclick="showPage('subscription');return false;" class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid var(--border);">
@@ -1245,6 +1247,7 @@ function startTrialCountdown(expiresAt) {
 
   // Push sticky topbar below the fixed banner
   document.querySelector('header.vs-topbar')?.style.setProperty('top', '44px');
+  document.getElementById('niches-tabs-bar')?.style.setProperty('top', '108px');
   document.body.style.paddingTop = '44px';
 
   banner.classList.remove('hidden');
@@ -1256,6 +1259,7 @@ function startTrialCountdown(expiresAt) {
       clearInterval(_trialInterval);
       banner.classList.add('hidden');
       document.querySelector('header.vs-topbar')?.style.removeProperty('top');
+      document.getElementById('niches-tabs-bar')?.style.removeProperty('top');
       document.body.style.paddingTop = '';
       // Reload plan — trial expired
       _userPlan = 'free'; _userSubscribed = false;
