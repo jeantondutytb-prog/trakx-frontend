@@ -1495,7 +1495,7 @@ async function loadFeedPage() {
     const freeConstraints = resp.free_constraints || null;
     const rawCount = items.length;
     const isFirstPage = feedOffset === 0;
-    // Client-side refinement: also handle Vinted composite size format "S / 36 / 8"
+    // Client-side refinement: composite size format + favs guard (nb_favoris may be stale in DB)
     items = items.filter(a => {
       if (feedSelectedMarques.size && !feedSelectedMarques.has(a.marque)) return false;
       if (tailleVal) {
@@ -1503,6 +1503,7 @@ async function loadFeedPage() {
         const at = (a.taille||'').toLowerCase();
         if (at !== t && !at.startsWith(t + ' / ')) return false;
       }
+      if (favsMin > 0 && (a.nb_favoris || 0) < favsMin) return false;
       return true;
     });
     if (rawCount < FEED_LIMIT || isLimited) feedDone = true;
