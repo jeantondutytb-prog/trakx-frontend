@@ -1158,7 +1158,7 @@ function openPreview(a) {
   const parts = [a.marque, a.taille].filter(Boolean);
   const _scrDate = a.scraped_le || '';
   const age = Math.floor((Date.now() - new Date(_scrDate.endsWith('Z') ? _scrDate : _scrDate + 'Z').getTime())/60000);
-  const ageStr = age < 60 ? `il y a ${age} min` : `il y a ${Math.floor(age/60)}h`;
+  const ageStr = 'il y a ' + formatAge(Date.now() - scraped.getTime());
   document.getElementById('preview-meta').textContent = parts.join(' · ') + (parts.length ? ' · ' : '') + ageStr;
   document.getElementById('preview-price').textContent = a.prix + '€';
   const favsEl = document.getElementById('preview-favs');
@@ -1293,6 +1293,15 @@ async function initConfig() {
 }
 
 // ---- UTILS ----
+function formatAge(ms) {
+  const min = Math.floor(ms / 60000);
+  if (min < 60) return min + 'min';
+  const h = Math.floor(ms / 3600000);
+  if (h < 24) return h + 'h';
+  const d = Math.floor(ms / 86400000);
+  if (d < 7) return d + 'j';
+  return Math.floor(d / 7) + 'sem';
+}
 function getEmoji(m,t) {
   const s = ((m||'')+(t||'')).toLowerCase();
   if (s.includes('nike')||s.includes('jordan')||s.includes('adidas')||s.includes('air force')||s.includes('dunk')) return '👟';
@@ -1541,7 +1550,7 @@ function renderFeedCard(a) {
   const dateStr = a.publie_le || a.scraped_le || '';
   const scraped = dateStr ? new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z') : new Date();
   const age = Math.floor((Date.now() - scraped.getTime()) / 60000);
-  const ageStr = age < 60 ? age + 'min' : Math.floor(age / 60) + 'h';
+  const ageStr = formatAge(Date.now() - scraped.getTime());
   const isNew  = age < 30;
   const photoUrl = safeUrl(a.photo);
   const photo = photoUrl ? `<img src="${esc(photoUrl)}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : '';
@@ -1924,8 +1933,7 @@ async function openNicheDetail(n) {
     gridEl.innerHTML = items.map(a => {
       const sold = !!a.sold_at;
       const _fsDate = a.first_seen || '';
-      const age = Math.floor((Date.now() - new Date(_fsDate.endsWith('Z') ? _fsDate : _fsDate + 'Z').getTime())/60000);
-      const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
+      const ageStr = formatAge(Date.now() - new Date(_fsDate.endsWith('Z') ? _fsDate : _fsDate + 'Z').getTime());
       return `<a href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener"
           class="vs-card rounded-xl overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform ${sold ? 'opacity-50' : ''}">
         <div class="relative" style="aspect-ratio:1;">
@@ -1943,8 +1951,7 @@ async function openNicheDetail(n) {
     tableEl.innerHTML = items.map(a => {
       const sold = !!a.sold_at;
       const _fsDate = a.first_seen || '';
-      const age = Math.floor((Date.now() - new Date(_fsDate.endsWith('Z') ? _fsDate : _fsDate + 'Z').getTime())/60000);
-      const ageStr = age < 60 ? age+'min' : age < 1440 ? Math.floor(age/60)+'h' : Math.floor(age/1440)+'j';
+      const ageStr = formatAge(Date.now() - new Date(_fsDate.endsWith('Z') ? _fsDate : _fsDate + 'Z').getTime());
       return `<tr style="border-top:1px solid var(--border);${sold ? 'opacity:.5;' : ''}" class="tbl-row transition-colors">
         <td class="px-5 py-2.5">
           <div class="flex items-center gap-3">
