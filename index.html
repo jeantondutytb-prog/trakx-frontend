@@ -78,7 +78,7 @@ tailwind.config = {
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-500">
       <a href="#features" class="hover:text-gray-900 transition-colors">Fonctionnalités</a>
       <a href="#how" class="hover:text-gray-900 transition-colors">Comment ça marche</a>
-      
+      <a href="#pricing" class="hover:text-gray-900 transition-colors">Tarifs</a>
     </div>
     <div class="flex items-center gap-3">
       <a href="app/" class="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">Connexion</a>
@@ -256,7 +256,7 @@ tailwind.config = {
       <div class="feat-card reveal"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">⚡</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Feed en temps réel</h3><p class="text-gray-500 text-sm leading-relaxed">Toutes les nouvelles annonces Vinted filtrables par marque, taille, prix et score. Ne rate plus jamais une pépite.</p></div>
       <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">👁️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Surveillance & détection des ventes</h3><p class="text-gray-500 text-sm leading-relaxed">Épingle des annonces et Trakx te détecte automatiquement quand elles sont vendues — parfait pour estimer le taux de rotation.</p></div>
       <div class="feat-card reveal reveal-delay-2"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🗂️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Trackers personnalisés</h3><p class="text-gray-500 text-sm leading-relaxed">Crée des trackers avec tes filtres favoris. Accède en 1 clic à toutes les annonces qui matchent, avec le compteur live.</p></div>
-      <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">👁️</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Surveillance d'annonces</h3><p class="text-gray-500 text-sm leading-relaxed">Ajoute des annonces à ta liste de surveillance. Trakx te signale si le prix baisse ou si l'article est vendu.</p></div>
+      <div class="feat-card reveal reveal-delay-1"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">📱</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">App mobile installable</h3><p class="text-gray-500 text-sm leading-relaxed">Ajoute Trakx à ton écran d'accueil iPhone ou Android. Accès instantané, plein écran, sans passer par le navigateur.</p></div>
       <div class="feat-card reveal reveal-delay-2"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">📊</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Taux de vente en temps réel</h3><p class="text-gray-500 text-sm leading-relaxed">Trakx détecte automatiquement les articles vendus dans tes trackers. Suis le taux de rotation de chaque marché.</p></div>
       <div class="feat-card reveal reveal-delay-3"><div style="width:48px;height:48px;background:#fff7ed;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🔗</div><h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;" class="text-gray-900 mb-2">Import lien Vinted</h3><p class="text-gray-500 text-sm leading-relaxed">Colle un lien de recherche Vinted et Trakx extrait automatiquement tous les filtres pour créer ton tracker.</p></div>
     </div>
@@ -325,13 +325,86 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- PRICING -->
+<section id="pricing" class="py-24 px-6" style="background:#fafaf9;">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14 reveal">
+      <p class="text-sm font-semibold mb-3" style="color:#f97316;">Tarifs</p>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);line-height:1.1;" class="text-gray-900 mb-3">Simple et transparent.</h2>
+      <p class="text-gray-500 text-lg">24h Expert offert à l'inscription. Sans carte bancaire.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <!-- Starter -->
+      <div class="feat-card reveal flex flex-col">
+        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#f97316;">Starter</p>
+        <div class="mb-1">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:#0f0f0f;">9,90€</span>
+          <span class="text-gray-400 text-sm">/mois</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-6">Pour découvrir Trakx et commencer à repérer les bonnes affaires.</p>
+        <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Feed en temps réel</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> 3 trackers</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> 20 annonces surveillées</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Scan toutes les 20 min</li>
+          <li class="flex items-center gap-2 opacity-40"><span>✕</span> Filtres avancés</li>
+          <li class="flex items-center gap-2 opacity-40"><span>✕</span> Stats de ventes</li>
+        </ul>
+        <a href="app/" class="btn-ghost text-center text-sm">Commencer →</a>
+      </div>
+
+      <!-- Pro — highlighted -->
+      <div class="feat-card reveal reveal-delay-1 flex flex-col pricing-ring relative" style="background:#fff;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;">Le plus populaire</div>
+        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#f97316;">Pro</p>
+        <div class="mb-1">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:#0f0f0f;">19,90€</span>
+          <span class="text-gray-400 text-sm">/mois</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-6">Pour les revendeurs réguliers qui veulent scaler.</p>
+        <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Feed en temps réel</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> 10 trackers</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> 100 annonces surveillées</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Scan toutes les 20 min</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Filtres avancés</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Stats de ventes</li>
+        </ul>
+        <a href="app/" class="btn-orange text-center text-sm">Commencer →</a>
+      </div>
+
+      <!-- Expert -->
+      <div class="feat-card reveal reveal-delay-2 flex flex-col">
+        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#f97316;">Expert</p>
+        <div class="mb-1">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2.5rem;color:#0f0f0f;">39,90€</span>
+          <span class="text-gray-400 text-sm">/mois</span>
+        </div>
+        <p class="text-gray-500 text-sm mb-6">Pour les pros du resell qui veulent tout automatiser.</p>
+        <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Feed en temps réel</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Trackers illimités</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Surveillance illimitée</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Scan toutes les 20 min</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Filtres avancés</li>
+          <li class="flex items-center gap-2"><span style="color:#f97316;">✓</span> Stats de ventes</li>
+        </ul>
+        <a href="app/" class="btn-ghost text-center text-sm">Commencer →</a>
+      </div>
+
+    </div>
+    <p class="text-center text-xs text-gray-400 mt-8 reveal">Paiement sécurisé Stripe · Annulable à tout moment depuis ton espace client</p>
+  </div>
+</section>
+
 <!-- CTA FINAL -->
 <section style="background:#0f0f0f;" class="py-20 px-6">
   <div class="max-w-2xl mx-auto text-center reveal">
     <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);color:#fff;" class="mb-4">Prêt à reseller<br/><span class="grad">plus intelligemment ?</span></h2>
     <p style="color:#9ca3af;" class="mb-8">Rejoins Trakx et commence à trouver des affaires que les autres ratent.</p>
-    <a href="app/" class="btn-orange" style="font-size:16px;padding:16px 32px;">Démarrer l'essai gratuit →</a>
-    <p style="color:#6b7280;font-size:11px;margin-top:12px;">7 jours offerts · Starter 9,90€ · Pro 19,90€ · Expert 39,90€</p>
+    <a href="app/" class="btn-orange" style="font-size:16px;padding:16px 32px;">Commencer maintenant →</a>
+    <p style="color:#6b7280;font-size:11px;margin-top:12px;">24h Expert offert · Sans engagement · Annulable à tout moment</p>
   </div>
 </section>
 
