@@ -82,10 +82,39 @@ tailwind.config = {
     </div>
     <div class="flex items-center gap-3">
       <a href="app/" class="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">Connexion</a>
-      <a href="app/" class="btn-orange text-sm" style="padding:10px 20px;">Commencer maintenant →</a>
+      <a href="app/" class="btn-orange text-sm hidden md:inline-block" style="padding:10px 20px;">Commencer maintenant →</a>
+      <!-- Hamburger button (mobile only) -->
+      <button id="nav-toggle" class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5" aria-label="Menu" aria-expanded="false">
+        <span class="hamburger-bar block w-5 h-0.5 bg-gray-700 transition-all duration-200"></span>
+        <span class="hamburger-bar block w-5 h-0.5 bg-gray-700 transition-all duration-200"></span>
+        <span class="hamburger-bar block w-5 h-0.5 bg-gray-700 transition-all duration-200"></span>
+      </button>
     </div>
   </div>
+  <!-- Mobile menu -->
+  <div id="nav-mobile" class="hidden md:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-4">
+    <a href="#features" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" onclick="closeMobileNav()">Fonctionnalités</a>
+    <a href="#how" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" onclick="closeMobileNav()">Comment ça marche</a>
+    <a href="#pricing" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" onclick="closeMobileNav()">Tarifs</a>
+    <hr class="border-gray-100"/>
+    <a href="app/" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Connexion</a>
+    <a href="app/" class="btn-orange text-sm text-center" style="padding:10px 20px;">Commencer maintenant →</a>
+  </div>
 </nav>
+<script>
+(function(){
+  const btn = document.getElementById('nav-toggle');
+  const menu = document.getElementById('nav-mobile');
+  btn.addEventListener('click', function(){
+    const open = menu.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!open));
+  });
+})();
+function closeMobileNav(){
+  document.getElementById('nav-mobile').classList.add('hidden');
+  document.getElementById('nav-toggle').setAttribute('aria-expanded','false');
+}
+</script>
 
 <!-- HERO -->
 <section style="background:linear-gradient(160deg,#fff7ed 0%,#fafaf9 40%,#fff 100%);" class="pt-20 pb-16 px-6 overflow-hidden">
