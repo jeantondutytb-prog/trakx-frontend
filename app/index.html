@@ -299,21 +299,30 @@ tailwind.config = {
   /* Remove blue flash on tap (iOS) */
   * { -webkit-tap-highlight-color: transparent; }
 
-  /* ── Mobile grid: force 2 columns, portrait cards ── */
+  /* ── Mobile grid: 3 colonnes, cartes compactes ── */
   @media (max-width: 639px) {
-    #feed-grid {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 8px !important;
+    #feed-grid,
+    #niche-detail-list,
+    #watch-list {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 6px !important;
     }
-    /* Constrain filter row so it never causes page-level overflow */
+    /* Constrain filter row — no page-level overflow */
     #feed-filters-row {
       max-width: 100%;
       overflow-x: auto;
       overflow-y: visible;
     }
-    /* Feed page padding on mobile */
-    #page-feed { padding: 12px !important; }
+    /* Feed page padding serré sur mobile */
+    #page-feed { padding: 10px !important; }
+    /* Cartes compactes : texte plus petit */
+    .feed-card .p-3, .feed-card > div:last-child { padding: 6px 8px !important; }
+    .feed-card p { font-size: 11px !important; line-height: 1.3; }
+    .feed-card .text-sm { font-size: 12px !important; }
   }
+
+  /* ── Nav center button ne prend pas l'état active comme les autres ── */
+  #mnav-feed.active { color: inherit; }
 </style>
 </head>
 <body class="flex min-h-screen">
@@ -884,22 +893,34 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      MOBILE BOTTOM NAV
 ════════════════════════════════════ -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-stretch justify-around z-50" style="height:64px;" id="mobile-nav">
-  <a class="mnav-item active" href="#" onclick="showPage('feed');return false;" id="mnav-feed">
-    <span class="mnav-icon">grid_view</span>
-    <span>Feed</span>
-  </a>
+<nav class="md:hidden fixed bottom-0 left-0 right-0 vs-topbar flex items-end z-50" id="mobile-nav" style="height:64px;">
+  <!-- Trackers -->
   <a class="mnav-item" href="#" onclick="showPage('niches');return false;" id="mnav-niches">
     <span class="mnav-icon">bookmarks</span>
     <span>Trackers</span>
   </a>
+  <!-- Abonnement -->
   <a class="mnav-item" href="#" onclick="showPage('subscription');return false;" id="mnav-subscription">
     <span class="mnav-icon">bolt</span>
     <span>Abonnement</span>
   </a>
+  <!-- CENTER — Feed TikTok-style -->
+  <div class="flex-1 flex flex-col items-center justify-end pb-2.5 relative" style="flex:0 0 72px;">
+    <a href="#" onclick="showPage('feed');return false;" id="mnav-feed"
+       class="w-14 h-14 rounded-2xl flex items-center justify-center transition-transform active:scale-90"
+       style="background:var(--pri);box-shadow:0 4px 20px rgba(249,115,22,.5);margin-bottom:1px;">
+      <span class="material-symbols-outlined text-white" style="font-size:26px;font-variation-settings:'FILL' 1;">grid_view</span>
+    </a>
+  </div>
+  <!-- Réglages -->
   <a class="mnav-item" href="#" onclick="showPage('settings');return false;" id="mnav-settings">
     <span class="mnav-icon">settings</span>
     <span>Réglages</span>
+  </a>
+  <!-- Compte -->
+  <a class="mnav-item" href="#" onclick="showPage('settings');return false;">
+    <span class="mnav-icon">person</span>
+    <span>Compte</span>
   </a>
 </nav>
 
