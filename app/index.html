@@ -224,18 +224,10 @@ tailwind.config = {
     #mobile-nav { padding-bottom: env(safe-area-inset-bottom, 0px); height: calc(64px + env(safe-area-inset-bottom, 0px)); }
   }
 
-  /* ── Feed filters: scrollable row on mobile ── */
+  /* ── Feed filters: wrap by default, scroll only on intermediate screens ── */
   #feed-filters-row {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 4px;
+    flex-wrap: wrap;
     gap: 6px;
-  }
-  #feed-filters-row::-webkit-scrollbar { display: none; }
-  @media (min-width:768px) {
-    #feed-filters-row { flex-wrap: wrap; overflow-x: visible; }
   }
 
   /* ── Feed grid gap ── */
@@ -282,6 +274,12 @@ tailwind.config = {
 
   /* Prevent horizontal overflow that breaks grid layout */
   html, body { overflow-x: hidden; max-width: 100%; }
+  /* main is a flex child — min-width:0 prevents it from overflowing the flex parent */
+  #main-content { overflow-x: hidden; min-width: 0; width: 100%; }
+  /* Desktop sidebar offset — applied via CSS to avoid Tailwind media-query ambiguity */
+  @media (min-width: 768px) {
+    #main-content { margin-left: 220px; }
+  }
 
   /* iOS Safari zooms when input font-size < 16px — fix without transform */
   input, select, textarea { font-size: 16px !important; }
@@ -299,26 +297,51 @@ tailwind.config = {
   /* Remove blue flash on tap (iOS) */
   * { -webkit-tap-highlight-color: transparent; }
 
-  /* ── Mobile grid: 3 colonnes, cartes compactes ── */
+  /* ── Mobile grid: 2 colonnes, cartes compactes ── */
   @media (max-width: 639px) {
     #feed-grid,
     #niche-detail-list,
     #watch-list {
-      grid-template-columns: repeat(3, 1fr) !important;
+      grid-template-columns: repeat(2, 1fr) !important;
       gap: 6px !important;
     }
-    /* Constrain filter row — no page-level overflow */
-    #feed-filters-row {
-      max-width: 100%;
-      overflow-x: auto;
-      overflow-y: visible;
-    }
     /* Feed page padding serré sur mobile */
-    #page-feed { padding: 10px !important; }
+    #page-feed { padding: 8px !important; }
     /* Cartes compactes : texte plus petit */
-    .feed-card .p-3, .feed-card > div:last-child { padding: 6px 8px !important; }
+    .feed-card > div:last-child { padding: 5px 7px !important; }
     .feed-card p { font-size: 11px !important; line-height: 1.3; }
-    .feed-card .text-sm { font-size: 12px !important; }
+    .feed-card .text-sm { font-size: 11px !important; }
+    /* Filtres desktop cachés sur mobile → bottom sheet à la place */
+    #feed-filters-row { display: none !important; }
+    #feed-count { display: none !important; }
+    /* Bottom sheet fpill = full width */
+    #filter-sheet .fpill { width: 100%; justify-content: flex-start; }
+    #filter-sheet .fpill select, #filter-sheet .fpill input { flex: 1; width: 100%; max-width: 100% !important; }
+    /* Trackers table → card layout sur mobile */
+    #niches-panel-mine, #niches-panel-watch { padding: 8px !important; }
+    #niches-table thead { display: none; }
+    #niches-table, #niches-table tbody { display: block; }
+    #niches-table tbody tr {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    #niches-table tbody tr td { display: block; padding: 0 !important; }
+    #niches-table tbody tr td:nth-child(1) { flex: 1; min-width: 0; }
+    #niches-table tbody tr td:nth-child(2) { font-size: 12px; font-weight: 700; color: var(--pri); }
+    #niches-table tbody tr td:nth-child(3) { font-size: 12px; color: #ef4444; }
+    #niches-table tbody tr td:nth-child(4) { display: none; }
+    #niches-table tbody tr td:nth-child(5) { flex-shrink: 0; }
+    /* Tracker detail tableau : cacher colonnes superflues */
+    #nd-panel-table table th:nth-child(3),
+    #nd-panel-table table th:nth-child(4),
+    #nd-panel-table table th:nth-child(5),
+    #nd-panel-table table td:nth-child(3),
+    #nd-panel-table table td:nth-child(4),
+    #nd-panel-table table td:nth-child(5) { display: none !important; }
+    #nd-panel-table table th:nth-child(6),
+    #nd-panel-table table td:nth-child(6) { display: table-cell !important; }
+    /* Subscription padding */
+    #page-subscription { padding: 12px 10px !important; }
   }
 
   /* ── Nav center button ne prend pas l'état active comme les autres ── */
@@ -484,7 +507,7 @@ tailwind.config = {
 <!-- ══════════════════════════════════
      MAIN
 ════════════════════════════════════ -->
-<main class="flex-1 md:ml-[220px] flex flex-col min-h-screen" id="main-content">
+<main class="flex-1 flex flex-col min-h-screen" id="main-content" style="margin-left:0;">
 
   <!-- Topbar -->
   <header class="vs-topbar sticky top-0 z-40 h-16 flex items-center px-6 justify-between w-full">
@@ -503,8 +526,21 @@ tailwind.config = {
 
   <!-- ═══ PAGE FEED ═══ -->
   <div id="page-feed" class="hidden flex-1 p-5 md:p-6">
-    <!-- Filtres -->
-    <!-- Filtres pills -->
+    <!-- Barre mobile : recherche + bouton filtres -->
+    <div class="flex gap-2 mb-3 md:hidden" id="mobile-filter-bar">
+      <div class="fpill flex-1" style="min-width:0;">
+        <span class="material-symbols-outlined" style="font-size:14px;color:var(--muted);">search</span>
+        <input id="feed-search-mobile" type="text" placeholder="Rechercher…" oninput="document.getElementById('feed-search').value=this.value;feedFilterChange();" style="min-width:0;width:100%;">
+      </div>
+      <button onclick="openFilterSheet()" class="fpill flex-shrink-0 gap-1.5 relative" id="filter-sheet-btn" style="font-weight:600;">
+        <span class="material-symbols-outlined" style="font-size:15px;">tune</span>
+        Filtres
+        <span id="filter-active-badge" class="hidden absolute -top-1.5 -right-1.5 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center" style="background:var(--pri);">!</span>
+      </button>
+      <span class="self-center text-[11px] font-medium" style="color:var(--muted);" id="feed-count-mobile"></span>
+    </div>
+
+    <!-- Filtres pills (desktop) / bottom sheet (mobile) -->
     <div class="flex flex-wrap gap-2 items-center mb-5" id="feed-filters-row">
       <!-- Search -->
       <div class="fpill fpill-search" id="fpill-search">
@@ -605,6 +641,85 @@ tailwind.config = {
 
       <span class="text-[11px] font-medium ml-1" style="color:var(--muted);" id="feed-count"></span>
     </div>
+
+    <!-- Bottom sheet filtres (mobile) -->
+    <div id="filter-sheet-backdrop" onclick="closeFilterSheet()" class="hidden fixed inset-0 z-[90]" style="background:rgba(0,0,0,.45);"></div>
+    <div id="filter-sheet" class="hidden fixed bottom-0 left-0 right-0 z-[91] rounded-t-2xl p-5 pb-8" style="background:var(--card);max-height:85vh;overflow-y:auto;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-base">Filtres</h3>
+        <button onclick="closeFilterSheet()" class="btn-icon w-8 h-8 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <!-- Marques -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Marques</label>
+          <button onclick="toggleFms()" class="fpill w-full justify-between" id="fms-pill-sheet">
+            <span id="fms-label-sheet">Toutes les marques</span>
+            <span id="fms-badge-sheet" class="hidden fpill-badge">0</span>
+          </button>
+        </div>
+        <!-- Taille -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Taille</label>
+          <div class="fpill">
+            <select id="feed-taille-select-sheet" onchange="document.getElementById('feed-taille-select').value=this.value;tailleSelectChange();">
+              <option value="">Toutes tailles</option>
+              <optgroup label="Vêtements">
+                <option value="XXS">XXS</option><option value="XS">XS</option><option value="S">S</option>
+                <option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option>
+              </optgroup>
+              <optgroup label="Chaussures">
+                <option value="36">36</option><option value="37">37</option><option value="38">38</option>
+                <option value="39">39</option><option value="40">40</option><option value="41">41</option>
+                <option value="42">42</option><option value="43">43</option><option value="44">44</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <!-- Prix -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Prix minimum (€)</label>
+          <div class="fpill"><input id="feed-pmin-sheet" type="number" min="0" placeholder="0" oninput="document.getElementById('feed-pmin').value=this.value;" style="width:100%;"></div>
+        </div>
+        <!-- Favs -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Favoris minimum</label>
+          <div class="fpill"><input id="feed-favs-sheet" type="number" min="0" placeholder="0" oninput="document.getElementById('feed-favs').value=this.value;" style="width:100%;"></div>
+        </div>
+        <!-- Période -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Période</label>
+          <div class="fpill">
+            <select id="feed-since-sheet" onchange="document.getElementById('feed-since').value=this.value;">
+              <option value="">Toutes</option>
+              <option value="6">6 heures</option>
+              <option value="12">12 heures</option>
+              <option value="24">24 heures</option>
+              <option value="168">1 semaine</option>
+            </select>
+          </div>
+        </div>
+        <!-- Tri -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wide mb-2 block" style="color:var(--muted);">Trier par</label>
+          <div class="fpill">
+            <select id="feed-order-sheet" onchange="document.getElementById('feed-order').value=this.value;">
+              <option value="recent">Plus récent</option>
+              <option value="prix_asc">Prix croissant</option>
+              <option value="prix_desc">Prix décroissant</option>
+              <option value="favs">Favoris</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button onclick="resetFeedFilters();closeFilterSheet();" class="flex-1 py-3 rounded-xl text-sm font-semibold btn-ghost">Réinitialiser</button>
+        <button onclick="applyFilterSheet()" class="flex-2 py-3 px-6 rounded-xl text-sm font-semibold text-white" style="background:var(--pri);flex:2;">Voir les résultats</button>
+      </div>
+    </div>
+
     <!-- Grid -->
     <div id="feed-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     <!-- Infinite scroll sentinel -->
@@ -616,13 +731,14 @@ tailwind.config = {
   <!-- ═══ PAGE NICHES ═══ -->
   <div id="page-niches" class="hidden flex-1 flex flex-col" style="min-height:0;">
     <!-- Tabs header -->
-    <div class="flex items-center justify-between px-5 md:px-6 pt-5" style="border-bottom:1px solid var(--border);">
+    <div class="flex items-center justify-between px-3 md:px-6 pt-4 pb-0" style="border-bottom:1px solid var(--border);">
       <div class="flex gap-0">
         <button id="niches-tab-mine" onclick="switchNichesTab('mine')" class="tab-btn active">Mes trackers</button>
         <button id="niches-tab-watch" onclick="switchNichesTab('watch')" class="tab-btn">Surveillance</button>
       </div>
       <button onclick="openNicheModal()" class="btn-orange flex items-center gap-1.5 px-3 py-2 text-sm mb-1" id="btn-new-niche">
-        <span class="material-symbols-outlined text-[16px]">add</span> Nouveau tracker
+        <span class="material-symbols-outlined text-[16px]">add</span>
+        <span class="hidden sm:inline">Nouveau tracker</span>
       </button>
     </div>
 
@@ -825,6 +941,48 @@ tailwind.config = {
     </div>
   </div>
 
+  <!-- ═══ PAGE COMPTE (mobile) ═══ -->
+  <div id="page-account" class="hidden flex-1 p-5 max-w-2xl mx-auto w-full">
+    <div class="vs-card rounded-2xl p-6 mb-4 flex flex-col items-center text-center">
+      <div class="w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:var(--hi);">
+        <span class="material-symbols-outlined" style="font-size:32px;color:var(--muted);">person</span>
+      </div>
+      <p class="font-bold text-lg mb-0.5" id="account-email-display">—</p>
+      <span id="account-plan-badge" class="text-xs font-bold px-2 py-1 rounded-lg mt-1" style="background:var(--hi);color:var(--muted);"></span>
+    </div>
+    <div class="vs-card rounded-2xl overflow-hidden mb-4">
+      <a href="#" onclick="showPage('subscription');return false;" class="flex items-center justify-between px-5 py-4" style="border-bottom:1px solid var(--border);">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="font-size:20px;color:var(--pri);">bolt</span>
+          <span class="font-medium text-sm">Abonnement</span>
+        </div>
+        <span class="material-symbols-outlined" style="font-size:18px;color:var(--muted);">chevron_right</span>
+      </a>
+      <a href="#" onclick="showPage('settings');return false;" class="flex items-center justify-between px-5 py-4">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="font-size:20px;color:var(--muted);">settings</span>
+          <span class="font-medium text-sm">Réglages</span>
+        </div>
+        <span class="material-symbols-outlined" style="font-size:18px;color:var(--muted);">chevron_right</span>
+      </a>
+    </div>
+    <div class="vs-card rounded-2xl overflow-hidden">
+      <button onclick="toggleDark()" class="w-full flex items-center justify-between px-5 py-4" style="border-bottom:1px solid var(--border);">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="font-size:20px;color:var(--muted);" id="account-dark-icon">dark_mode</span>
+          <span class="font-medium text-sm">Mode sombre</span>
+        </div>
+        <div id="account-dark-toggle" class="w-10 h-6 rounded-full relative transition-colors" style="background:var(--hi);border:1px solid var(--border);">
+          <div id="account-dark-knob" class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform" style="background:var(--muted);"></div>
+        </div>
+      </button>
+      <button onclick="authLogout()" class="w-full flex items-center gap-3 px-5 py-4 text-left">
+        <span class="material-symbols-outlined" style="font-size:20px;color:#ef4444;">logout</span>
+        <span class="font-medium text-sm" style="color:#ef4444;">Se déconnecter</span>
+      </button>
+    </div>
+  </div>
+
   <!-- ═══ PAGE RÉGLAGES ═══ -->
   <div id="page-settings" class="hidden flex-1 p-5 md:p-6 max-w-2xl mx-auto w-full">
     <h2 class="text-lg font-bold mb-6">Réglages</h2>
@@ -845,7 +1003,7 @@ tailwind.config = {
     </div>
 
     <!-- Compte -->
-    <div class="vs-card rounded-2xl p-5">
+    <div class="vs-card rounded-2xl p-5" id="settings-compte-card">
       <h3 class="font-bold mb-1 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]" style="color:var(--muted);">person</span>
         Compte
@@ -918,7 +1076,7 @@ tailwind.config = {
     <span>Réglages</span>
   </a>
   <!-- Compte -->
-  <a class="mnav-item" href="#" onclick="showPage('settings');return false;">
+  <a class="mnav-item" href="#" id="mnav-account" onclick="showPage('account');return false;">
     <span class="mnav-icon">person</span>
     <span>Compte</span>
   </a>
@@ -1237,6 +1395,7 @@ document.addEventListener('click', e => {
 
 function resetFeedFilters() {
   document.getElementById('feed-search').value = '';
+  document.getElementById('feed-search-mobile').value = '';
   document.getElementById('feed-taille-select').value = '';
   document.getElementById('feed-taille').value = '';
   document.getElementById('feed-taille').classList.add('hidden');
@@ -1244,12 +1403,55 @@ function resetFeedFilters() {
   document.getElementById('feed-favs').value = '';
   document.getElementById('feed-order').value = 'recent';
   document.getElementById('feed-since').value = '';
+  // sync sheet selects
+  ['feed-pmin-sheet','feed-favs-sheet'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['feed-taille-select-sheet','feed-since-sheet','feed-order-sheet'].forEach(id => { const el = document.getElementById(id); if(el) el.value = id==='feed-order-sheet'?'recent':''; });
   feedSelectedMarques.clear();
   renderFms(allMarques);
   updateFmsBtn();
   updateFeedPills();
   document.getElementById('feed-free-hint')?.remove();
   resetFeed();
+}
+
+function openFilterSheet() {
+  // Sync sheet values from hidden inputs
+  const sync = (sheetId, mainId) => { const s=document.getElementById(sheetId),m=document.getElementById(mainId); if(s&&m) s.value=m.value; };
+  sync('feed-taille-select-sheet','feed-taille-select');
+  sync('feed-pmin-sheet','feed-pmin');
+  sync('feed-favs-sheet','feed-favs');
+  sync('feed-since-sheet','feed-since');
+  sync('feed-order-sheet','feed-order');
+  document.getElementById('filter-sheet').classList.remove('hidden');
+  document.getElementById('filter-sheet-backdrop').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFilterSheet() {
+  document.getElementById('filter-sheet').classList.add('hidden');
+  document.getElementById('filter-sheet-backdrop').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function applyFilterSheet() {
+  // Sync sheet → hidden inputs → trigger filter
+  const sync = (mainId, sheetId) => { const s=document.getElementById(sheetId),m=document.getElementById(mainId); if(s&&m) m.value=s.value; };
+  sync('feed-taille-select','feed-taille-select-sheet');
+  sync('feed-pmin','feed-pmin-sheet');
+  sync('feed-favs','feed-favs-sheet');
+  sync('feed-since','feed-since-sheet');
+  sync('feed-order','feed-order-sheet');
+  closeFilterSheet();
+  feedFilterChange();
+  // Update active badge
+  const active = (document.getElementById('feed-pmin').value > 0)
+    || (document.getElementById('feed-favs').value > 0)
+    || document.getElementById('feed-since').value
+    || document.getElementById('feed-taille-select').value
+    || (document.getElementById('feed-order').value !== 'recent')
+    || feedSelectedMarques.size > 0;
+  const badge = document.getElementById('filter-active-badge');
+  if (badge) badge.classList.toggle('hidden', !active);
 }
 
 // ---- PREVIEW MODAL ----
@@ -1435,11 +1637,21 @@ function getEmoji(m,t) {
 
 // ---- NAVIGATION ----
 function showPage(name) {
-  ['feed','niches','niche-detail','settings','subscription'].forEach(p => {
-    document.getElementById('page-'+p).classList.toggle('hidden', p !== name);
+  ['feed','niches','niche-detail','settings','subscription','account'].forEach(p => {
+    document.getElementById('page-'+p)?.classList.toggle('hidden', p !== name);
   });
-  const titles = { feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement' };
+  const titles = { feed:'Feed · Toutes les annonces', niches:'Trackers', 'niche-detail':'Tracker', settings:'Réglages', subscription:'Abonnement', account:'Compte' };
   document.getElementById('page-title').textContent = titles[name] || '';
+  if (name === 'account') {
+    const email = document.getElementById('settings-email-display')?.textContent || '—';
+    const plan = document.getElementById('settings-plan-badge')?.textContent || '';
+    document.getElementById('account-email-display').textContent = email;
+    document.getElementById('account-plan-badge').textContent = plan;
+    const dark = document.documentElement.classList.contains('dark');
+    document.getElementById('account-dark-icon').textContent = dark ? 'light_mode' : 'dark_mode';
+    document.getElementById('account-dark-knob').style.transform = dark ? 'translateX(16px)' : '';
+    document.getElementById('account-dark-toggle').style.background = dark ? 'var(--pri)' : 'var(--hi)';
+  }
 
   // Desktop sidebar active state
   ['feed','niches','settings','subscription'].forEach(p => {
@@ -1448,6 +1660,8 @@ function showPage(name) {
     const mel = document.getElementById('mnav-'+p);
     if (mel) mel.classList.toggle('active', p === name);
   });
+  const mAccount = document.getElementById('mnav-account');
+  if (mAccount) mAccount.classList.toggle('active', name === 'account');
 
   if (name==='niches') { loadNiches(); loadWatchlist(); }
   if (name==='settings') loadSettings();
@@ -1520,6 +1734,7 @@ function resetFeed() {
     grid.style.pointerEvents = 'none';
   }
   document.getElementById('feed-count').textContent = '';
+  const _fcm = document.getElementById('feed-count-mobile'); if(_fcm) _fcm.textContent = '';
   // Remove any stale free-plan hint from previous request
   document.getElementById('feed-free-hint')?.remove();
   loadFeedPage();
@@ -1646,6 +1861,7 @@ async function loadFeedPage() {
     }
     const totalVisible = document.getElementById('feed-grid').querySelectorAll('.feed-card').length;
     document.getElementById('feed-count').textContent = totalVisible + ' annonces';
+    const _fcm2 = document.getElementById('feed-count-mobile'); if(_fcm2) _fcm2.textContent = totalVisible + ' ann.';
     if (feedDone) document.getElementById('feed-spinner').style.display = 'none';
   } catch(e) {
     feedDone = true;
