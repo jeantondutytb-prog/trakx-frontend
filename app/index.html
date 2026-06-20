@@ -87,9 +87,17 @@
   .vs-chip     { background: var(--hi); color: var(--pri-dk); border: 1px solid #fed7aa; }
   .vs-input    { background: var(--card) !important; border: 1px solid var(--border); color: var(--ink) !important; }
   #auth-email, #auth-password { background:#ffffff !important; color:#0f0f0f !important; }
-  html.dark #auth-email, html.dark #auth-password { background:#1e1e1e !important; color:#f0f0f0 !important; }
   #auth-email:-webkit-autofill, #auth-password:-webkit-autofill { -webkit-text-fill-color:#0f0f0f !important; -webkit-box-shadow:0 0 0 1000px #ffffff inset !important; }
-  html.dark #auth-email:-webkit-autofill, html.dark #auth-password:-webkit-autofill { -webkit-text-fill-color:#f0f0f0 !important; -webkit-box-shadow:0 0 0 1000px #1e1e1e inset !important; }
+  /* Login + onboarding always render light — never the dark theme — so the
+     transition from the (white) landing page never jumps straight to black,
+     regardless of the visitor's OS color scheme. The dark/light toggle only
+     applies once inside the dashboard. */
+  #auth-overlay, #onboarding-overlay {
+    --bg: #fafaf9; --card: #ffffff; --ink: #0f0f0f; --muted: #6b7280;
+    --border: #e5e7eb; --hi: #fff7ed; --mid: #ffedd5; --pri: #f97316;
+    --pri-dk: #ea580c; --green: #16a34a; --red: #dc2626;
+    color: var(--ink);
+  }
   .vs-input:focus { border-color: var(--pri); outline: none; }
   .vs-input:-webkit-autofill,
   .vs-input:-webkit-autofill:hover,
