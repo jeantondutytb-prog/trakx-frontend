@@ -106,6 +106,8 @@
   .btn-ghost:hover { border-color: var(--pri); color: var(--pri); }
   .btn-icon    { background: var(--hi); border: 1px solid var(--border); color: var(--muted); border-radius:10px; transition:all .15s; }
   .btn-icon:hover { border-color: var(--pri); color: var(--pri); }
+  .onboarding-choice { background: var(--card); border: 1.5px solid var(--border); color: var(--ink); transition: all .15s; }
+  .onboarding-choice:hover { border-color: var(--pri); background: var(--hi); color: var(--pri); }
 
   /* filter pills */
   .fpill {
@@ -419,6 +421,69 @@
     <p class="text-sm mb-6" style="color:var(--muted);">Abonne-toi pour accéder au feed et aux trackers.</p>
     <button onclick="paywallLogout();showPage('subscription')" class="btn-orange w-full py-3 text-sm rounded-xl block mb-3">Voir les plans →</button>
     <button onclick="paywallLogout()" class="text-xs hover:underline" style="color:var(--muted);">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ONBOARDING OVERLAY (post-connexion, avant dashboard)
+════════════════════════════════════ -->
+<div id="onboarding-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6" style="background:var(--bg);">
+  <div class="vs-card rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <div class="flex items-center gap-2 mb-6">
+      <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#F97316"/><circle cx="24" cy="24" r="3.5" fill="white"/><circle cx="24" cy="24" r="10" fill="none" stroke="white" stroke-width="2" opacity=".75"/><circle cx="24" cy="24" r="18" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/></svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);">Trak<span style="color:var(--pri);">x</span></span>
+    </div>
+
+    <div id="onboarding-screen-1">
+      <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--pri);">1 / 4</p>
+      <h2 class="mb-5" style="font-size:1.1rem;">Tu revends sur Vinted depuis combien de temps ?</h2>
+      <div class="space-y-2">
+        <button onclick="onboardingAnswer(1,'debute')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Je débute</button>
+        <button onclick="onboardingAnswer(1,'quelques_mois')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Depuis quelques mois</button>
+        <button onclick="onboardingAnswer(1,'plus_un_an')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Depuis plus d'un an</button>
+      </div>
+    </div>
+
+    <div id="onboarding-screen-2" class="hidden">
+      <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--pri);">2 / 4</p>
+      <h2 class="mb-5" style="font-size:1.1rem;">Qu'est-ce que tu revends principalement ?</h2>
+      <div class="space-y-2">
+        <button onclick="onboardingAnswer(2,'vetements')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Vêtements</button>
+        <button onclick="onboardingAnswer(2,'sneakers')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Chaussures & sneakers</button>
+        <button onclick="onboardingAnswer(2,'luxe')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Marques de luxe</button>
+        <button onclick="onboardingAnswer(2,'electronique')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Électronique</button>
+        <button onclick="onboardingAnswer(2,'un_peu_de_tout')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Un peu de tout</button>
+      </div>
+    </div>
+
+    <div id="onboarding-screen-3" class="hidden">
+      <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--pri);">3 / 4</p>
+      <h2 class="mb-5" style="font-size:1.1rem;">Combien de temps tu passes par semaine à chercher des bonnes affaires sur Vinted ?</h2>
+      <div class="space-y-2">
+        <button onclick="onboardingAnswer(3,'moins_1h')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Moins d'1h</button>
+        <button onclick="onboardingAnswer(3,'1_a_5h')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">1 à 5h</button>
+        <button onclick="onboardingAnswer(3,'plus_5h')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Plus de 5h</button>
+      </div>
+    </div>
+
+    <div id="onboarding-screen-4" class="hidden">
+      <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--pri);">4 / 4</p>
+      <h2 class="mb-5" style="font-size:1.1rem;">Ton objectif avec Trakx ?</h2>
+      <div class="space-y-2">
+        <button onclick="onboardingAnswer(4,'bonnes_affaires_perso')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Trouver des bonnes affaires perso</button>
+        <button onclick="onboardingAnswer(4,'revenu_complementaire')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Revenu complémentaire</button>
+        <button onclick="onboardingAnswer(4,'activite_pro')" class="onboarding-choice w-full text-left py-2.5 px-4 rounded-xl text-sm font-medium">Activité professionnelle</button>
+      </div>
+    </div>
+
+    <div id="onboarding-screen-error" class="hidden">
+      <p class="text-sm mb-4" style="color:var(--red);">Une erreur réseau est survenue. Tes réponses sont conservées.</p>
+      <button onclick="onboardingRetrySubmit()" class="btn-orange w-full py-2.5 text-sm rounded-xl">Réessayer</button>
+    </div>
+
+    <p class="text-center mt-6">
+      <a href="#" onclick="onboardingSkip();return false;" class="text-xs" style="color:var(--muted);">Configurer plus tard</a>
+    </p>
   </div>
 </div>
 
@@ -1243,6 +1308,30 @@ async function showApp() {
   document.getElementById('auth-user-email').textContent = data.user?.email || '—';
 
   document.getElementById('paywall-overlay').classList.add('hidden');
+
+  if (!_appInitialized) {
+    // Gate: check once whether this account should see the onboarding questionnaire
+    // before it ever sees the dashboard. Fail open (skip onboarding) on network error —
+    // a status-check failure must never block access to the product.
+    let showOnboarding = false;
+    try {
+      const headers = await authHeader();
+      const r = await fetchWithTimeout(`${API}/me`, { headers });
+      const me = await r.json();
+      showOnboarding = !!me.show_onboarding;
+    } catch {
+      showOnboarding = false;
+    }
+    if (showOnboarding) {
+      openOnboardingFlow();
+      return;
+    }
+  }
+
+  _continueAppAfterOnboarding();
+}
+
+function _continueAppAfterOnboarding() {
   if (!_appInitialized) {
     _appInitialized = true;
     showPage('feed');
@@ -1252,27 +1341,73 @@ async function showApp() {
     setInterval(() => fetchWithTimeout(`${API}/ping`).catch(()=>{}), 14*60*1000);
   }
 
-  // Auto-start 24h Expert trial for new users (server no-ops if already used)
-  const headers = await authHeader();
-  fetchWithTimeout(`${API}/trial/start`, { method: 'POST', headers }).catch(() => {});
-
   // Load user plan in background — doesn't block feed
-  fetchWithTimeout(`${API}/me`, { headers })
-    .then(r => r.json())
-    .then(me => {
-      _currentUserEmail = me.email || null;
-      _userPlan = me.plan || 'free';
-      _userSubscribed = me.subscribed || false;
-      const planLabel = _userPlan.charAt(0).toUpperCase() + _userPlan.slice(1);
-      const pb = document.getElementById('plan-badge');
-      if (pb) { pb.textContent = planLabel; pb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
-      const spl = document.getElementById('settings-plan-label');
-      if (spl) spl.textContent = planLabel;
-      const spb = document.getElementById('settings-plan-badge');
-      if (spb) { spb.textContent = planLabel; spb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
-      if (me.is_trial && me.trial_expires_at) startTrialCountdown(me.trial_expires_at);
-    })
-    .catch(() => { _userPlan = 'free'; _userSubscribed = false; });
+  authHeader().then(headers => {
+    fetchWithTimeout(`${API}/me`, { headers })
+      .then(r => r.json())
+      .then(me => {
+        _currentUserEmail = me.email || null;
+        _userPlan = me.plan || 'free';
+        _userSubscribed = me.subscribed || false;
+        const planLabel = _userPlan.charAt(0).toUpperCase() + _userPlan.slice(1);
+        const pb = document.getElementById('plan-badge');
+        if (pb) { pb.textContent = planLabel; pb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
+        const spl = document.getElementById('settings-plan-label');
+        if (spl) spl.textContent = planLabel;
+        const spb = document.getElementById('settings-plan-badge');
+        if (spb) { spb.textContent = planLabel; spb.style.color = _userPlan !== 'free' ? 'var(--pri)' : 'var(--muted)'; }
+        if (me.is_trial && me.trial_expires_at) startTrialCountdown(me.trial_expires_at);
+      })
+      .catch(() => { _userPlan = 'free'; _userSubscribed = false; });
+  });
+}
+
+// ---- ONBOARDING (post-connexion, avant dashboard) ----
+let _onboardingAnswers = {};
+
+function openOnboardingFlow() {
+  _onboardingAnswers = {};
+  for (let i = 1; i <= 4; i++) document.getElementById('onboarding-screen-' + i).classList.toggle('hidden', i !== 1);
+  document.getElementById('onboarding-screen-error').classList.add('hidden');
+  document.getElementById('onboarding-overlay').classList.remove('hidden');
+}
+
+function onboardingAnswer(step, value) {
+  _onboardingAnswers['q' + step] = value;
+  if (step < 4) {
+    document.getElementById('onboarding-screen-' + step).classList.add('hidden');
+    document.getElementById('onboarding-screen-' + (step + 1)).classList.remove('hidden');
+  } else {
+    onboardingSubmit();
+  }
+}
+
+async function onboardingSubmit() {
+  for (let i = 1; i <= 4; i++) document.getElementById('onboarding-screen-' + i).classList.add('hidden');
+  try {
+    const headers = { ...await authHeader(), 'Content-Type': 'application/json' };
+    const r = await fetchWithTimeout(`${API}/onboarding/answers`, {
+      method: 'POST', headers, body: JSON.stringify(_onboardingAnswers)
+    });
+    if (!r.ok) throw new Error('onboarding_save_failed');
+    onboardingClose();
+  } catch {
+    document.getElementById('onboarding-screen-error').classList.remove('hidden');
+  }
+}
+
+function onboardingRetrySubmit() {
+  document.getElementById('onboarding-screen-error').classList.add('hidden');
+  onboardingSubmit();
+}
+
+function onboardingSkip() {
+  onboardingClose();
+}
+
+function onboardingClose() {
+  document.getElementById('onboarding-overlay').classList.add('hidden');
+  _continueAppAfterOnboarding();
 }
 
 let _trialInterval = null;
