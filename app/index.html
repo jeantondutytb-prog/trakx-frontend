@@ -914,14 +914,14 @@
 
       <!-- Tabs -->
       <div class="flex gap-0" style="border-bottom:1px solid var(--border);">
-        <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn tab-btn-sm">Statistiques</button>
-        <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn tab-btn-sm active">Annonces</button>
+        <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn tab-btn-sm active">Statistiques</button>
+        <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn tab-btn-sm">Annonces</button>
         <button id="nd-tab-table" onclick="switchDetailTab('table')" class="tab-btn tab-btn-sm">Tableau</button>
       </div>
     </div>
 
     <!-- Tab: Grid -->
-    <div id="nd-panel-grid" class="flex-1 p-5 md:p-6 overflow-auto">
+    <div id="nd-panel-grid" class="hidden flex-1 p-5 md:p-6 overflow-auto">
       <div id="niche-detail-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     </div>
 
@@ -943,7 +943,7 @@
     </div>
 
     <!-- Tab: Statistiques -->
-    <div id="nd-panel-stats" class="hidden flex-1 p-5 md:p-6 overflow-auto">
+    <div id="nd-panel-stats" class="flex-1 p-5 md:p-6 overflow-auto">
       <div id="nd-stats-empty" class="hidden text-center py-16" style="color:var(--muted);">
         <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">query_stats</span>
         Pas encore de données.
@@ -2357,11 +2357,19 @@ function formatNicheStatsDuration(hours) {
 
 function smoothSvgPath(points) {
   if (points.length < 2) return points.length ? `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}` : '';
+  if (points.length === 2) return `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)} L${points[1].x.toFixed(1)},${points[1].y.toFixed(1)}`;
+  const tension = 0.2;
   let path = `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i], p1 = points[i + 1];
-    const midX = ((p0.x + p1.x) / 2).toFixed(1);
-    path += ` C${midX},${p0.y.toFixed(1)} ${midX},${p1.y.toFixed(1)} ${p1.x.toFixed(1)},${p1.y.toFixed(1)}`;
+    const p0 = points[i - 1] || points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] || p2;
+    const c1x = p1.x + (p2.x - p0.x) * tension;
+    const c1y = p1.y + (p2.y - p0.y) * tension;
+    const c2x = p2.x - (p3.x - p1.x) * tension;
+    const c2y = p2.y - (p3.y - p1.y) * tension;
+    path += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
   }
   return path;
 }
@@ -2696,7 +2704,7 @@ let _currentNicheDetailId = null;
 async function openNicheDetail(n) {
   _currentNicheDetailId = n.id;
   showPage('niche-detail');
-  switchDetailTab('grid');
+  switchDetailTab('stats');
 
   // Header
   document.getElementById('niche-detail-title').textContent = n.nom;
