@@ -896,26 +896,6 @@
         </a>
       </div>
 
-      <!-- Stats cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <div class="stat-card !p-4">
-          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Annonces</p>
-          <p class="text-2xl font-bold" id="nd-nb" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">—</p>
-        </div>
-        <div class="stat-card !p-4">
-          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Prix moyen</p>
-          <p class="text-2xl font-bold" id="nd-pmoy" style="font-family:'Space Grotesk',sans-serif;">—</p>
-        </div>
-        <div class="stat-card !p-4">
-          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Fourchette</p>
-          <p class="text-2xl font-bold" id="nd-range" style="font-family:'Space Grotesk',sans-serif;">—</p>
-        </div>
-        <div class="stat-card !p-4">
-          <p class="text-xs font-medium mb-1" style="color:var(--muted);">Taux de vente</p>
-          <p class="text-2xl font-bold" id="nd-fav" style="font-family:'Space Grotesk',sans-serif;">—</p>
-        </div>
-      </div>
-
       <!-- Tabs -->
       <div class="flex gap-0" style="border-bottom:1px solid var(--border);">
         <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn tab-btn-sm active">Statistiques</button>
@@ -2752,9 +2732,6 @@ async function openNicheDetail(n) {
   }
   document.getElementById('niche-detail-meta').textContent = metaParts.join(' · ');
 
-  // Stats reset — will be computed from items after load
-  ['nd-nb','nd-pmoy','nd-range','nd-fav'].forEach(id => document.getElementById(id).textContent = '—');
-
   // Vinted link
   const vintedLink = document.getElementById('niche-detail-vinted-link');
   if (n.lien) {
@@ -2780,20 +2757,8 @@ async function openNicheDetail(n) {
         : `Aucune annonce pour ce tracker.`;
       gridEl.innerHTML = `<div class="col-span-full text-center py-10 text-sm" style="color:var(--muted);">${empty}</div>`;
       tableEl.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-sm" style="color:var(--muted);">${empty}</td></tr>`;
-      document.getElementById('nd-nb').textContent = '0';
       return;
     }
-    // Compute stats from items
-    const actifs = items.filter(i => !i.sold_at);
-    const vendus = items.filter(i => i.sold_at);
-    const prix = actifs.map(i => i.prix).filter(Boolean);
-    const prixMoy = prix.length ? prix.reduce((s,v) => s+v, 0) / prix.length : null;
-    const prixMin = prix.length ? Math.min(...prix) : null;
-    const prixMax = prix.length ? Math.max(...prix) : null;
-    document.getElementById('nd-nb').textContent   = items.length + (vendus.length ? ` (${vendus.length} vendus)` : '');
-    document.getElementById('nd-pmoy').textContent = prixMoy ? prixMoy.toFixed(2)+'€' : '—';
-    document.getElementById('nd-range').textContent = (prixMin !== null && prixMax !== null) ? `${prixMin.toFixed(0)}–${prixMax.toFixed(0)}€` : '—';
-    document.getElementById('nd-fav').textContent   = vendus.length ? ((vendus.length / items.length * 100).toFixed(0) + '% vendus') : '—';
     // Grid view
     gridEl.innerHTML = items.map(a => {
       const sold = !!a.sold_at;
