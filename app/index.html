@@ -2355,6 +2355,17 @@ function formatNicheStatsDuration(hours) {
   return (hours / 24).toFixed(1) + 'j';
 }
 
+function smoothSvgPath(points) {
+  if (points.length < 2) return points.length ? `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}` : '';
+  let path = `M${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i], p1 = points[i + 1];
+    const midX = ((p0.x + p1.x) / 2).toFixed(1);
+    path += ` C${midX},${p0.y.toFixed(1)} ${midX},${p1.y.toFixed(1)} ${p1.x.toFixed(1)},${p1.y.toFixed(1)}`;
+  }
+  return path;
+}
+
 function renderNicheStatsChart(prices) {
   const BUCKETS = 9;
   const min = prices[0], max = prices[prices.length - 1];
@@ -2373,7 +2384,7 @@ function renderNicheStatsChart(prices) {
     x: i * stepX,
     y: padTop + plotH - (c / maxCount) * plotH,
   }));
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const linePath = smoothSvgPath(points);
   const areaPath = `${linePath} L${points[points.length - 1].x.toFixed(1)},${H - padBottom} L${points[0].x.toFixed(1)},${H - padBottom} Z`;
   const dots = points.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" style="fill:var(--pri);"></circle>`).join('');
   const labels = counts.map((c, i) => {
