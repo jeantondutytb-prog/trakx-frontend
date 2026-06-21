@@ -489,8 +489,41 @@
       <button onclick="onboardingRetrySubmit()" class="btn-orange w-full py-2.5 text-sm rounded-xl">Réessayer</button>
     </div>
 
+    <div id="onboarding-tour-1" class="hidden">
+      <div class="text-3xl mb-4">⚡</div>
+      <h2 class="mb-2" style="font-size:1.1rem;">Le feed en temps réel</h2>
+      <p class="text-sm mb-6" style="color:var(--muted);">Toutes les nouvelles annonces Vinted, filtrables par marque, taille, prix et score.</p>
+      <button onclick="onboardingTourNext(1)" class="btn-orange w-full py-2.5 text-sm rounded-xl">Suivant →</button>
+    </div>
+
+    <div id="onboarding-tour-2" class="hidden">
+      <div class="text-3xl mb-4">🗂️</div>
+      <h2 class="mb-2" style="font-size:1.1rem;">Des trackers sur-mesure</h2>
+      <p class="text-sm mb-6" style="color:var(--muted);">Crée des trackers avec tes filtres favoris pour surveiller une recherche précise en continu.</p>
+      <button onclick="onboardingTourNext(2)" class="btn-orange w-full py-2.5 text-sm rounded-xl">Suivant →</button>
+    </div>
+
+    <div id="onboarding-tour-3" class="hidden">
+      <div class="text-3xl mb-4">👁️</div>
+      <h2 class="mb-2" style="font-size:1.1rem;">Surveillance & ventes</h2>
+      <p class="text-sm mb-6" style="color:var(--muted);">Épingle des annonces et sois averti automatiquement quand elles sont vendues.</p>
+      <button onclick="onboardingTourNext(3)" class="btn-orange w-full py-2.5 text-sm rounded-xl">Suivant →</button>
+    </div>
+
+    <div id="onboarding-tour-reveal" class="hidden">
+      <div class="text-3xl mb-4">🎉</div>
+      <h2 class="mb-2" style="font-size:1.1rem;">Tu as débloqué 24h d'accès Expert !</h2>
+      <p class="text-sm mb-6" style="color:var(--muted);">Profite de tout, sans limite, pendant 24h.</p>
+      <button onclick="onboardingTourClose()" class="btn-orange w-full py-2.5 text-sm rounded-xl">C'est parti →</button>
+    </div>
+
+    <div id="onboarding-tour-error" class="hidden">
+      <p class="text-sm mb-4" style="color:var(--red);">Une erreur réseau est survenue.</p>
+      <button onclick="onboardingTourRetry()" class="btn-orange w-full py-2.5 text-sm rounded-xl">Réessayer</button>
+    </div>
+
     <p class="text-center mt-6">
-      <a href="#" onclick="onboardingSkip();return false;" class="text-xs" style="color:var(--muted);">Configurer plus tard</a>
+      <a href="#" id="onboarding-skip-link" onclick="onboardingSkip();return false;" class="text-xs" style="color:var(--muted);">Configurer plus tard</a>
     </p>
   </div>
 </div>
@@ -882,6 +915,7 @@
       <div class="flex gap-0" style="border-bottom:1px solid var(--border);">
         <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn active">Annonces</button>
         <button id="nd-tab-table" onclick="switchDetailTab('table')" class="tab-btn">Tableau</button>
+        <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn">Statistiques</button>
       </div>
     </div>
 
@@ -905,6 +939,61 @@
         </thead>
         <tbody id="nd-table-body"></tbody>
       </table>
+    </div>
+
+    <!-- Tab: Statistiques -->
+    <div id="nd-panel-stats" class="hidden flex-1 p-5 md:p-6 overflow-auto">
+      <div id="nd-stats-empty" class="hidden text-center py-16" style="color:var(--muted);">
+        <span class="material-symbols-outlined block mb-2" style="font-size:36px;opacity:.4;">query_stats</span>
+        Pas encore de données.
+      </div>
+      <div id="nd-stats-error" class="hidden text-center py-16" style="color:var(--red);">
+        Erreur réseau. <button onclick="loadNicheStats()" class="underline font-semibold">Réessayer</button>
+      </div>
+      <div id="nd-stats-content" class="hidden">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Prix moyen de vente</p>
+            <p class="text-2xl font-bold" id="ns-prix-moyen-vente" style="font-family:'Space Grotesk',sans-serif;color:var(--pri);">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">% vendu</p>
+            <p class="text-2xl font-bold" id="ns-pct-vente" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Temps moyen de vente</p>
+            <p class="text-2xl font-bold" id="ns-temps-vente" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Annonces analysées</p>
+            <p class="text-2xl font-bold" id="ns-nb-items" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Ajouts / jour</p>
+            <p class="text-2xl font-bold" id="ns-ajouts-jour" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Ventes totales</p>
+            <p class="text-2xl font-bold" id="ns-nb-vendus" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+          <div class="stat-card !p-4">
+            <p class="text-xs font-medium mb-1" style="color:var(--muted);">Ventes / jour</p>
+            <p class="text-2xl font-bold" id="ns-ventes-jour" style="font-family:'Space Grotesk',sans-serif;">—</p>
+          </div>
+        </div>
+
+        <div class="vs-card rounded-2xl p-5 mb-6">
+          <p class="font-bold text-sm mb-3" style="font-family:'Space Grotesk',sans-serif;">Répartition des ventes</p>
+          <div id="ns-quartiles-content" class="space-y-2 text-sm"></div>
+          <p id="ns-quartiles-empty" class="hidden text-sm" style="color:var(--muted);">Aucune vente enregistrée.</p>
+        </div>
+
+        <div class="vs-card rounded-2xl p-5">
+          <p class="font-bold text-sm mb-3" style="font-family:'Space Grotesk',sans-serif;">Distribution des prix de vente</p>
+          <div id="ns-chart-wrap"></div>
+          <p id="ns-chart-empty" class="hidden text-sm" style="color:var(--muted);">Aucune vente enregistrée.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1319,19 +1408,25 @@ async function showApp() {
 
   if (!_appInitialized) {
     // Gate: check once whether this account should see the onboarding questionnaire
-    // before it ever sees the dashboard. Fail open (skip onboarding) on network error —
-    // a status-check failure must never block access to the product.
-    let showOnboarding = false;
+    // or the guide tour before it ever sees the dashboard. Fail open (skip onboarding)
+    // on network error — a status-check failure must never block access to the product.
+    let showOnboarding = false, showOnboardingTour = false;
     try {
       const headers = await authHeader();
       const r = await fetchWithTimeout(`${API}/me`, { headers });
       const me = await r.json();
       showOnboarding = !!me.show_onboarding;
+      showOnboardingTour = !!me.show_onboarding_tour;
     } catch {
       showOnboarding = false;
+      showOnboardingTour = false;
     }
     if (showOnboarding) {
       openOnboardingFlow();
+      return;
+    }
+    if (showOnboardingTour) {
+      openOnboardingTour();
       return;
     }
   }
@@ -1373,10 +1468,19 @@ function _continueAppAfterOnboarding() {
 // ---- ONBOARDING (post-connexion, avant dashboard) ----
 let _onboardingAnswers = {};
 
+function _onboardingHideAllScreens() {
+  for (let i = 1; i <= 4; i++) document.getElementById('onboarding-screen-' + i).classList.add('hidden');
+  document.getElementById('onboarding-screen-error').classList.add('hidden');
+  for (let i = 1; i <= 3; i++) document.getElementById('onboarding-tour-' + i).classList.add('hidden');
+  document.getElementById('onboarding-tour-reveal').classList.add('hidden');
+  document.getElementById('onboarding-tour-error').classList.add('hidden');
+}
+
 function openOnboardingFlow() {
   _onboardingAnswers = {};
-  for (let i = 1; i <= 4; i++) document.getElementById('onboarding-screen-' + i).classList.toggle('hidden', i !== 1);
-  document.getElementById('onboarding-screen-error').classList.add('hidden');
+  _onboardingHideAllScreens();
+  document.getElementById('onboarding-screen-1').classList.remove('hidden');
+  document.getElementById('onboarding-skip-link').textContent = 'Configurer plus tard';
   document.getElementById('onboarding-overlay').classList.remove('hidden');
 }
 
@@ -1398,7 +1502,7 @@ async function onboardingSubmit() {
       method: 'POST', headers, body: JSON.stringify(_onboardingAnswers)
     });
     if (!r.ok) throw new Error('onboarding_save_failed');
-    onboardingClose();
+    openOnboardingTour();
   } catch {
     document.getElementById('onboarding-screen-error').classList.remove('hidden');
   }
@@ -1416,6 +1520,44 @@ function onboardingSkip() {
 function onboardingClose() {
   document.getElementById('onboarding-overlay').classList.add('hidden');
   _continueAppAfterOnboarding();
+}
+
+// ---- ONBOARDING GUIDE TOUR (feed/trackers/surveillance + révélation 24h Expert) ----
+function openOnboardingTour() {
+  _onboardingHideAllScreens();
+  document.getElementById('onboarding-tour-1').classList.remove('hidden');
+  document.getElementById('onboarding-skip-link').textContent = 'Passer';
+  document.getElementById('onboarding-overlay').classList.remove('hidden');
+}
+
+function onboardingTourNext(step) {
+  document.getElementById('onboarding-tour-' + step).classList.add('hidden');
+  if (step < 3) {
+    document.getElementById('onboarding-tour-' + (step + 1)).classList.remove('hidden');
+  } else {
+    onboardingTourReveal();
+  }
+}
+
+async function onboardingTourReveal() {
+  document.getElementById('onboarding-tour-error').classList.add('hidden');
+  document.getElementById('onboarding-tour-reveal').classList.remove('hidden');
+  try {
+    const headers = await authHeader();
+    const r = await fetchWithTimeout(`${API}/onboarding/complete-tour`, { method: 'POST', headers });
+    if (!r.ok) throw new Error('complete_tour_failed');
+  } catch {
+    document.getElementById('onboarding-tour-reveal').classList.add('hidden');
+    document.getElementById('onboarding-tour-error').classList.remove('hidden');
+  }
+}
+
+function onboardingTourRetry() {
+  onboardingTourReveal();
+}
+
+function onboardingTourClose() {
+  onboardingClose();
 }
 
 let _trialInterval = null;
@@ -2146,8 +2288,97 @@ function switchNichesTab(tab) {
 function switchDetailTab(tab) {
   document.getElementById('nd-panel-grid').classList.toggle('hidden', tab !== 'grid');
   document.getElementById('nd-panel-table').classList.toggle('hidden', tab !== 'table');
+  document.getElementById('nd-panel-stats').classList.toggle('hidden', tab !== 'stats');
   document.getElementById('nd-tab-grid').classList.toggle('active', tab === 'grid');
   document.getElementById('nd-tab-table').classList.toggle('active', tab === 'table');
+  document.getElementById('nd-tab-stats').classList.toggle('active', tab === 'stats');
+  if (tab === 'stats') loadNicheStats();
+}
+
+async function loadNicheStats() {
+  document.getElementById('nd-stats-empty').classList.add('hidden');
+  document.getElementById('nd-stats-error').classList.add('hidden');
+  document.getElementById('nd-stats-content').classList.add('hidden');
+  if (!_currentNicheDetailId) return;
+  try {
+    const r = await fetchWithTimeout(`${API}/niches/${_currentNicheDetailId}/stats`, { headers: await authHeader() });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const s = await r.json();
+    if (!s.nb_items) {
+      document.getElementById('nd-stats-empty').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('nd-stats-content').classList.remove('hidden');
+    document.getElementById('ns-prix-moyen-vente').textContent = s.prix_moyen_vente != null ? s.prix_moyen_vente.toFixed(2) + '€' : '—';
+    document.getElementById('ns-pct-vente').textContent = s.pct_vente != null ? s.pct_vente + '%' : '—';
+    document.getElementById('ns-temps-vente').textContent = s.temps_vente_moyen_heures != null ? formatNicheStatsDuration(s.temps_vente_moyen_heures) : '—';
+    document.getElementById('ns-nb-items').textContent = s.nb_items;
+    document.getElementById('ns-ajouts-jour').textContent = s.ajouts_par_jour != null ? s.ajouts_par_jour : '—';
+    document.getElementById('ns-nb-vendus').textContent = s.nb_vendus;
+    document.getElementById('ns-ventes-jour').textContent = s.ventes_par_jour != null ? s.ventes_par_jour : '—';
+
+    const qContent = document.getElementById('ns-quartiles-content');
+    const qEmpty = document.getElementById('ns-quartiles-empty');
+    if (s.quartiles) {
+      qEmpty.classList.add('hidden');
+      qContent.classList.remove('hidden');
+      qContent.innerHTML = `
+        <p>1 vente sur 4 à moins de <strong style="color:var(--pri);">${s.quartiles.p25.toFixed(2)}€</strong> — il faut viser l'achat à ce prix.</p>
+        <p>La moitié des ventes se situe autour de <strong style="color:var(--pri);">${s.quartiles.p50.toFixed(2)}€</strong>.</p>
+        <p>1 vente sur 4 à plus de <strong style="color:var(--pri);">${s.quartiles.p75.toFixed(2)}€</strong> — il faut viser la revente à ce prix.</p>
+      `;
+    } else {
+      qContent.classList.add('hidden');
+      qContent.innerHTML = '';
+      qEmpty.classList.remove('hidden');
+    }
+
+    const chartWrap = document.getElementById('ns-chart-wrap');
+    const chartEmpty = document.getElementById('ns-chart-empty');
+    if (s.prix_ventes && s.prix_ventes.length) {
+      chartEmpty.classList.add('hidden');
+      chartWrap.classList.remove('hidden');
+      chartWrap.innerHTML = renderNicheStatsChart(s.prix_ventes);
+    } else {
+      chartWrap.classList.add('hidden');
+      chartWrap.innerHTML = '';
+      chartEmpty.classList.remove('hidden');
+    }
+  } catch {
+    document.getElementById('nd-stats-error').classList.remove('hidden');
+  }
+}
+
+function formatNicheStatsDuration(hours) {
+  if (hours < 24) return hours.toFixed(1) + 'h';
+  return (hours / 24).toFixed(1) + 'j';
+}
+
+function renderNicheStatsChart(prices) {
+  const BUCKETS = 8;
+  const min = prices[0], max = prices[prices.length - 1];
+  const range = Math.max(max - min, 1);
+  const bucketSize = range / BUCKETS;
+  const counts = new Array(BUCKETS).fill(0);
+  prices.forEach(p => {
+    let idx = Math.floor((p - min) / bucketSize);
+    if (idx >= BUCKETS) idx = BUCKETS - 1;
+    counts[idx]++;
+  });
+  const maxCount = Math.max(...counts, 1);
+  const W = 560, H = 140, barW = W / BUCKETS;
+  const bars = counts.map((c, i) => {
+    const h = (c / maxCount) * (H - 24);
+    const x = i * barW + 4;
+    const y = H - 20 - h;
+    return `<rect x="${x}" y="${y}" width="${barW - 8}" height="${h}" rx="3" style="fill:var(--pri);opacity:0.85;"></rect>`;
+  }).join('');
+  const labels = counts.map((c, i) => {
+    const x = i * barW + barW / 2;
+    const priceLabel = (min + i * bucketSize).toFixed(0);
+    return `<text x="${x}" y="${H - 4}" font-size="10" text-anchor="middle" style="fill:var(--muted);">${priceLabel}€</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:140px;">${bars}${labels}</svg>`;
 }
 
 const VINTED_CATALOGS = {
@@ -2443,7 +2674,10 @@ function sortNiches(col) {
 
 function filterNicheTable() { renderNichesTable(); }
 
+let _currentNicheDetailId = null;
+
 async function openNicheDetail(n) {
+  _currentNicheDetailId = n.id;
   showPage('niche-detail');
   switchDetailTab('grid');
 

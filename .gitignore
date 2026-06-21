@@ -3,4 +3,6 @@
 node_modules/
 graphify-out/
 send_reengagement.py
+send_payment_followup.py
 package-lock.json
+__pycache__/
