@@ -883,7 +883,11 @@
       </button>
       <div class="flex items-start justify-between gap-4 mb-4">
         <div>
-          <h2 id="niche-detail-title" class="text-xl font-bold"></h2>
+          <div class="flex items-center gap-2">
+            <h2 id="niche-detail-title" class="text-xl font-bold"></h2>
+            <span id="niche-detail-status-badge" class="text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap"></span>
+          </div>
+          <p id="niche-detail-meta" class="text-xs mt-1" style="color:var(--muted);"></p>
           <div id="niche-detail-tags" class="flex flex-wrap gap-1.5 mt-2"></div>
         </div>
         <a id="niche-detail-vinted-link" href="#" target="_blank" rel="noopener"
@@ -2701,6 +2705,14 @@ function filterNicheTable() { renderNichesTable(); }
 
 let _currentNicheDetailId = null;
 
+const NICHE_SCAN_LIMITS = { starter: 1000, pro: 3000, expert: 5000 };
+
+function formatNicheDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return isNaN(d) ? null : d.toLocaleDateString('fr-FR');
+}
+
 async function openNicheDetail(n) {
   _currentNicheDetailId = n.id;
   showPage('niche-detail');
@@ -2717,6 +2729,28 @@ async function openNicheDetail(n) {
     n.prix_min ? `<span class="tag">≥ ${n.prix_min}€</span>` : '',
   ].filter(Boolean).join('') || `<span class="tag">Toutes annonces</span>`;
   document.getElementById('niche-detail-tags').innerHTML = tags;
+
+  // Created date + scan-limit status badge
+  const scanLimit = NICHE_SCAN_LIMITS[_userPlan] || null;
+  const nbItems = n.nb_items || 0;
+  const isDone = scanLimit != null && nbItems >= scanLimit;
+  const badge = document.getElementById('niche-detail-status-badge');
+  if (isDone) {
+    badge.textContent = 'Terminé';
+    badge.style.background = 'var(--hi)';
+    badge.style.color = 'var(--muted)';
+  } else {
+    badge.textContent = 'En cours';
+    badge.style.background = '#22c55e22';
+    badge.style.color = '#16a34a';
+  }
+  const createdLabel = formatNicheDate(n.created_le);
+  const metaParts = [];
+  if (createdLabel) metaParts.push(`Créé le ${createdLabel}`);
+  if (scanLimit != null) {
+    metaParts.push(isDone ? `Limite de scan atteinte (${scanLimit} annonces)` : `${nbItems} / ${scanLimit} annonces scannées`);
+  }
+  document.getElementById('niche-detail-meta').textContent = metaParts.join(' · ');
 
   // Stats reset — will be computed from items after load
   ['nd-nb','nd-pmoy','nd-range','nd-fav'].forEach(id => document.getElementById(id).textContent = '—');
