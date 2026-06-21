@@ -187,6 +187,7 @@
   /* tabs */
   .tab-btn { padding:8px 16px; font-size:.875rem; font-weight:600; border-bottom:2px solid transparent; color:var(--muted); transition:all .15s; }
   .tab-btn.active { border-color:var(--pri); color:var(--pri); }
+  .tab-btn-sm { padding:6px 10px; font-size:.78rem; }
 
   /* tag */
   .tag { font-size:11px; padding:3px 10px; border-radius:99px; background:var(--hi); color:#9a3412; font-weight:500; }
@@ -913,9 +914,9 @@
 
       <!-- Tabs -->
       <div class="flex gap-0" style="border-bottom:1px solid var(--border);">
-        <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn">Statistiques</button>
-        <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn active">Annonces</button>
-        <button id="nd-tab-table" onclick="switchDetailTab('table')" class="tab-btn">Tableau</button>
+        <button id="nd-tab-stats" onclick="switchDetailTab('stats')" class="tab-btn tab-btn-sm">Statistiques</button>
+        <button id="nd-tab-grid" onclick="switchDetailTab('grid')" class="tab-btn tab-btn-sm active">Annonces</button>
+        <button id="nd-tab-table" onclick="switchDetailTab('table')" class="tab-btn tab-btn-sm">Tableau</button>
       </div>
     </div>
 
@@ -2355,7 +2356,7 @@ function formatNicheStatsDuration(hours) {
 }
 
 function renderNicheStatsChart(prices) {
-  const BUCKETS = 8;
+  const BUCKETS = 9;
   const min = prices[0], max = prices[prices.length - 1];
   const range = Math.max(max - min, 1);
   const bucketSize = range / BUCKETS;
@@ -2366,19 +2367,24 @@ function renderNicheStatsChart(prices) {
     counts[idx]++;
   });
   const maxCount = Math.max(...counts, 1);
-  const W = 560, H = 140, barW = W / BUCKETS;
-  const bars = counts.map((c, i) => {
-    const h = (c / maxCount) * (H - 24);
-    const x = i * barW + 4;
-    const y = H - 20 - h;
-    return `<rect x="${x}" y="${y}" width="${barW - 8}" height="${h}" rx="3" style="fill:var(--pri);opacity:0.85;"></rect>`;
-  }).join('');
+  const W = 560, H = 160, padTop = 14, padBottom = 24, plotH = H - padTop - padBottom;
+  const stepX = W / (BUCKETS - 1 || 1);
+  const points = counts.map((c, i) => ({
+    x: i * stepX,
+    y: padTop + plotH - (c / maxCount) * plotH,
+  }));
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const areaPath = `${linePath} L${points[points.length - 1].x.toFixed(1)},${H - padBottom} L${points[0].x.toFixed(1)},${H - padBottom} Z`;
+  const dots = points.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" style="fill:var(--pri);"></circle>`).join('');
   const labels = counts.map((c, i) => {
-    const x = i * barW + barW / 2;
     const priceLabel = (min + i * bucketSize).toFixed(0);
-    return `<text x="${x}" y="${H - 4}" font-size="10" text-anchor="middle" style="fill:var(--muted);">${priceLabel}€</text>`;
+    return `<text x="${points[i].x.toFixed(1)}" y="${H - 6}" font-size="10" text-anchor="middle" style="fill:var(--muted);">${priceLabel}€</text>`;
   }).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:140px;">${bars}${labels}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:160px;">
+    <path d="${areaPath}" style="fill:var(--pri);opacity:0.12;stroke:none;"></path>
+    <path d="${linePath}" style="fill:none;stroke:var(--pri);stroke-width:2;"></path>
+    ${dots}${labels}
+  </svg>`;
 }
 
 const VINTED_CATALOGS = {
