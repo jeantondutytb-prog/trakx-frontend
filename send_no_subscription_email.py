@@ -2,16 +2,22 @@
 Email de relance pour les comptes créés mais jamais abonnés.
 
 Cible : tous les comptes Supabase confirmés qui n'ont AUCUN abonnement Stripe
-actif/en cours d'essai (table `subscriptions`, status != 'active' et != 'trialing').
+actif/en cours d'essai. La table `subscriptions` vit dans la Postgres du
+backend (DATABASE_URL, hébergée sur Render) — pas dans Supabase (qui ne sert
+qu'à l'auth) — donc on s'y connecte directement avec pg8000, comme le fait
+database.py côté backend.
 
 Pousse directement vers l'abonnement payant, sans offre ni essai gratuit.
 
 Usage:
-    pip install httpx
-    SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx python send_no_subscription_email.py
+    pip install httpx pg8000
+    SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx DATABASE_URL=postgresql://... python3 send_no_subscription_email.py
 
     # Mode test (envoie uniquement à TOI) :
-    SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx python send_no_subscription_email.py --test
+    SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx python3 send_no_subscription_email.py --test
+
+DATABASE_URL = la même chaîne de connexion que celle configurée sur le
+service backend Render (Render → service → Environment → DATABASE_URL).
 """
 
 import os, sys, time, httpx
@@ -19,13 +25,14 @@ import os, sys, time, httpx
 SUPABASE_URL = "https://apwedqsklyzroeyrokqb.supabase.co"
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 RESEND_KEY   = os.environ.get("RESEND_API_KEY", "")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 FROM_EMAIL   = "Jean de Trakx <jean@trakx.fr>"
 TEST_EMAIL   = "jeantondut@gmail.com"
 TEST_MODE    = "--test" in sys.argv
 
-if not SUPABASE_KEY or not RESEND_KEY:
+if not SUPABASE_KEY or not RESEND_KEY or (not TEST_MODE and not DATABASE_URL):
     print("❌ Variables manquantes. Lance avec:")
-    print("   SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx python send_no_subscription_email.py")
+    print("   SUPABASE_SERVICE_ROLE_KEY=xxx RESEND_API_KEY=re_xxx DATABASE_URL=postgresql://... python3 send_no_subscription_email.py")
     sys.exit(1)
 
 
@@ -48,20 +55,29 @@ def get_all_users():
 
 
 def get_ever_subscribed_emails() -> set[str]:
-    """Emails ayant actuellement (ou déjà eu) un abonnement actif ou un essai en cours,
-    via la table `subscriptions` (PostgREST, contourne RLS avec la service role key)."""
-    headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
-    r = httpx.get(
-        f"{SUPABASE_URL}/rest/v1/subscriptions?select=user_email,status",
-        headers=headers, timeout=30
+    """Emails ayant un abonnement actif ou un essai en cours, via la
+    Postgres du backend (table `subscriptions`, status 'active' ou 'trial')."""
+    import pg8000.native
+
+    url = DATABASE_URL.replace("postgresql://", "").replace("postgres://", "")
+    user_pass, rest = url.split("@", 1)
+    user, password = user_pass.split(":", 1)
+    host_db = rest.split("/", 1)
+    host_port = host_db[0]
+    db = host_db[1].split("?")[0]
+    port = 5432
+    if ":" in host_port:
+        host, port = host_port.split(":", 1)
+        port = int(port)
+    else:
+        host = host_port
+
+    conn = pg8000.native.Connection(
+        user=user, password=password, host=host,
+        port=port, database=db, ssl_context=True
     )
-    r.raise_for_status()
-    rows = r.json()
-    return {
-        row["user_email"].strip().lower()
-        for row in rows
-        if row.get("status") in ("active", "trialing") and row.get("user_email")
-    }
+    rows = conn.run("SELECT user_email, status FROM subscriptions WHERE status IN ('active', 'trial')")
+    return {row[0].strip().lower() for row in rows if row[0]}
 
 
 def extract_name(user: dict) -> str:
@@ -172,7 +188,7 @@ def main():
 
     print("📥 Récupération des utilisateurs Supabase…")
     users = get_all_users()
-    print("📥 Récupération des abonnements Stripe…")
+    print("📥 Récupération des abonnements (Postgres backend)…")
     subscribed_emails = get_ever_subscribed_emails()
 
     confirmed = [u for u in users if u.get("email") and u.get("email_confirmed_at")]
