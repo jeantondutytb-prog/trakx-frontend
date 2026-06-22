@@ -993,7 +993,8 @@
       <div class="vs-card rounded-2xl p-6 flex flex-col">
         <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color:var(--muted);">Starter</p>
         <p class="text-xs mb-4" style="color:var(--muted);">Parfait pour débuter en revente</p>
-        <div class="flex items-end gap-1 mb-1">
+        <div class="flex items-end gap-2 mb-1">
+          <span class="text-lg font-semibold" style="color:var(--muted);text-decoration:line-through;">11,90€</span>
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">9,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
@@ -1018,7 +1019,8 @@
           <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#F97316;color:#fff;">Le plus choisi</span>
         </div>
         <p class="text-xs mb-4" style="color:#92400e;">Pour les revendeurs sérieux</p>
-        <div class="flex items-end gap-1 mb-1">
+        <div class="flex items-end gap-2 mb-1">
+          <span class="text-lg font-semibold" style="color:#92400e;text-decoration:line-through;">24,90€</span>
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">19,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
@@ -1040,7 +1042,8 @@
       <div class="vs-card rounded-2xl p-6 flex flex-col" style="border:2px solid var(--ink);">
         <p class="text-xs font-bold uppercase tracking-widest mb-1">Expert</p>
         <p class="text-xs mb-4" style="color:var(--muted);">Pour les professionnels de la revente</p>
-        <div class="flex items-end gap-1 mb-1">
+        <div class="flex items-end gap-2 mb-1">
+          <span class="text-lg font-semibold" style="color:var(--muted);text-decoration:line-through;">49,90€</span>
           <span class="text-4xl font-bold" style="font-family:'Space Grotesk',sans-serif;">39,90€</span>
           <span class="text-sm mb-1" style="color:var(--muted);">/mois</span>
         </div>
@@ -1235,6 +1238,7 @@ if ('serviceWorker' in navigator) {
 }
 let allData = [], allMarques = [], feedSelectedMarques = new Set(), fmsOpen = false;
 let _currentUserEmail = null, _userPlan = 'free', _userSubscribed = false;
+const _promoCode = new URLSearchParams(location.search).get('promo') || null;
 
 function trackEvent(name, params = {}) {
   try { gtag('event', name, params); } catch {}
@@ -1422,7 +1426,7 @@ async function showApp() {
 function _continueAppAfterOnboarding() {
   if (!_appInitialized) {
     _appInitialized = true;
-    showPage('feed');
+    showPage(_promoCode ? 'subscription' : 'feed');
     loadData();
     loadWatchedIds();
     // Keep API warm — ping every 14 min to avoid Render cold starts
@@ -1885,13 +1889,16 @@ async function loadSettings() {
 function showSubscriptionPage() {
   const cfg = _siteConfig || {};
   const email = _currentUserEmail || '';
-  const emailParam = email ? `?prefilled_email=${encodeURIComponent(email)}` : '';
+  const params = new URLSearchParams();
+  if (email) params.set('prefilled_email', email);
+  if (_promoCode) params.set('prefilled_promo_code', _promoCode);
+  const linkParams = params.toString() ? `?${params.toString()}` : '';
 
   // Payment links — use the 3 production links
   const links = {
-    starter: (cfg.stripe_url_starter || 'https://buy.stripe.com/4gM5kCfW0abW1RGbuuc7u01') + emailParam,
-    pro:     (cfg.stripe_url_pro     || 'https://buy.stripe.com/7sY8wO9xCdo867W2XYc7u02') + emailParam,
-    expert:  (cfg.stripe_url_expert  || 'https://buy.stripe.com/4gM8wO39eabWbsgbuuc7u03') + emailParam,
+    starter: (cfg.stripe_url_starter || 'https://buy.stripe.com/4gM5kCfW0abW1RGbuuc7u01') + linkParams,
+    pro:     (cfg.stripe_url_pro     || 'https://buy.stripe.com/7sY8wO9xCdo867W2XYc7u02') + linkParams,
+    expert:  (cfg.stripe_url_expert  || 'https://buy.stripe.com/4gM8wO39eabWbsgbuuc7u03') + linkParams,
   };
 
   const starterBtn = document.getElementById('sub-starter-btn');
